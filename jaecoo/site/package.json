@@ -1,0 +1,16 @@
+{
+  "name": "jeplay-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild assets/install.js --bundle --format=esm --outfile=assets/install.bundle.js --platform=browser --target=es2022"
+  },
+  "dependencies": {
+    "@yume-chan/adb": "1.1.0",
+    "@yume-chan/adb-credential-web": "1.1.0",
+    "@yume-chan/adb-daemon-webusb": "1.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

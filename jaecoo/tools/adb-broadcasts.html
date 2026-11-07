@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jaecoo ADB — broadcasts / DriveLabs</title>
+  <style>
+    :root {
+      --bg: #12141a;
+      --panel: #1b1f2a;
+      --text: #e8eaf0;
+      --muted: #9aa3b5;
+      --accent: #5b8def;
+      --ok: #3ecf8e;
+      --err: #ff6b6b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header, main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    h1 { font-size: 1.25rem; margin: 0 0 6px; }
+    p { color: var(--muted); margin: 0 0 16px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    button, select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid #2c3344;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    #status { min-height: 1.4em; color: var(--muted); }
+    #status.ok { color: var(--ok); }
+    #status.err { color: var(--err); }
+    pre {
+      background: #0d0f14;
+      border: 1px solid #2c3344;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      max-height: 70vh;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    code { font-family: var(--mono); color: #c9d4ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ADB из Chrome → broadcast’ы / DriveLabs</h1>
+    <p>
+      WebUSB + WebADB. Нужен Chrome, USB debugging на ГУ, и страница с
+      <code>http://localhost</code> (не <code>file://</code>).
+      Живой subscribe на все Intent’ы через ADB нельзя — смотрим историю dumpsys и logcat.
+    </p>
+  </header>
+  <main>
+    <div class="row">
+      <button class="primary" id="connect">Подключить ADB</button>
+      <button id="disconnect" disabled>Отключить</button>
+      <select id="preset" disabled>
+        <option value="broadcasts">dumpsys activity broadcasts (фильтр)</option>
+        <option value="providers">dumpsys package providers (drivelabs)</option>
+        <option value="packages">pm list packages (drive/navi/yandex)</option>
+        <option value="logcat">logcat -d (drivelabs / navi_started)</option>
+        <option value="watch">watch logcat 20 с (live-ish)</option>
+        <option value="receivers">query-receivers navi_started</option>
+      </select>
+      <button id="run" disabled>Выполнить</button>
+      <button id="clear">Очистить</button>
+    </div>
+    <div id="status">Не подключено</div>
+    <pre id="out">Готово.</pre>
+  </main>
+
+  <script type="module">
+    import { Adb, AdbDaemonTransport } from "https://esm.sh/@yume-chan/adb@1.1.0";
+    import { AdbDaemonWebUsbDeviceManager } from "https://esm.sh/@yume-chan/adb-daemon-webusb@1.1.0";
+    import AdbWebCredentialStore from "https://esm.sh/@yume-chan/adb-credential-web@1.1.0";
+
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $("status");
+    const outEl = $("out");
+    const connectBtn = $("connect");
+    const disconnectBtn = $("disconnect");
+    const runBtn = $("run");
+    const presetEl = $("preset");
+
+    let adb = null;
+    let connection = null;
+
+    const FILTER = "drivelabs|navi_started|navi_force_closed|yandex\\.auto\\.navi|show_cluster|hide_cluster|speedprovider";
+
+    const PRESETS = {
+      broadcasts: `dumpsys activity broadcasts 2>/dev/null | grep -iE -A3 -B1 '${FILTER}' || echo '(нет совпадений в dumpsys broadcasts)'`,
+      providers: `dumpsys package providers 2>/dev/null | grep -iE -A8 -B2 'pro\\.drivelabs|yandex\\.auto\\.navi|speedprovider' || echo '(нет совпадений)'`,
+      packages: `pm list packages -f 2>/dev/null | grep -iE 'drive|navi|yandex|jaecoo|chery|exeed' || echo '(нет совпадений)'`,
+      logcat: `logcat -d -v time 2>/dev/null | grep -iE '${FILTER}' | tail -n 200 || echo '(пусто в logcat буфере)'`,
+      watch: `timeout 20 logcat -v time 2>/dev/null | grep -iE --line-buffered '${FILTER}' || true`,
+      receivers: `cmd package query-receivers --brief -a pro.drivelabs.navi_started 2>/dev/null; cmd package query-receivers --brief -a pro.drivelabs.navi_force_closed 2>/dev/null; dumpsys package 2>/dev/null | grep -iE -A2 'pro\\.drivelabs\\.navi_' | head -n 80`,
+    };
+
+    function setStatus(text, kind = "") {
+      statusEl.textContent = text;
+      statusEl.className = kind;
+    }
+
+    function append(text) {
+      outEl.textContent += text;
+      outEl.scrollTop = outEl.scrollHeight;
+    }
+
+    function setConnected(on) {
+      connectBtn.disabled = on;
+      disconnectBtn.disabled = !on;
+      runBtn.disabled = !on;
+      presetEl.disabled = !on;
+    }
+
+    async function shell(command) {
+      // Prefer text helper when present; fall back to spawn + decode.
+      if (adb.subprocess.spawnWaitText) {
+        return await adb.subprocess.spawnWaitText(command);
+      }
+      const process = await adb.subprocess.spawn(command);
+      const chunks = [];
+      const reader = process.stdout.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        chunks.push(decoder.decode(value, { stream: true }));
+      }
+      chunks.push(decoder.decode());
+      try { await process.exit; } catch (_) {}
+      return chunks.join("");
+    }
+
+    connectBtn.onclick = async () => {
+      try {
+        const Manager = AdbDaemonWebUsbDeviceManager.BROWSER;
+        if (!Manager) {
+          setStatus("WebUSB недоступен. Откройте в Chrome по http://localhost", "err");
+          return;
+        }
+        setStatus("Выберите устройство…");
+        const device = await Manager.requestDevice();
+        if (!device) {
+          setStatus("Устройство не выбрано", "err");
+          return;
+        }
+        setStatus("Подключение… подтвердите RSA на экране авто, если спросит");
+        connection = await device.connect();
+        const credentialStore = new AdbWebCredentialStore("diplay-jaecoo");
+        adb = new Adb(
+          await AdbDaemonTransport.authenticate({
+            serial: device.serial,
+            connection,
+            credentialStore,
+          }),
+        );
+        setConnected(true);
+        setStatus(`Подключено: ${device.serial}`, "ok");
+        outEl.textContent = "";
+        append(`# serial ${device.serial}\n# banner ${adb.banner?.product || ""}\n\n`);
+      } catch (error) {
+        setStatus(String(error?.message || error), "err");
+        console.error(error);
+      }
+    };
+
+    disconnectBtn.onclick = async () => {
+      try {
+        await adb?.close?.();
+      } catch (_) {}
+      try {
+        await connection?.close?.();
+      } catch (_) {}
+      adb = null;
+      connection = null;
+      setConnected(false);
+      setStatus("Отключено");
+    };
+
+    runBtn.onclick = async () => {
+      if (!adb) return;
+      const key = presetEl.value;
+      const command = PRESETS[key];
+      runBtn.disabled = true;
+      setStatus(`Выполняю: ${key}…`);
+      append(`\n$ ${command}\n\n`);
+      try {
+        const text = await shell(command);
+        append(text || "(пустой вывод)\n");
+        setStatus("Готово", "ok");
+      } catch (error) {
+        append(`ERROR: ${error?.message || error}\n`);
+        setStatus(String(error?.message || error), "err");
+        console.error(error);
+      } finally {
+        runBtn.disabled = false;
+      }
+    };
+
+    $("clear").onclick = () => {
+      outEl.textContent = "";
+    };
+
+    if (!window.isSecureContext) {
+      setStatus("Нужен secure context: откройте через http://localhost (см. README рядом)", "err");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JePlay — CarPlay для Jaecoo</title>
+  <meta name="description" content="JePlay выводит проводной и беспроводной CarPlay на головное устройство Jaecoo: карта, музыка, звонки и стрелки на HUD." />
+  <meta name="theme-color" content="#081018" />
+  <link rel="stylesheet" href="assets/site.css" />
+  <script src="assets/metrika.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Главное меню">
+      <a class="brand" href="index.html">
+        <img class="brand-icon" src="assets/icon.png" width="40" height="40" alt="" />
+        <strong>JePlay</strong>
+        <span>для Jaecoo</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" aria-current="page">О проекте</a>
+        <a href="install.html">Установка</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <h1>JePlay<em>.</em> CarPlay в вашем Jaecoo</h1>
+      <p class="lede">
+        Карты, музыка и звонки с iPhone на экране автомобиля — беспроводной CarPlay
+        для совместимых ГУ Jaecoo, со стрелками на&nbsp;HUD.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="install.html">Установить через браузер</a>
+      </div>
+    </header>
+
+    <section class="section" id="features">
+      <h2>Возможности</h2>
+      <p class="sub">Один экран автомобиля — привычный CarPlay с вашего iPhone, плюс привязка к штатной приборке Jaecoo.</p>
+      <ul class="feature-list">
+        <li>
+          <strong>Беспроводной CarPlay</strong>
+          <p>
+            Подключение через встроенный в авто механизм, без дополнительных приборов, USB-модемов и прочего.
+          </p>
+        </li>
+        <li>
+          <strong>Стрелки на HUD</strong>
+          <p>Манёвры навигатора из CarPlay выводятся на приборную панель, прямо как  в штатном навигаторе Jaecoo J8.</p>
+        </li>
+        <li>
+          <strong>Карта на приборке</strong>
+          <p>Карта специально масштабируется под приборку - никакого мелкого шрифта, а положение курсора сдвинуто влево, чтоб системные подсказки не перекрывали дорогу. Но если не нравится, масштаб и положение настраиваются.</p>
+        </li>
+        <li>
+          <strong>Текущий трек</strong>
+          <p>Текущий трек из CarPlay отображается на приборке вместе с обложкой альбома.</p>
+        </li>
+        <li>
+          <strong>Навигатор в подголовнике</strong>
+          <p>Голосовые подсказки навигатора из CarPlay выводятся только в динамики в подголовнике кресла водителя.</p>
+        </li>
+        <li>
+          <strong>Обновления по воздуху</strong>
+          <p>Приложение само проверяет наличие свежих версий на сайте и скачивает обновления.</p>
+        </li>
+        <li>
+          <strong>Установка из Chrome</strong>
+          <p>Страница «Установить» подключает ГУ по WebUSB/ADB, ставит пакет и выдаёт разрешения, применяет все нужные настройки.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section faq" id="faq">
+      <h2>Частые вопросы</h2>
+      <p class="sub">Про установку и использование JePlay.</p>
+
+      <details>
+        <summary>Что нужно для установки?</summary>
+        <ul class="need-icons" aria-label="Что нужно для установки">
+          <li>
+            <img class="need-icon" src="assets/icons/usb-flash.svg" alt="" width="72" height="72" />
+            <span class="need-label">USB-флешка<br />и файл-флаг</span>
+          </li>
+          <li>
+            <img class="need-icon" src="assets/icons/usb-cable-aa.svg" alt="" width="90" height="72" />
+            <span class="need-label">Кабель<br />USB-A ↔ USB-A</span>
+          </li>
+          <li>
+            <img class="need-icon need-icon-tall" src="assets/icons/chrome-devices.svg" alt="" width="72" height="96" />
+            <span class="need-label">Chrome на ноутбуке<br />или Android</span>
+          </li>
+        </ul>
+        <p>
+          Ноутбук (или Android-телефон с OTG), браузер Chrome, кабель USB-A ↔ USB-A и флешка
+          с файлом-флагом для включения ADB. Подробности — на странице
+          <a href="install.html">Установить</a>.
+        </p>
+      </details>
+      <details>
+        <summary>Это прошивка ГУ?</summary>
+        <p>
+          Нет. JePlay устанавливается как обычное Android-приложение. Системный раздел автомобиля не
+          перепрошивается — используется штатный ADB и разрешения ОС.
+        </p>
+      </details>
+      <details>
+        <summary>На какие машины это рассчитано?</summary>
+        <p>
+          Основной фокус — Jaecoo J8, Jaecoo J7. На других моделях концерна CHERY поведение
+          может отличаться; HUD-стрелки завязаны на конкретный сервис автомобиля.
+        </p>
+      </details>
+      <details>
+        <summary>Как обновляться?</summary>
+        <p>
+          В приложении: Настройки → О программе → проверка обновлений (сайт jeplay.ru).
+          Или снова откройте <a href="install.html">страницу установки</a> — она подтянет
+          последнюю версию и поставит поверх.
+        </p>
+      </details>
+      <details>
+        <summary>Нужен ли интернет на ГУ?</summary>
+        <p>
+          Для установки через сайт интернет нужен на ноутбуке, не на головном устройстве.
+        </p>
+        <p>
+          Для обновления можно использовать тот же ноутбук, либо подключить головное устройство к интернету и скачать свежую версию.
+        </p>
+      </details>
+      <details>
+        <summary>Как подключить мой телефон к CarPlay</summary>
+        <p>
+          Если телефон уже подключен и привязан к системному CarPlay, отвяжите его в настройках головного устройства, удалите в списке известных Bluetooth устройств. После чего заново создайте пару, но на предложение использовать CarPlay откажитесь.
+        </p>
+        <p>
+          После этого можно заходить в JePlay, выбирать телефон в списке доступных Bluetooth устройств, и приложение подключится к нему.
+        </p>
+      </details>
+    </section>
+
+    <section class="credit" id="credit">
+      <p>
+        <strong>JePlay основан на открытом проекте DiPlay</strong>
+        (CarPlay-клиент для Android-ГУ, GPL-3.0 / AGPL-3.0 для интерфейсной части).
+      </p>
+      <p>
+        Исходники DiPlay:
+        <a href="https://github.com/shihabal3amri/DiPlay" rel="noopener" target="_blank">github.com/shihabal3amri/DiPlay</a>
+      </p>
+    </section>
+
+    <section class="section" id="support">
+      <h2>Поддержать автора</h2>
+      <p class="sub">
+        Если вам нравится приложение, и вы хотите поблагодарить автора, можете угостить его кофе.
+      </p>
+      <form method="post" action="https://yoomoney.ru/to/4100118846441468/" onsubmit="var a=document.getElementById('amount');if(!a.checkValidity()||Number(a.value)&lt;=2){a.reportValidity();return false;}window.location.href=this.action+a.value;return false;">
+        <input type="number" id="amount" name="sum" min="3" step="1" required inputmode="numeric" style="max-height: 360px;
+    color: rgb(183, 199, 216);
+        font: 400 16px / 1.1 var(--display);
+        font-weight: 800;
+    word-break: break-word;
+    margin: 16px 0px 0px;
+    padding: 14px;
+    overflow: auto;
+    background: rgb(6, 11, 18);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    white-space: pre-wrap;" placeholder="Своя сумма…" >
+        <input type="submit" class="btn btn-secondary" value="Отправить" />
+      </form>
+      <div class="actions" style="margin-top: 18px">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=500;return false;">500 ₽</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=700;return false;">700 ₽</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=1000;return false;">1&nbsp;000 ₽</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=1500;return false;">1&nbsp;500 ₽</button>
+      </div>
+    </section>
+
+    <footer>
+      <span>JePlay · CarPlay для Jaecoo · jeplay.ru</span>
+      <span>
+        <a href="install.html">Установка</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>

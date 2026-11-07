@@ -1,0 +1,14 @@
+localinstall.apk
+================
+
+Tiny PackageInstaller.Session helper used to install APKs on Chery / Jaecoo /
+DesaySV head units where `pm install` fails with:
+
+  java.lang.SecurityException: Restriction prevents installing
+
+Source and prebuilt helper:
+  https://github.com/EvilBorsch/chery-adb-app-install
+  (helper/LocalInstall.java, src-tauri/resources/localinstall.apk)
+
+Run on device as:
+  CLASSPATH=/data/local/tmp/….apk /system/bin/app_process /system/bin LocalInstall <apk> [timeout]

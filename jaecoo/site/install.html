@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Установить JePlay</title>
+  <meta name="description" content="Установка JePlay на Jaecoo через Chrome: флешка с флагом ADB, пароль ENCRYPTION, Connect и Install по WebUSB." />
+  <meta name="theme-color" content="#081018" />
+  <link rel="stylesheet" href="assets/site.css" />
+  <script src="assets/metrika.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Главное меню">
+      <a class="brand" href="index.html">
+        <img class="brand-icon" src="assets/icon.png" width="40" height="40" alt="" />
+        <strong>JePlay</strong>
+        <span>установка</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">О проекте</a>
+        <a href="install.html" aria-current="page">Установить</a>
+      </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom: 28px">
+      <h1>Установка из Chrome</h1>
+      <p class="lede">
+        Включите ADB на ГУ, подключите ноутбук кабелем USB-A ↔ USB-A, нажмите Connect —
+        Chrome откроет выбор устройства. После связи кнопка станет «Установить».
+      </p>
+    </header>
+
+    <div class="install-layout">
+      <div>
+        <section class="panel">
+          <h2>1. Подготовка</h2>
+          <p class="needs-lead">Что нужно для установки:</p>
+          <ul class="need-icons" aria-label="Что нужно для установки">
+            <li>
+              <img class="need-icon" src="assets/icons/usb-flash.svg" alt="" width="72" height="72" />
+              <span class="need-label">USB-флешка<br />и файл-флаг</span>
+            </li>
+            <li>
+              <img class="need-icon" src="assets/icons/usb-cable-aa.svg" alt="" width="90" height="72" />
+              <span class="need-label">Кабель<br />USB-A ↔ USB-A</span>
+            </li>
+            <li>
+              <img class="need-icon need-icon-tall" src="assets/icons/chrome-devices.svg" alt="" width="72" height="96" />
+              <span class="need-label">Chrome на ноутбуке<br />или Android</span>
+            </li>
+          </ul>
+          <ul>
+            <li>Ноутбук с <strong>Google Chrome</strong> (WebUSB не работает в Safari / Firefox). Альтернатива — Android-телефон с OTG и Chrome.</li>
+            <li>Кабель <strong>USB Type-A ↔ USB Type-A</strong> (data, не только зарядка).</li>
+            <li>USB-флешка и файл-флаг для инженерного меню / ADB.</li>
+            <li>Страница должна открываться по <code>https://</code> или <code>http://localhost</code>, не через <code>file://</code>.</li>
+          </ul>
+          <p class="note-box">
+            Порт USB-C в машине часто только для зарядки — используйте USB-A, через который обычно
+            подключают телефон для Android Auto / CarPlay.
+          </p>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>2. Флешка с флагом</h2>
+          <ol>
+            <li>Скачайте файл
+              <a href="assets/svengmode.flag" download="svengmode.flag"><code>svengmode.flag</code></a>
+              и скопируйте его в корень флешки.</li>
+            <li>Вставьте флешку в USB-разъём автомобиля.</li>
+            <li>Откройте инженерное меню → <span class="steps-num">USB2.0</span> → нижняя кнопка
+              <span class="steps-num">DEVICE</span>.</li>
+            <li>ADB должен активироваться. Выньте флешку и подключите кабель к ноутбуку.</li>
+          </ol>
+          <p class="note-box">
+            Если кнопки DEVICE нет — включите ADB через меню ENCRYPTION (форма пароля ниже)
+            и переключатель ADB Switch → Open.
+          </p>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>3. Пароль ENCRYPTION</h2>
+          <p style="color: var(--muted); margin-top: 0">
+            Считайте на экране машины версию шифрования. В машину вводится <em>только</em> пароль
+            из формы — не productID и не VIN. Расчёт выполняется локально в браузере.
+          </p>
+
+          <div class="calc-tabs" role="tablist">
+            <button type="button" class="active" data-ver="1" aria-selected="true">Версия 1</button>
+            <button type="button" data-ver="2" aria-selected="false">Версия 2</button>
+          </div>
+
+          <div id="calc-v1">
+            <div class="field">
+              <label for="id-v1">Последние 6 или 7 цифр productID (нули сохраняйте)</label>
+              <input id="id-v1" inputmode="numeric" maxlength="7" placeholder="1234567" autocomplete="off" />
+            </div>
+          </div>
+
+          <div id="calc-v2" class="hidden">
+            <div class="field">
+              <label for="id-v2">productID (полный или последние 6 цифр)</label>
+              <input id="id-v2" inputmode="numeric" maxlength="20" placeholder="014154180004385" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="rand-v2">ranNum / RAND (4 цифры)</label>
+              <input id="rand-v2" inputmode="numeric" maxlength="4" placeholder="5941" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="password-out empty" id="password-out">Введите данные выше</div>
+          <p style="color: var(--muted); font-size: 0.85rem; margin: 10px 0 0">
+            Для ENCRYPTION 3 / 3.1 на части машин сначала откройте раздел Temperatura → Confirm
+            (переход на версию 2), затем снова ENCRYPTION. Либо используйте флешку с флагом.
+          </p>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>4. Подключение ноутбука</h2>
+          <ol>
+            <li>Кабель: один конец в USB-A автомобиля, другой — в ноутбук.</li>
+            <li>Нажмите <strong>Connect</strong> справа — выберите устройство в окне Chrome.</li>
+            <li>Если ГУ спросит RSA-ключ — подтвердите «Всегда разрешать».</li>
+            <li>Кнопка сменится на <strong>Установить</strong>: скачается последняя версия с сайта,
+              установится через ADB и выдадутся разрешения (в том числе установка обновлений из JePlay).</li>
+          </ol>
+        </section>
+      </div>
+
+      <aside class="install-console">
+        <div class="panel">
+           <div class="status-pill" id="status-pill">Не подключено</div>
+        <h2 style="margin-top: 0">Установка</h2>
+        <p style="color: var(--muted); margin-top: 0; font-size: 0.92rem">
+          Актуальная версия берётся из <code>version.txt</code>, APK —
+          из <code>download/JePlay-&lt;версия&gt;.apk</code>.
+        </p>
+
+        <div class="actions" style="margin-top: 18px">
+          <button type="button" class="btn btn-primary" id="action-btn">Connect</button>
+          <button type="button" class="btn btn-secondary" id="disconnect-btn" disabled>Отключить</button>
+        </div>
+
+        <div class="existing-panel" id="existing-panel" hidden>
+          <h3 style="margin: 0 0 8px">JePlay уже установлен</h3>
+          <p style="color: var(--muted); margin: 0 0 12px; font-size: 0.88rem">
+            На ГУ найдена версия <code id="existing-version">?</code>.
+            Можно удалить её и поставить заново или обновить поверх кнопкой выше.
+          </p>
+          <div class="actions" style="margin: 0">
+            <button type="button" class="btn btn-primary" id="reinstall-btn">Удалить и установить заново</button>
+          </div>
+        </div>
+
+        <div class="final-banner" id="final-banner" role="status"></div>
+
+        <div class="softap-panel" id="softap-panel" hidden>
+          <h3 style="margin: 0 0 8px">SoftAP машины</h3>
+          <p style="color: var(--muted); margin: 0 0 12px; font-size: 0.88rem">
+            Прочитано по ADB после установки и записано в JePlay. При первом запуске
+            приложение подхватит имя сети и пароль автоматически.
+          </p>
+          <div class="softap-row">
+            <span class="softap-label">Сеть</span>
+            <code id="softap-ssid"></code>
+            <button type="button" class="btn btn-secondary" id="copy-softap-ssid" style="min-height:36px;padding:8px 12px;font-size:0.8rem">Копировать</button>
+          </div>
+          <div class="softap-row">
+            <span class="softap-label">Пароль</span>
+            <code id="softap-pass"></code>
+            <button type="button" class="btn btn-secondary" id="copy-softap-pass" style="min-height:36px;padding:8px 12px;font-size:0.8rem">Копировать</button>
+          </div>
+        </div>
+
+        <pre id="log" aria-live="polite">Ожидание подключения…</pre>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+        <h2 style="margin-top: 0">Поддержать автора</h2>
+        <p style="color: var(--muted); margin-top: 0; font-size: 0.92rem">
+          Если вам нравится приложение, и вы хотите поблагодарить разработчика, можете угостить его кофе.
+        </p>
+        <form method="post" action="https://yoomoney.ru/to/4100118846441468/" onsubmit="var a=document.getElementById('amount');if(!a.checkValidity()||Number(a.value)&lt;=2){a.reportValidity();return false;}window.location.href=this.action+a.value;return false;">
+        <input type="number" id="amount" name="sum" min="3" step="1" required inputmode="numeric" style="max-height: 360px;
+    color: rgb(183, 199, 216);
+        font: 400 16px / 1.1 var(--display);
+        font-weight: 800;
+    word-break: break-word;
+    margin: 16px 0px 0px;
+    padding: 14px;
+    overflow: auto;
+    background: rgb(6, 11, 18);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    white-space: pre-wrap;" placeholder="Своя сумма…" >
+    <input type="submit" class="btn btn-secondary" value="Отправить" />
+    </form>
+        <div class="actions" style="margin-top: 18px">
+          <button type="button" class="btn btn-primary" id="action-btn" onclick="document.getElementById('amount').value=500;return false;">500 ₽</button>
+          <button type="button" class="btn btn-primary" id="action-btn" onclick="document.getElementById('amount').value=700;return false;">700 ₽</button>
+          <button type="button" class="btn btn-primary" id="action-btn" onclick="document.getElementById('amount').value=1000;return false;">1&nbsp;000 ₽</button>
+          <button type="button" class="btn btn-primary" id="action-btn" onclick="document.getElementById('amount').value=1500;return false;">1&nbsp;500 ₽</button>
+
+        </div>
+
+        
+        </div>
+
+      </div>
+       
+      </aside>
+         
+    </div>
+
+    </div>
+
+    <footer>
+      <span>Основано на <a href="https://github.com/shihabal3amri/DiPlay" rel="noopener" target="_blank">DiPlay</a></span>
+      <span>
+        <a href="index.html">На главную</a>
+      </span>
+    </footer>
+  </div>
+
+  <script type="module" src="assets/install.bundle.js"></script>
+</body>
+</html>
