@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JePlay — CarPlay for Jaecoo</title>
+  <meta name="description" content="JePlay brings wired and wireless CarPlay to the Jaecoo head unit: maps, music, calls, and turn arrows on the HUD." />
+  <meta name="theme-color" content="#081018" />
+  <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="alternate" hreflang="ru" href="https://jeplay.ru/" />
+  <link rel="alternate" hreflang="en" href="https://jeplay.ru/en/" />
+  <script src="../assets/metrika.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Main menu">
+      <a class="brand" href="index.html">
+        <img class="brand-icon" src="../assets/icon.png" width="40" height="40" alt="" />
+        <strong>JePlay</strong>
+        <span>for Jaecoo</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" aria-current="page">About</a>
+        <a href="install.html">Install</a>
+        <a href="#faq">FAQ</a>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn" aria-label="Language" aria-haspopup="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+          </button>
+          <div class="lang-menu" role="listbox" aria-label="Language">
+            <a href="../index.html" hreflang="ru" lang="ru">RU</a>
+            <a href="index.html" hreflang="en" lang="en" aria-current="true">EN</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <header class="hero hero--home">
+    <div class="hero-stage">
+      <div class="hero-copy">
+        <h1>JePlay<em>.</em> CarPlay in your Jaecoo</h1>
+        <p class="lede">
+          Maps, music, and calls from your iPhone on the car screen — wireless CarPlay
+          for compatible Jaecoo head units, with turn arrows on the&nbsp;HUD.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="install.html">Install via browser</a>
+        </div>
+      </div>
+      <figure class="hero-visual">
+        <img
+          src="../assets/hero-j8.jpg"
+          width="1024"
+          height="524"
+          alt="Jaecoo J8 cabin: CarPlay on the center screen, map on the cluster, and navigation arrows on the HUD"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </figure>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section class="section" id="features">
+      <h2>Features</h2>
+      <p class="sub">One car screen — familiar CarPlay from your iPhone, plus ties into the stock Jaecoo instrument cluster.</p>
+      <ul class="feature-list">
+        <li>
+          <strong>Wireless CarPlay</strong>
+          <p>
+            Connects through the car’s built-in mechanism — no extra gadgets, USB modems, or similar hardware.
+          </p>
+        </li>
+        <li>
+          <strong>HUD turn arrows</strong>
+          <p>Navigation manoeuvres from CarPlay appear on the instrument panel, just like the stock Jaecoo J8 navigator.</p>
+        </li>
+        <li>
+          <strong>Map on the cluster</strong>
+          <p>The map is scaled for the cluster — no tiny type, and the cursor is shifted left so system prompts don’t cover the road. Scale and position are adjustable if you prefer.</p>
+        </li>
+        <li>
+          <strong>Now playing</strong>
+          <p>The current CarPlay track is shown on the cluster together with album art.</p>
+        </li>
+        <li>
+          <strong>Nav audio in the headrest</strong>
+          <p>CarPlay navigation voice prompts play only through the driver’s headrest speakers.</p>
+        </li>
+        <li>
+          <strong>Over-the-air updates</strong>
+          <p>The app checks the site for newer builds and downloads updates itself.</p>
+        </li>
+        <li>
+          <strong>Install from Chrome</strong>
+          <p>The Install page connects to the head unit over WebUSB/ADB, installs the package, grants permissions, and applies the required settings.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section faq" id="faq">
+      <h2>FAQ</h2>
+      <p class="sub">About installing and using JePlay.</p>
+
+      <details>
+        <summary>What do I need to install?</summary>
+        <ul class="need-icons" aria-label="What you need to install">
+          <li>
+            <img class="need-icon" src="../assets/icons/usb-flash.svg" alt="" width="72" height="72" />
+            <span class="need-label">USB flash drive<br />and flag file</span>
+          </li>
+          <li>
+            <img class="need-icon" src="../assets/icons/usb-cable-aa.svg" alt="" width="90" height="72" />
+            <span class="need-label">USB-A ↔ USB-A<br />cable</span>
+          </li>
+          <li>
+            <img class="need-icon need-icon-tall" src="../assets/icons/chrome-devices.svg" alt="" width="72" height="96" />
+            <span class="need-label">Chrome on a laptop<br />or Android</span>
+          </li>
+        </ul>
+        <p>
+          A laptop (or an Android phone with OTG), Chrome, a USB-A ↔ USB-A cable, and a flash drive
+          with the flag file to enable ADB. Details are on the
+          <a href="install.html">Install</a> page.
+        </p>
+      </details>
+      <details>
+        <summary>Is this a head-unit firmware flash?</summary>
+        <p>
+          No. JePlay installs as a regular Android app. The car’s system partition is not
+          reflashed — it uses stock ADB and OS permissions.
+        </p>
+      </details>
+      <details>
+        <summary>Which cars is this for?</summary>
+        <p>
+          Primary focus is Jaecoo J8 and Jaecoo J7. On other CHERY-group models behaviour
+          may differ; HUD arrows depend on a specific vehicle service.
+        </p>
+      </details>
+      <details>
+        <summary>How do I update?</summary>
+        <p>
+          In the app: Settings → About → check for updates (jeplay.ru).
+          Or open the <a href="install.html">install page</a> again — it will fetch
+          the latest build and install over the existing one.
+        </p>
+      </details>
+      <details>
+        <summary>Does the head unit need internet?</summary>
+        <p>
+          For install via the site, internet is needed on the laptop, not on the head unit.
+        </p>
+        <p>
+          For updates you can use the same laptop, or connect the head unit to the internet and download a fresh build.
+        </p>
+      </details>
+      <details>
+        <summary>Does JePlay work with JCarTools and DriveLabs?</summary>
+        <p>
+          If you have JCarTools or DriveLabs installed, JePlay will not conflict with them. Their settings-automation services keep working fully.
+        </p>
+        <p>
+          Their navigation services, however, forcibly take over the instrument-cluster output, so CarPlay navigation will only show on the head-unit screen.
+          Or you can disable those navigator apps from JCarTools / DriveLabs and see the CarPlay map on the cluster.
+        </p>
+      </details>
+      <details>
+        <summary>How do I connect my phone to CarPlay?</summary>
+        <p>
+          If the phone is already paired with the system CarPlay, unpair it in the head-unit settings and remove it from known Bluetooth devices. Then pair again, but decline the offer to use CarPlay.
+        </p>
+        <p>
+          After that, open JePlay, pick the phone from the available Bluetooth devices, and the app will connect to it.
+        </p>
+      </details>
+    </section>
+
+    <section class="credit" id="credit">
+      <p>
+        <strong>JePlay is based on the open-source DiPlay project</strong>
+        (CarPlay client for Android head units, GPL-3.0 / AGPL-3.0 for the UI part).
+      </p>
+      <p>
+        DiPlay source:
+        <a href="https://github.com/shihabal3amri/DiPlay" rel="noopener" target="_blank">github.com/shihabal3amri/DiPlay</a>
+      </p>
+    </section>
+
+    <section class="section" id="support">
+      <h2>Support the author</h2>
+      <p class="sub">
+        If you like the app and want to say thanks, you can buy the author a coffee.
+      </p>
+      <form method="post" action="https://yoomoney.ru/to/4100118846441468/" onsubmit="var a=document.getElementById('amount');if(!a.checkValidity()||Number(a.value)&lt;=2){a.reportValidity();return false;}window.location.href=this.action+a.value;return false;">
+        <input type="number" id="amount" name="sum" min="3" step="1" required inputmode="numeric" style="max-height: 360px;
+    color: rgb(183, 199, 216);
+        font: 400 16px / 1.1 var(--display);
+        font-weight: 800;
+    word-break: break-word;
+    margin: 16px 0px 0px;
+    padding: 14px;
+    overflow: auto;
+    background: rgb(6, 11, 18);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    white-space: pre-wrap;" placeholder="Custom amount…" >
+        <input type="submit" class="btn btn-secondary" value="Send" />
+      </form>
+      <div class="actions" style="margin-top: 18px">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=500;return false;">500 ₽</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=700;return false;">700 ₽</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=1000;return false;">1&nbsp;000 ₽</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=1500;return false;">1&nbsp;500 ₽</button>
+      </div>
+    </section>
+
+    <footer>
+      <span>JePlay · CarPlay for Jaecoo · jeplay.ru</span>
+      <span>
+        <a href="install.html">Install</a>
+        ·
+        <a href="https://t.me/JeplaySupport" rel="noopener" target="_blank">Telegram chat @JeplaySupport</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>

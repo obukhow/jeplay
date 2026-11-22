@@ -1,1 +1,5 @@
 node_modules/
+debug/data/*.json
+debug/data/*.lock
+debug/data/*.tmp
+debug/config.local.php

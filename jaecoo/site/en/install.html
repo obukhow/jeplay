@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install JePlay</title>
+  <meta name="description" content="Install JePlay on Jaecoo via Chrome: USB flag for ADB, ENCRYPTION password, Connect and Install over WebUSB." />
+  <meta name="theme-color" content="#081018" />
+  <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="alternate" hreflang="ru" href="https://jeplay.ru/install.html" />
+  <link rel="alternate" hreflang="en" href="https://jeplay.ru/en/install.html" />
+  <script src="../assets/metrika.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Main menu">
+      <a class="brand" href="index.html">
+        <img class="brand-icon" src="../assets/icon.png" width="40" height="40" alt="" />
+        <strong>JePlay</strong>
+        <span>install</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">About</a>
+        <a href="install.html" aria-current="page">Install</a>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn" aria-label="Language" aria-haspopup="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+          </button>
+          <div class="lang-menu" role="listbox" aria-label="Language">
+            <a href="../install.html" hreflang="ru" lang="ru">RU</a>
+            <a href="install.html" hreflang="en" lang="en" aria-current="true">EN</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom: 28px">
+      <h1>Install from Chrome</h1>
+      <p class="lede">
+        Enable ADB on the head unit, connect the laptop with a USB-A ↔ USB-A cable, press Connect —
+        Chrome will open the device picker. After the link is up, the button becomes Install.
+      </p>
+    </header>
+
+    <div class="install-layout">
+      <div>
+        <section class="panel">
+          <h2>1. Preparation</h2>
+          <p class="needs-lead">What you need:</p>
+          <ul class="need-icons" aria-label="What you need to install">
+            <li>
+              <img class="need-icon" src="../assets/icons/usb-flash.svg" alt="" width="72" height="72" />
+              <span class="need-label">USB flash drive<br />and flag file</span>
+            </li>
+            <li>
+              <img class="need-icon" src="../assets/icons/usb-cable-aa.svg" alt="" width="90" height="72" />
+              <span class="need-label">USB-A ↔ USB-A<br />cable</span>
+            </li>
+            <li>
+              <img class="need-icon need-icon-tall" src="../assets/icons/chrome-devices.svg" alt="" width="72" height="96" />
+              <span class="need-label">Chrome on a laptop<br />or Android</span>
+            </li>
+          </ul>
+          <ul>
+            <li>A laptop with <strong>Google Chrome</strong> (WebUSB does not work in Safari / Firefox). Alternatively an Android phone with OTG and Chrome.</li>
+            <li>A <strong>USB Type-A ↔ USB Type-A</strong> cable (data, not charge-only).</li>
+            <li>A USB flash drive and the flag file for the engineering menu / ADB.</li>
+            <li>The page must open over <code>https://</code> or <code>http://localhost</code>, not via <code>file://</code>.</li>
+          </ul>
+          <p class="note-box">
+            The car’s USB-C port is often charge-only — use the USB-A port that normally
+            connects a phone for Android Auto / CarPlay.
+          </p>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>2. Flash drive with the flag</h2>
+          <ol>
+            <li>Download
+              <a href="../assets/svengmode.flag" download="svengmode.flag"><code>svengmode.flag</code></a>
+              and copy it to the root of the flash drive.</li>
+            <li>Plug the flash drive into the car’s USB port.</li>
+            <li>Open the engineering menu → <span class="steps-num">USB2.0</span> → bottom button
+              <span class="steps-num">DEVICE</span>.</li>
+            <li>ADB should activate. Remove the flash drive and connect the cable to the laptop.</li>
+          </ol>
+          <p class="note-box">
+            If there is no DEVICE button — enable ADB via the ENCRYPTION menu (password form below)
+            and ADB Switch → Open.
+          </p>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>3. ENCRYPTION password</h2>
+          <p style="color: var(--muted); margin-top: 0">
+            Read the encryption version on the car screen. Enter <em>only</em> the password
+            from the form into the car — not the productID and not the VIN. Calculation runs locally in the browser.
+          </p>
+
+          <div class="calc-tabs" role="tablist">
+            <button type="button" class="active" data-ver="1" aria-selected="true">Version 1</button>
+            <button type="button" data-ver="2" aria-selected="false">Version 2</button>
+          </div>
+
+          <div id="calc-v1">
+            <div class="field">
+              <label for="id-v1">Last 6 or 7 digits of productID (keep leading zeros)</label>
+              <input id="id-v1" inputmode="numeric" maxlength="7" placeholder="1234567" autocomplete="off" />
+            </div>
+          </div>
+
+          <div id="calc-v2" class="hidden">
+            <div class="field">
+              <label for="id-v2">productID (full or last 6 digits)</label>
+              <input id="id-v2" inputmode="numeric" maxlength="20" placeholder="014154180004385" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="rand-v2">ranNum / RAND (4 digits)</label>
+              <input id="rand-v2" inputmode="numeric" maxlength="4" placeholder="5941" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="password-out empty" id="password-out">Enter the values above</div>
+          <p style="color: var(--muted); font-size: 0.85rem; margin: 10px 0 0">
+            For ENCRYPTION 3 / 3.1 on some cars, first open Temperatura → Confirm
+            (switches to version 2), then ENCRYPTION again. Or use the flash drive with the flag.
+          </p>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>4. Connect the laptop</h2>
+          <ol>
+            <li>Cable: one end in the car’s USB-A, the other in the laptop.</li>
+            <li>Press <strong>Connect</strong> on the right — pick the device in the Chrome dialog.</li>
+            <li>If the head unit asks for an RSA key — confirm “Always allow”.</li>
+            <li>The button becomes <strong>Install</strong>: the latest build is downloaded from the site,
+              installed over ADB, and permissions are granted (including installing updates from JePlay).</li>
+          </ol>
+        </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>5. After installation</h2>
+          <p style="color: var(--muted); margin-top: 0">
+            To keep the stock CarPlay from launching instead of JePlay:
+          </p>
+          <ol>
+            <li>In the head-unit settings, remove your iPhone from the list of known Bluetooth devices.</li>
+            <li>In Bluetooth settings, pair it again.</li>
+            <li>When the head unit asks “Allow CarPlay?”, decline. This prevents stock CarPlay from
+              starting automatically when you start the car.</li>
+            <li>In JePlay, select your iPhone from the list of connected devices.</li>
+          </ol>
+        </section>
+      </div>
+
+      <aside class="install-console">
+        <div class="panel">
+          <div class="status-pill" id="status-pill">Not connected</div>
+          <h2 style="margin-top: 0">Install</h2>
+          <p style="color: var(--muted); margin-top: 0; font-size: 0.92rem">
+            The current version comes from <code>version.txt</code>; the APK —
+            from <code>download/JePlay-&lt;version&gt;.apk</code>.
+          </p>
+
+          <div class="actions" style="margin-top: 18px">
+            <button type="button" class="btn btn-primary" id="action-btn">Connect</button>
+            <button type="button" class="btn btn-secondary" id="disconnect-btn" disabled>Disconnect</button>
+          </div>
+
+          <div class="existing-panel" id="existing-panel" hidden>
+            <h3 style="margin: 0 0 8px">JePlay is already installed</h3>
+            <p style="color: var(--muted); margin: 0 0 12px; font-size: 0.88rem">
+              Found version <code id="existing-version">?</code> on the head unit.
+              You can remove it and install fresh, or update in place with the button above.
+            </p>
+            <div class="actions" style="margin: 0">
+              <button type="button" class="btn btn-primary" id="reinstall-btn">Uninstall and reinstall</button>
+            </div>
+          </div>
+
+          <div class="final-banner" id="final-banner" role="status"></div>
+
+          <div class="softap-panel" id="softap-panel" hidden>
+            <h3 style="margin: 0 0 8px">Car SoftAP</h3>
+            <p style="color: var(--muted); margin: 0 0 12px; font-size: 0.88rem">
+              Read over ADB after install and written into JePlay. On first launch
+              the app will pick up the network name and password automatically.
+            </p>
+            <div class="softap-row">
+              <span class="softap-label">Network</span>
+              <code id="softap-ssid"></code>
+              <button type="button" class="btn btn-secondary" id="copy-softap-ssid" style="min-height:36px;padding:8px 12px;font-size:0.8rem">Copy</button>
+            </div>
+            <div class="softap-row">
+              <span class="softap-label">Password</span>
+              <code id="softap-pass"></code>
+              <button type="button" class="btn btn-secondary" id="copy-softap-pass" style="min-height:36px;padding:8px 12px;font-size:0.8rem">Copy</button>
+            </div>
+          </div>
+
+          <pre id="log" data-idle="1" aria-live="polite">Waiting for connection…</pre>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <h2 style="margin-top: 0">Support the author</h2>
+          <p style="color: var(--muted); margin-top: 0; font-size: 0.92rem">
+            If you like the app and want to thank the developer, you can buy them a coffee.
+          </p>
+          <form method="post" action="https://yoomoney.ru/to/4100118846441468/" onsubmit="var a=document.getElementById('amount');if(!a.checkValidity()||Number(a.value)&lt;=2){a.reportValidity();return false;}window.location.href=this.action+a.value;return false;">
+            <input type="number" id="amount" name="sum" min="3" step="1" required inputmode="numeric" style="max-height: 360px;
+    color: rgb(183, 199, 216);
+        font: 400 16px / 1.1 var(--display);
+        font-weight: 800;
+    word-break: break-word;
+    margin: 16px 0px 0px;
+    padding: 14px;
+    overflow: auto;
+    background: rgb(6, 11, 18);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    white-space: pre-wrap;" placeholder="Custom amount…" >
+            <input type="submit" class="btn btn-secondary" value="Send" />
+          </form>
+          <div class="actions" style="margin-top: 18px">
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=500;return false;">500 ₽</button>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=700;return false;">700 ₽</button>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=1000;return false;">1&nbsp;000 ₽</button>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('amount').value=1500;return false;">1&nbsp;500 ₽</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <span>Based on <a href="https://github.com/shihabal3amri/DiPlay" rel="noopener" target="_blank">DiPlay</a></span>
+      <span>
+        <a href="index.html">Home</a>
+        ·
+        <a href="https://t.me/JeplaySupport" rel="noopener" target="_blank">Telegram chat @JeplaySupport</a>
+      </span>
+    </footer>
+  </div>
+
+  <script type="module" src="../assets/install.bundle.js"></script>
+</body>
+</html>

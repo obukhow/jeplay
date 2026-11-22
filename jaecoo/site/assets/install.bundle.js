@@ -4453,6 +4453,170 @@ function trackGoal(target, params) {
     window.jeplayYmGoal(target, params);
   }
 }
+var LANG = (document.documentElement.lang || "ru").toLowerCase().startsWith("en") ? "en" : "ru";
+var STRINGS = {
+  ru: {
+    waitingConnect: "\u041E\u0436\u0438\u0434\u0430\u043D\u0438\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F\u2026",
+    updateOver: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043F\u043E\u0432\u0435\u0440\u0445",
+    install: "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C",
+    installed: "\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D",
+    checkingInstalled: "\u041F\u0440\u043E\u0432\u0435\u0440\u044F\u044E, \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u043B\u0438 JePlay\u2026",
+    notInstalled: "JePlay \u043D\u0430 \u0413\u0423 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u2014 \u043C\u043E\u0436\u043D\u043E \u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0441 \u043D\u0443\u043B\u044F.",
+    alreadyInstalled: "JePlay \u0443\u0436\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D: {label}",
+    uninstalling: "\u0423\u0434\u0430\u043B\u044F\u044E {id}\u2026",
+    emptyUninstallUser0: "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 pm uninstall --user 0)",
+    emptyUninstall: "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 pm uninstall)",
+    uninstallFailed: "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0443\u0434\u0430\u043B\u0438\u0442\u044C JePlay \u043F\u043E ADB. \u0423\u0434\u0430\u043B\u0438\u0442\u0435 \u0432\u0440\u0443\u0447\u043D\u0443\u044E: \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u2192 \u041F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F \u2192 JePlay \u2192 \u0423\u0434\u0430\u043B\u0438\u0442\u044C, \u0437\u0430\u0442\u0435\u043C \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443.",
+    stillInstalled: "\u041F\u043E\u0441\u043B\u0435 uninstall \u043F\u0430\u043A\u0435\u0442 \u0432\u0441\u0451 \u0435\u0449\u0451 \u043D\u0430 \u043C\u0435\u0441\u0442\u0435",
+    uninstalled: "JePlay \u0443\u0434\u0430\u043B\u0451\u043D",
+    enterData: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432\u044B\u0448\u0435",
+    copy: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C",
+    copied: "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u043E",
+    selectManually: "\u0412\u044B\u0434\u0435\u043B\u0438\u0442\u0435 \u0432\u0440\u0443\u0447\u043D\u0443\u044E",
+    webusbUnavailable: "WebUSB \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D. \u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u044D\u0442\u0443 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443 \u0432 Chrome \u043F\u043E https:// \u0438\u043B\u0438 http://localhost",
+    needSecureContext: "\u041D\u0443\u0436\u0435\u043D secure context: https:// \u0438\u043B\u0438 http://localhost (\u043D\u0435 file://)",
+    pickDevice: "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E\u2026",
+    openingPicker: "\u041E\u0442\u043A\u0440\u044B\u0432\u0430\u044E \u043E\u043A\u043D\u043E \u0432\u044B\u0431\u043E\u0440\u0430 USB-\u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430 Chrome\u2026",
+    deviceNotSelected: "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D\u043E",
+    connecting: "\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435\u2026",
+    deviceLabel: "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E: {serial}",
+    noSerial: "(\u0431\u0435\u0437 serial)",
+    confirmRsa: "\u0415\u0441\u043B\u0438 \u0413\u0423 \u0441\u043F\u0440\u043E\u0441\u0438\u0442 RSA \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F",
+    connected: "\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E: {serial}",
+    adbReady: "ADB \u0433\u043E\u0442\u043E\u0432.",
+    chooseReinstallOrUpdate: "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435: \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u0438 \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E, \u0438\u043B\u0438 \u043E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043F\u043E\u0432\u0435\u0440\u0445.",
+    pressInstall: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C\xBB.",
+    disconnected: "\u041E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u043E",
+    readingVersion: "\u0427\u0438\u0442\u0430\u044E {url}\u2026",
+    badVersion: "\u0412 version.txt \u043D\u0435\u0442 \u0440\u0430\u0441\u043F\u043E\u0437\u043D\u0430\u0432\u0430\u0435\u043C\u043E\u0439 \u0432\u0435\u0440\u0441\u0438\u0438",
+    siteVersion: "\u0412\u0435\u0440\u0441\u0438\u044F \u043D\u0430 \u0441\u0430\u0439\u0442\u0435: {version}",
+    downloading: "\u0421\u043A\u0430\u0447\u0438\u0432\u0430\u044E {url}\u2026",
+    apkTooSmall: "\u0421\u043A\u0430\u0447\u0430\u043D\u043D\u044B\u0439 APK \u0441\u043B\u0438\u0448\u043A\u043E\u043C \u043C\u0430\u043B\u0435\u043D\u044C\u043A\u0438\u0439 \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0444\u0430\u0439\u043B \u043D\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435",
+    apkSize: "APK {name}: {mb} \u041C\u0411",
+    uploading: "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u2192 {path} ({kb} \u041A\u0411)",
+    helperMissing: "\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D helper localinstall.apk \u043D\u0430 \u0441\u0430\u0439\u0442\u0435 (HTTP {status})",
+    tryingPmInstall: "\u041F\u0440\u043E\u0431\u0443\u044E pm install\u2026",
+    emptyPmInstall: "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 pm install)",
+    firmwareBlocks: "\u041F\u0440\u043E\u0448\u0438\u0432\u043A\u0430 \u0431\u043B\u043E\u043A\u0438\u0440\u0443\u0435\u0442 pm install \u2014 \u0441\u0442\u0430\u0432\u043B\u044E \u0447\u0435\u0440\u0435\u0437 PackageInstaller.Session\u2026",
+    pmFailedTrySession: "pm install \u043D\u0435 \u0441\u0440\u0430\u0431\u043E\u0442\u0430\u043B \u2014 \u043F\u0440\u043E\u0431\u0443\u044E PackageInstaller.Session\u2026",
+    emptyLocalInstall: "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 LocalInstall)",
+    confirmOnCar: "\u041D\u0430 \u044D\u043A\u0440\u0430\u043D\u0435 \u0430\u0432\u0442\u043E\u043C\u043E\u0431\u0438\u043B\u044F \u043D\u0443\u0436\u043D\u043E \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443 (\u0434\u0438\u0430\u043B\u043E\u0433 Install). \u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0435 \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435.",
+    installFailed: "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430 \u043D\u0435 \u0443\u0434\u0430\u043B\u0430\u0441\u044C (Restriction / PackageInstaller).",
+    grantUnknownApps: "\u0420\u0430\u0437\u0440\u0435\u0448\u0430\u044E \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0439 \u0438\u0437 JePlay (unknown apps)\u2026",
+    notConfirmed: "\u043D\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u043E",
+    unknownAppsHint: "  \u041E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043D\u043E\u043F\u043A\u043E\u0439 \u0432 JePlay \u043C\u043E\u0436\u0435\u0442 \u0441\u043D\u043E\u0432\u0430 \u0441\u043F\u0440\u043E\u0441\u0438\u0442\u044C Settings \u2014 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 APK \u0438\u0437 Downloads.",
+    grantingRuntime: "\u0412\u044B\u0434\u0430\u044E runtime-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u044F\u2026",
+    grantingAppops: "\u0412\u044B\u0434\u0430\u044E appops\u2026",
+    openNetwork: "(\u043E\u0442\u043A\u0440\u044B\u0442\u0430\u044F \u0441\u0435\u0442\u044C)",
+    readingSoftAp: "\u0427\u0438\u0442\u0430\u044E SoftAP (SSID/\u043F\u0430\u0440\u043E\u043B\u044C) \u0447\u0435\u0440\u0435\u0437 ADB\u2026",
+    softApUnread: "SoftAP \u043D\u0435 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D ({error}). \u041F\u0430\u0440\u043E\u043B\u044C \u043C\u043E\u0436\u043D\u043E \u0432\u0432\u0435\u0441\u0442\u0438 \u0432 JePlay \u0441 iPhone.",
+    noResponse: "\u043D\u0435\u0442 \u043E\u0442\u0432\u0435\u0442\u0430",
+    softApWritten: "\u0417\u0430\u043F\u0438\u0441\u0430\u043B \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 SoftAP \u2192 {path} (JePlay \u043F\u043E\u0434\u0445\u0432\u0430\u0442\u0438\u0442 \u043F\u0440\u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u0435)",
+    connectFirst: "\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E",
+    reinstalling: "\u041F\u0435\u0440\u0435\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430\u2026",
+    installing: "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430\u2026",
+    nothingToUninstall: "\u0423\u0434\u0430\u043B\u044F\u0442\u044C \u043D\u0435\u0447\u0435\u0433\u043E \u2014 JePlay \u0443\u0436\u0435 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442.",
+    packageMissing: "(\u043F\u0430\u043A\u0435\u0442 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u043F\u043E\u0441\u043B\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438)",
+    packageNotFound: "\u041F\u0430\u043A\u0435\u0442 ru.jeplay.app \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u043F\u043E\u0441\u043B\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438",
+    done: "\u0413\u043E\u0442\u043E\u0432\u043E",
+    softApOk: " SoftAP \xAB{ssid}\xBB \u0437\u0430\u043F\u0438\u0441\u0430\u043D \u0432 JePlay \u2014 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u043D\u0430 \u0413\u0423.",
+    softApFail: " SoftAP \u0441 \u0413\u0423 \u043D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u2014 \u043F\u0430\u0440\u043E\u043B\u044C \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u0432 JePlay \u0441 iPhone.",
+    reinstalled: "\u043F\u0435\u0440\u0435\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D",
+    installedWord: "\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D",
+    success: "\u0423\u0441\u043F\u0435\u0445: JePlay {version}",
+    installError: "\u041E\u0448\u0438\u0431\u043A\u0430 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438: {message}",
+    openHttps: "\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0447\u0435\u0440\u0435\u0437 http://localhost \u0438\u043B\u0438 https://",
+    fileProtocol: "WebUSB \u043D\u0435 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0441 file:// \u2014 \u043F\u043E\u0434\u043D\u0438\u043C\u0438\u0442\u0435 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u0435\u0440\u0432\u0435\u0440 \u0438\u043B\u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0441\u0430\u0439\u0442 \u043F\u043E HTTPS.",
+    debugSession: "Remote debug ID: {id}",
+    debugCmd: "Remote debug \u2192 {cmd}",
+    debugFailed: "Remote debug \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D: {error}"
+  },
+  en: {
+    waitingConnect: "Waiting for connection\u2026",
+    updateOver: "Update in place",
+    install: "Install",
+    installed: "installed",
+    checkingInstalled: "Checking whether JePlay is installed\u2026",
+    notInstalled: "JePlay not found on the head unit \u2014 ready for a fresh install.",
+    alreadyInstalled: "JePlay already installed: {label}",
+    uninstalling: "Uninstalling {id}\u2026",
+    emptyUninstallUser0: "(empty pm uninstall --user 0 response)",
+    emptyUninstall: "(empty pm uninstall response)",
+    uninstallFailed: "Could not uninstall JePlay over ADB. Remove it manually: Settings \u2192 Apps \u2192 JePlay \u2192 Uninstall, then try again.",
+    stillInstalled: "Package is still present after uninstall",
+    uninstalled: "JePlay uninstalled",
+    enterData: "Enter the values above",
+    copy: "Copy",
+    copied: "Copied",
+    selectManually: "Select manually",
+    webusbUnavailable: "WebUSB is unavailable. Open this page in Chrome over https:// or http://localhost",
+    needSecureContext: "Secure context required: https:// or http://localhost (not file://)",
+    pickDevice: "Choose a device\u2026",
+    openingPicker: "Opening Chrome USB device picker\u2026",
+    deviceNotSelected: "No device selected",
+    connecting: "Connecting\u2026",
+    deviceLabel: "Device: {serial}",
+    noSerial: "(no serial)",
+    confirmRsa: "If the head unit asks for an RSA key \u2014 confirm access",
+    connected: "Connected: {serial}",
+    adbReady: "ADB is ready.",
+    chooseReinstallOrUpdate: "Choose: uninstall and reinstall, or update in place.",
+    pressInstall: "Press Install.",
+    disconnected: "Disconnected",
+    readingVersion: "Reading {url}\u2026",
+    badVersion: "No recognizable version in version.txt",
+    siteVersion: "Site version: {version}",
+    downloading: "Downloading {url}\u2026",
+    apkTooSmall: "Downloaded APK is too small \u2014 check the file on the server",
+    apkSize: "APK {name}: {mb} MB",
+    uploading: "Uploading \u2192 {path} ({kb} KB)",
+    helperMissing: "Helper localinstall.apk not found on the site (HTTP {status})",
+    tryingPmInstall: "Trying pm install\u2026",
+    emptyPmInstall: "(empty pm install response)",
+    firmwareBlocks: "Firmware blocks pm install \u2014 installing via PackageInstaller.Session\u2026",
+    pmFailedTrySession: "pm install failed \u2014 trying PackageInstaller.Session\u2026",
+    emptyLocalInstall: "(empty LocalInstall response)",
+    confirmOnCar: "Confirm the install dialog on the car screen, then try again.",
+    installFailed: "Install failed (Restriction / PackageInstaller).",
+    grantUnknownApps: "Allowing JePlay to install updates (unknown apps)\u2026",
+    notConfirmed: "not confirmed",
+    unknownAppsHint: "  In-app update may still open Settings \u2014 open the APK from Downloads.",
+    grantingRuntime: "Granting runtime permissions\u2026",
+    grantingAppops: "Granting appops\u2026",
+    openNetwork: "(open network)",
+    readingSoftAp: "Reading SoftAP (SSID/password) over ADB\u2026",
+    softApUnread: "SoftAP not read ({error}). You can enter the password in JePlay from the iPhone.",
+    noResponse: "no response",
+    softApWritten: "Wrote SoftAP settings \u2192 {path} (JePlay will pick them up on launch)",
+    connectFirst: "Connect a device first",
+    reinstalling: "Reinstalling\u2026",
+    installing: "Installing\u2026",
+    nothingToUninstall: "Nothing to uninstall \u2014 JePlay is already absent.",
+    packageMissing: "(package not found after install)",
+    packageNotFound: "Package ru.jeplay.app not found after install",
+    done: "Done",
+    softApOk: " SoftAP \u201C{ssid}\u201D saved into JePlay \u2014 open the app on the head unit.",
+    softApFail: " Could not read SoftAP from the head unit \u2014 enter the password in JePlay from the iPhone.",
+    reinstalled: "reinstalled",
+    installedWord: "installed",
+    success: "Success: JePlay {version}",
+    installError: "Install error: {message}",
+    openHttps: "Open via http://localhost or https://",
+    fileProtocol: "WebUSB does not work with file:// \u2014 run a local server or open the site over HTTPS.",
+    debugSession: "Remote debug ID: {id}",
+    debugCmd: "Remote debug \u2192 {cmd}",
+    debugFailed: "Remote debug unavailable: {error}"
+  }
+};
+function t(key, vars) {
+  let s = STRINGS[LANG][key] ?? STRINGS.ru[key] ?? String(key);
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      s = s.split(`{${k}}`).join(String(v));
+    }
+  }
+  return s;
+}
 var actionBtn = $("action-btn");
 var disconnectBtn = $("disconnect-btn");
 var statusPill = $("status-pill");
@@ -4469,6 +4633,103 @@ var adb = null;
 var connection = null;
 var busy = false;
 var installedPackage = null;
+var debugSessionId = null;
+var debugPollTimer = null;
+var debugBusy = false;
+function debugApiUrl(name) {
+  const base = location.pathname.includes("/en/") ? "../debug/" : "debug/";
+  return new URL(base + name, location.href).href;
+}
+async function debugPost(name, body) {
+  const res = await fetch(debugApiUrl(name), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store"
+  });
+  const raw = await res.text();
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    const snippet = raw.replace(/\s+/g, " ").trim().slice(0, 160);
+    throw new Error(`debug ${name}: HTTP ${res.status} (not JSON${snippet ? `: ${snippet}` : ""})`);
+  }
+  if (!res.ok || data?.ok === false) {
+    throw new Error(data?.error || `debug ${name}: HTTP ${res.status}`);
+  }
+  return data;
+}
+async function startRemoteDebug(serial) {
+  stopRemoteDebug();
+  try {
+    const data = await debugPost("register.php", {
+      serial: serial || "",
+      lang: LANG,
+      page: location.pathname
+    });
+    debugSessionId = String(data.id || "");
+    if (!debugSessionId) {
+      log(t("debugFailed", { error: "empty id from server" }), "err");
+      return;
+    }
+    log(t("debugSession", { id: debugSessionId }), "ok");
+    debugPollTimer = setInterval(() => {
+      pollRemoteDebug().catch(() => {
+      });
+    }, 2e3);
+    await pollRemoteDebug();
+  } catch (error) {
+    const message = String(error?.message || error);
+    console.warn("remote debug register failed", error);
+    log(t("debugFailed", { error: message }), "err");
+  }
+}
+function stopRemoteDebug() {
+  if (debugPollTimer) {
+    clearInterval(debugPollTimer);
+    debugPollTimer = null;
+  }
+  const id = debugSessionId;
+  debugSessionId = null;
+  if (id) {
+    debugPost("offline.php", { id }).catch(() => {
+    });
+  }
+}
+async function pollRemoteDebug() {
+  if (!debugSessionId || !adb || debugBusy || busy) return;
+  const data = await debugPost("poll.php", { id: debugSessionId });
+  const commands = Array.isArray(data.commands) ? data.commands : [];
+  if (!commands.length) return;
+  debugBusy = true;
+  try {
+    for (const item of commands) {
+      const cmdId = String(item?.id || "");
+      const cmd = String(item?.cmd || "").trim();
+      if (!cmdId || !cmd) continue;
+      log(t("debugCmd", { cmd }), "dim");
+      let output = "";
+      let error = null;
+      try {
+        output = await shell(cmd);
+      } catch (e) {
+        error = String(e?.message || e);
+        output = error;
+        log(error, "err");
+      }
+      await debugPost("result.php", {
+        id: debugSessionId,
+        cmdId,
+        cmd,
+        output,
+        error
+      });
+    }
+  } finally {
+    debugBusy = false;
+  }
+}
 function setStatus(text, kind = "") {
   statusPill.textContent = text;
   statusPill.className = `status-pill${kind ? ` ${kind}` : ""}`;
@@ -4478,7 +4739,10 @@ function log(line, kind = "") {
   if (kind) span.className = kind;
   span.textContent = `${line}
 `;
-  if (logEl.textContent === "\u041E\u0436\u0438\u0434\u0430\u043D\u0438\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F\u2026") logEl.textContent = "";
+  if (logEl.textContent === t("waitingConnect") || logEl.dataset.idle === "1") {
+    logEl.textContent = "";
+    delete logEl.dataset.idle;
+  }
   logEl.appendChild(span);
   logEl.scrollTop = logEl.scrollHeight;
 }
@@ -4490,9 +4754,9 @@ function setConnectedUi(on) {
   if (!on) {
     actionBtn.textContent = "Connect";
   } else if (installedPackage) {
-    actionBtn.textContent = "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043F\u043E\u0432\u0435\u0440\u0445";
+    actionBtn.textContent = t("updateOver");
   } else {
-    actionBtn.textContent = "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C";
+    actionBtn.textContent = t("install");
   }
   actionBtn.disabled = false;
   disconnectBtn.disabled = !on;
@@ -4506,7 +4770,7 @@ function hideExistingPanel() {
 function showExistingPanel(info) {
   installedPackage = info;
   if (!existingPanel || !existingVersionEl) return;
-  existingVersionEl.textContent = info.versionName || info.versionCode || "\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D";
+  existingVersionEl.textContent = info.versionName || info.versionCode || t("installed");
   existingPanel.hidden = false;
 }
 async function probeInstalledPackage() {
@@ -4521,25 +4785,25 @@ async function probeInstalledPackage() {
 async function refreshInstalledPackageUi() {
   hideExistingPanel();
   if (!adb) return;
-  log("\u041F\u0440\u043E\u0432\u0435\u0440\u044F\u044E, \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u043B\u0438 JePlay\u2026", "dim");
+  log(t("checkingInstalled"), "dim");
   const info = await probeInstalledPackage();
   if (!info) {
-    log("JePlay \u043D\u0430 \u0413\u0423 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u2014 \u043C\u043E\u0436\u043D\u043E \u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0441 \u043D\u0443\u043B\u044F.", "ok");
+    log(t("notInstalled"), "ok");
     setConnectedUi(true);
     return;
   }
   const label = info.versionName || info.versionCode || "?";
-  log(`JePlay \u0443\u0436\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D: ${label}`, "ok");
+  log(t("alreadyInstalled", { label }), "ok");
   showExistingPanel(info);
   setConnectedUi(true);
 }
 async function uninstallInstalledPackage() {
-  log(`\u0423\u0434\u0430\u043B\u044F\u044E ${PACKAGE_ID}\u2026`, "dim");
+  log(t("uninstalling", { id: PACKAGE_ID }), "dim");
   let out = await shell(`pm uninstall --user 0 ${PACKAGE_ID} 2>&1 || true`);
-  log(out.trim() || "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 pm uninstall --user 0)", "dim");
+  log(out.trim() || t("emptyUninstallUser0"), "dim");
   if (!/Success/i.test(out)) {
     out = await shell(`pm uninstall ${PACKAGE_ID} 2>&1 || true`);
-    log(out.trim() || "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 pm uninstall)", "dim");
+    log(out.trim() || t("emptyUninstall"), "dim");
   }
   if (!/Success/i.test(out)) {
     throw new Error(
@@ -4548,9 +4812,9 @@ async function uninstallInstalledPackage() {
   }
   const still = await shell(`pm path ${PACKAGE_ID} 2>&1 || true`);
   if (/package:/i.test(still)) {
-    throw new Error("\u041F\u043E\u0441\u043B\u0435 uninstall \u043F\u0430\u043A\u0435\u0442 \u0432\u0441\u0451 \u0435\u0449\u0451 \u043D\u0430 \u043C\u0435\u0441\u0442\u0435");
+    throw new Error(t("stillInstalled"));
   }
-  log("JePlay \u0443\u0434\u0430\u043B\u0451\u043D", "ok");
+  log(t("uninstalled"), "ok");
   hideExistingPanel();
   setConnectedUi(true);
 }
@@ -4579,17 +4843,17 @@ function refreshPassword() {
   }
   if (!password) {
     passwordOut.className = "password-out empty";
-    passwordOut.textContent = "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432\u044B\u0448\u0435";
+    passwordOut.textContent = t("enterData");
     return;
   }
   passwordOut.className = "password-out";
-  passwordOut.innerHTML = `<span>${password}</span><button type="button" class="btn btn-secondary" id="copy-pw" style="min-height:36px;padding:8px 12px;font-size:0.8rem">\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C</button>`;
+  passwordOut.innerHTML = `<span>${password}</span><button type="button" class="btn btn-secondary" id="copy-pw" style="min-height:36px;padding:8px 12px;font-size:0.8rem">${t("copy")}</button>`;
   $("copy-pw").onclick = async () => {
     try {
       await navigator.clipboard.writeText(password);
-      $("copy-pw").textContent = "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u043E";
+      $("copy-pw").textContent = t("copied");
     } catch {
-      $("copy-pw").textContent = "\u0412\u044B\u0434\u0435\u043B\u0438\u0442\u0435 \u0432\u0440\u0443\u0447\u043D\u0443\u044E";
+      $("copy-pw").textContent = t("selectManually");
     }
   };
 }
@@ -4634,20 +4898,20 @@ async function connectDevice() {
   trackGoal("connect_click");
   const Manager = AdbDaemonWebUsbDeviceManager.BROWSER;
   if (!Manager) {
-    throw new Error("WebUSB \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D. \u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u044D\u0442\u0443 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443 \u0432 Chrome \u043F\u043E https:// \u0438\u043B\u0438 http://localhost");
+    throw new Error(t("webusbUnavailable"));
   }
   if (!window.isSecureContext) {
-    throw new Error("\u041D\u0443\u0436\u0435\u043D secure context: https:// \u0438\u043B\u0438 http://localhost (\u043D\u0435 file://)");
+    throw new Error(t("needSecureContext"));
   }
-  setStatus("\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E\u2026", "busy");
-  log("\u041E\u0442\u043A\u0440\u044B\u0432\u0430\u044E \u043E\u043A\u043D\u043E \u0432\u044B\u0431\u043E\u0440\u0430 USB-\u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430 Chrome\u2026", "dim");
+  setStatus(t("pickDevice"), "busy");
+  log(t("openingPicker"), "dim");
   const device = await Manager.requestDevice();
   if (!device) {
-    throw new Error("\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D\u043E");
+    throw new Error(t("deviceNotSelected"));
   }
-  setStatus("\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435\u2026", "busy");
-  log(`\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E: ${device.serial || "(\u0431\u0435\u0437 serial)"}`);
-  log("\u0415\u0441\u043B\u0438 \u0413\u0423 \u0441\u043F\u0440\u043E\u0441\u0438\u0442 RSA \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F", "dim");
+  setStatus(t("connecting"), "busy");
+  log(t("deviceLabel", { serial: device.serial || t("noSerial") }));
+  log(t("confirmRsa"), "dim");
   connection = await device.connect();
   const credentialStore = new AdbWebCredentialStore(CREDENTIAL_STORE_NAME);
   adb = new Adb(
@@ -4657,16 +4921,18 @@ async function connectDevice() {
       credentialStore
     })
   );
-  setStatus(`\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E: ${device.serial || "ADB"}`, "ok");
-  log("ADB \u0433\u043E\u0442\u043E\u0432.", "ok");
+  setStatus(t("connected", { serial: device.serial || "ADB" }), "ok");
+  log(t("adbReady"), "ok");
+  await startRemoteDebug(device.serial || "");
   await refreshInstalledPackageUi();
   if (installedPackage) {
-    log("\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435: \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u0438 \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E, \u0438\u043B\u0438 \u043E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043F\u043E\u0432\u0435\u0440\u0445.", "dim");
+    log(t("chooseReinstallOrUpdate"), "dim");
   } else {
-    log("\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C\xBB.", "ok");
+    log(t("pressInstall"), "ok");
   }
 }
 async function disconnectDevice() {
+  stopRemoteDebug();
   try {
     await adb?.close?.();
   } catch (_) {
@@ -4680,24 +4946,24 @@ async function disconnectDevice() {
   hideExistingPanel();
   hideSoftApPanel();
   setConnectedUi(false);
-  setStatus("\u041E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u043E");
-  log("\u041E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u043E", "dim");
+  setStatus(t("disconnected"));
+  log(t("disconnected"), "dim");
 }
 async function fetchLatestRelease() {
-  log(`\u0427\u0438\u0442\u0430\u044E ${VERSION_URL}\u2026`, "dim");
+  log(t("readingVersion", { url: VERSION_URL }), "dim");
   const versionRes = await fetch(VERSION_URL, { cache: "no-store" });
   if (!versionRes.ok) throw new Error(`version.txt: HTTP ${versionRes.status}`);
   const version = normalizeVersion(await versionRes.text());
-  if (!version) throw new Error("\u0412 version.txt \u043D\u0435\u0442 \u0440\u0430\u0441\u043F\u043E\u0437\u043D\u0430\u0432\u0430\u0435\u043C\u043E\u0439 \u0432\u0435\u0440\u0441\u0438\u0438");
+  if (!version) throw new Error(t("badVersion"));
   const apkName = `JePlay-${version}.apk`;
   const apkUrl = new URL(apkName, DOWNLOAD_BASE).href;
-  log(`\u0412\u0435\u0440\u0441\u0438\u044F \u043D\u0430 \u0441\u0430\u0439\u0442\u0435: ${version}`);
-  log(`\u0421\u043A\u0430\u0447\u0438\u0432\u0430\u044E ${apkUrl}\u2026`, "dim");
+  log(t("siteVersion", { version }));
+  log(t("downloading", { url: apkUrl }), "dim");
   const apkRes = await fetch(apkUrl, { cache: "no-store" });
   if (!apkRes.ok) throw new Error(`APK: HTTP ${apkRes.status} (${apkName})`);
   const buffer2 = new Uint8Array(await apkRes.arrayBuffer());
-  if (buffer2.byteLength < 1024) throw new Error("\u0421\u043A\u0430\u0447\u0430\u043D\u043D\u044B\u0439 APK \u0441\u043B\u0438\u0448\u043A\u043E\u043C \u043C\u0430\u043B\u0435\u043D\u044C\u043A\u0438\u0439 \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0444\u0430\u0439\u043B \u043D\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435");
-  log(`APK ${apkName}: ${(buffer2.byteLength / (1024 * 1024)).toFixed(2)} \u041C\u0411`);
+  if (buffer2.byteLength < 1024) throw new Error(t("apkTooSmall"));
+  log(t("apkSize", { name: apkName, mb: (buffer2.byteLength / (1024 * 1024)).toFixed(2) }));
   return { version, apkName, buffer: buffer2 };
 }
 function bufferToStream(buffer2) {
@@ -4709,7 +4975,7 @@ function bufferToStream(buffer2) {
   });
 }
 async function pushBuffer(buffer2, remotePath) {
-  log(`\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u2192 ${remotePath} (${(buffer2.byteLength / 1024).toFixed(0)} \u041A\u0411)`, "dim");
+  log(t("uploading", { path: remotePath, kb: (buffer2.byteLength / 1024).toFixed(0) }), "dim");
   const sync = await adb.sync();
   try {
     await sync.write({
@@ -4728,27 +4994,27 @@ async function pushBuffer(buffer2, remotePath) {
 async function pushAndInstall(buffer2) {
   const helperRes = await fetch(HELPER_URL, { cache: "no-store" });
   if (!helperRes.ok) {
-    throw new Error(`\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D helper localinstall.apk \u043D\u0430 \u0441\u0430\u0439\u0442\u0435 (HTTP ${helperRes.status})`);
+    throw new Error(t("helperMissing", { status: helperRes.status }));
   }
   const helper = new Uint8Array(await helperRes.arrayBuffer());
   await pushBuffer(buffer2, REMOTE_TARGET);
   await pushBuffer(helper, REMOTE_HELPER);
-  log("\u041F\u0440\u043E\u0431\u0443\u044E pm install\u2026", "dim");
+  log(t("tryingPmInstall"), "dim");
   let output = await shell(`pm install -r -g "${REMOTE_TARGET}" 2>&1 || true`);
-  log(output.trim() || "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 pm install)", "dim");
+  log(output.trim() || t("emptyPmInstall"), "dim");
   if (/Success/i.test(output)) {
     await shell(`rm -f "${REMOTE_TARGET}" "${REMOTE_HELPER}"`).catch(() => "");
     return;
   }
   if (/Restriction prevents installing/i.test(output)) {
-    log("\u041F\u0440\u043E\u0448\u0438\u0432\u043A\u0430 \u0431\u043B\u043E\u043A\u0438\u0440\u0443\u0435\u0442 pm install \u2014 \u0441\u0442\u0430\u0432\u043B\u044E \u0447\u0435\u0440\u0435\u0437 PackageInstaller.Session\u2026", "dim");
+    log(t("firmwareBlocks"), "dim");
   } else {
-    log("pm install \u043D\u0435 \u0441\u0440\u0430\u0431\u043E\u0442\u0430\u043B \u2014 \u043F\u0440\u043E\u0431\u0443\u044E PackageInstaller.Session\u2026", "dim");
+    log(t("pmFailedTrySession"), "dim");
   }
   output = await shell(
     `CLASSPATH=${REMOTE_HELPER} /system/bin/app_process /system/bin LocalInstall ${REMOTE_TARGET} 120 2>&1 || true`
   );
-  log(output.trim() || "(\u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442 LocalInstall)");
+  log(output.trim() || t("emptyLocalInstall"));
   const statusMatch = output.match(/LOCALINSTALL_STATUS=(-?\d+)/);
   const status = statusMatch ? Number(statusMatch[1]) : null;
   const message = output.match(/LOCALINSTALL_MESSAGE=(.*)/)?.[1]?.trim() || "";
@@ -4771,7 +5037,7 @@ async function pushAndInstall(buffer2) {
   );
 }
 async function grantInstallUnknownApps() {
-  log("\u0420\u0430\u0437\u0440\u0435\u0448\u0430\u044E \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0439 \u0438\u0437 JePlay (unknown apps)\u2026", "dim");
+  log(t("grantUnknownApps"), "dim");
   await shell(`appops set ${PACKAGE_ID} REQUEST_INSTALL_PACKAGES allow 2>&1 || true`);
   await shell(`cmd appops set ${PACKAGE_ID} REQUEST_INSTALL_PACKAGES allow 2>&1 || true`);
   const check = await shell(`appops get ${PACKAGE_ID} REQUEST_INSTALL_PACKAGES 2>&1 || true`);
@@ -4780,13 +5046,13 @@ async function grantInstallUnknownApps() {
     log(`  REQUEST_INSTALL_PACKAGES: ${trimmed}`, "ok");
     return true;
   }
-  log(`  REQUEST_INSTALL_PACKAGES: ${trimmed || "\u043D\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u043E"}`, "dim");
-  log("  \u041E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043D\u043E\u043F\u043A\u043E\u0439 \u0432 JePlay \u043C\u043E\u0436\u0435\u0442 \u0441\u043D\u043E\u0432\u0430 \u0441\u043F\u0440\u043E\u0441\u0438\u0442\u044C Settings \u2014 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 APK \u0438\u0437 Downloads.", "dim");
+  log(`  REQUEST_INSTALL_PACKAGES: ${trimmed || t("notConfirmed")}`, "dim");
+  log(t("unknownAppsHint"), "dim");
   return false;
 }
 async function grantPermissions() {
   await grantInstallUnknownApps();
-  log("\u0412\u044B\u0434\u0430\u044E runtime-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u044F\u2026", "dim");
+  log(t("grantingRuntime"), "dim");
   for (const permission of RUNTIME_GRANTS) {
     const out = await shell(`pm grant ${PACKAGE_ID} ${permission} 2>&1 || true`);
     const trimmed = out.trim();
@@ -4796,7 +5062,7 @@ async function grantPermissions() {
       log(`  ${permission}: ok`, "dim");
     }
   }
-  log("\u0412\u044B\u0434\u0430\u044E appops\u2026", "dim");
+  log(t("grantingAppops"), "dim");
   for (const op of APPOPS) {
     if (op === "REQUEST_INSTALL_PACKAGES") continue;
     const out = await shell(`appops set ${PACKAGE_ID} ${op} allow 2>&1 || true`);
@@ -4844,35 +5110,32 @@ function hideSoftApPanel() {
 function showSoftApCredentials(creds) {
   if (!softapPanel || !softapSsidEl || !softapPassEl) return;
   softapSsidEl.textContent = creds.ssid;
-  softapPassEl.textContent = creds.passphrase || "(\u043E\u0442\u043A\u0440\u044B\u0442\u0430\u044F \u0441\u0435\u0442\u044C)";
+  softapPassEl.textContent = creds.passphrase || t("openNetwork");
   softapPanel.hidden = false;
 }
 async function copyField(text, button) {
   try {
     await navigator.clipboard.writeText(text);
     const prev = button.textContent;
-    button.textContent = "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u043E";
+    button.textContent = t("copied");
     setTimeout(() => {
       button.textContent = prev;
     }, 1500);
   } catch {
-    button.textContent = "\u0412\u044B\u0434\u0435\u043B\u0438\u0442\u0435 \u0432\u0440\u0443\u0447\u043D\u0443\u044E";
+    button.textContent = t("selectManually");
   }
 }
 async function readAndSeedSoftAp(apkPath) {
   hideSoftApPanel();
   const quotedApk = `'${apkPath.replace(/'/g, `'"'"'`)}'`;
   const command = `CLASSPATH=${quotedApk} app_process /system/bin ${HOTSPOT_HELPER_CLASS} apconfig-read 2>&1 || true`;
-  log("\u0427\u0438\u0442\u0430\u044E SoftAP (SSID/\u043F\u0430\u0440\u043E\u043B\u044C) \u0447\u0435\u0440\u0435\u0437 ADB\u2026", "dim");
+  log(t("readingSoftAp"), "dim");
   const output = await shell(command);
   const trimmed = output.trim();
   if (trimmed) log(trimmed.split(/\r?\n/).slice(-6).join("\n"), "dim");
   const parsed = parseApConfigRead(output);
   if (!parsed || parsed.error) {
-    log(
-      `SoftAP \u043D\u0435 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D (${parsed?.error || "\u043D\u0435\u0442 \u043E\u0442\u0432\u0435\u0442\u0430"}). \u041F\u0430\u0440\u043E\u043B\u044C \u043C\u043E\u0436\u043D\u043E \u0432\u0432\u0435\u0441\u0442\u0438 \u0432 JePlay \u0441 iPhone.`,
-      "dim"
-    );
+    log(t("softApUnread", { error: parsed?.error || t("noResponse") }), "dim");
     return null;
   }
   log(`SoftAP: ${parsed.ssid}`, "ok");
@@ -4885,41 +5148,41 @@ async function readAndSeedSoftAp(apkPath) {
     ""
   ].join("\n");
   await pushBuffer(new TextEncoder().encode(importBody), SOFTAP_IMPORT_PATH);
-  log(`\u0417\u0430\u043F\u0438\u0441\u0430\u043B \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 SoftAP \u2192 ${SOFTAP_IMPORT_PATH} (JePlay \u043F\u043E\u0434\u0445\u0432\u0430\u0442\u0438\u0442 \u043F\u0440\u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u0435)`, "ok");
+  log(t("softApWritten", { path: SOFTAP_IMPORT_PATH }), "ok");
   return parsed;
 }
 async function installLatest({ uninstallFirst = false } = {}) {
-  if (!adb) throw new Error("\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E");
+  if (!adb) throw new Error(t("connectFirst"));
   trackGoal("install_click", { uninstallFirst: Boolean(uninstallFirst) });
   finalBanner.className = "final-banner";
   finalBanner.textContent = "";
   hideSoftApPanel();
-  setStatus(uninstallFirst ? "\u041F\u0435\u0440\u0435\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430\u2026" : "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430\u2026", "busy");
+  setStatus(uninstallFirst ? t("reinstalling") : t("installing"), "busy");
   actionBtn.disabled = true;
   if (reinstallBtn) reinstallBtn.disabled = true;
   if (uninstallFirst) {
     const current = installedPackage || await probeInstalledPackage();
     if (current) await uninstallInstalledPackage();
-    else log("\u0423\u0434\u0430\u043B\u044F\u0442\u044C \u043D\u0435\u0447\u0435\u0433\u043E \u2014 JePlay \u0443\u0436\u0435 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442.", "dim");
+    else log(t("nothingToUninstall"), "dim");
   }
   const { version, buffer: buffer2 } = await fetchLatestRelease();
   await pushAndInstall(buffer2);
   await grantPermissions();
   const check = await shell(`pm path ${PACKAGE_ID} 2>&1 || true`);
-  log(check.trim() || "(\u043F\u0430\u043A\u0435\u0442 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u043F\u043E\u0441\u043B\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438)");
+  log(check.trim() || t("packageMissing"));
   if (!/package:/i.test(check)) {
-    throw new Error("\u041F\u0430\u043A\u0435\u0442 ru.jeplay.app \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u043F\u043E\u0441\u043B\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438");
+    throw new Error(t("packageNotFound"));
   }
   const apkPath = check.split(/\r?\n/).map((s) => s.trim()).find((s) => /^package:/i.test(s))?.replace(/^package:/i, "")?.trim();
   let softAp = null;
   if (apkPath) {
     softAp = await readAndSeedSoftAp(apkPath);
   }
-  setStatus("\u0413\u043E\u0442\u043E\u0432\u043E", "ok");
-  const softApHint = softAp ? ` SoftAP \xAB${softAp.ssid}\xBB \u0437\u0430\u043F\u0438\u0441\u0430\u043D \u0432 JePlay \u2014 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u043D\u0430 \u0413\u0423.` : " SoftAP \u0441 \u0413\u0423 \u043D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u2014 \u043F\u0430\u0440\u043E\u043B\u044C \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u0432 JePlay \u0441 iPhone.";
-  const modeHint = uninstallFirst ? "\u043F\u0435\u0440\u0435\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D" : "\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D";
+  setStatus(t("done"), "ok");
+  const softApHint = softAp ? t("softApOk", { ssid: softAp.ssid }) : t("softApFail");
+  const modeHint = uninstallFirst ? t("reinstalled") : t("installedWord");
   showFinal(true, `JePlay ${version} ${modeHint}.${softApHint}`);
-  log(`\u0423\u0441\u043F\u0435\u0445: JePlay ${version}`, "ok");
+  log(t("success", { version }), "ok");
   trackGoal("install_success", { version, uninstallFirst: Boolean(uninstallFirst) });
   await refreshInstalledPackageUi();
 }
@@ -4936,7 +5199,7 @@ async function runInstallAction(options = {}) {
     setStatus(message, "err");
     log(message, "err");
     if (adb) {
-      showFinal(false, `\u041E\u0448\u0438\u0431\u043A\u0430 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438: ${message}`);
+      showFinal(false, t("installError", { message }));
       await refreshInstalledPackageUi().catch(() => setConnectedUi(true));
     } else {
       hideExistingPanel();
@@ -4960,7 +5223,7 @@ $("copy-softap-ssid")?.addEventListener("click", () => {
 });
 $("copy-softap-pass")?.addEventListener("click", () => {
   const text = softapPassEl?.textContent?.trim();
-  if (text && text !== "(\u043E\u0442\u043A\u0440\u044B\u0442\u0430\u044F \u0441\u0435\u0442\u044C)") copyField(text, $("copy-softap-pass"));
+  if (text && text !== t("openNetwork")) copyField(text, $("copy-softap-pass"));
 });
 actionBtn.addEventListener("click", () => runInstallAction({ uninstallFirst: false }));
 reinstallBtn?.addEventListener("click", () => {
@@ -4977,7 +5240,7 @@ disconnectBtn.addEventListener("click", async () => {
   }
 });
 if (!window.isSecureContext) {
-  setStatus("\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0447\u0435\u0440\u0435\u0437 http://localhost \u0438\u043B\u0438 https://", "err");
-  log("WebUSB \u043D\u0435 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0441 file:// \u2014 \u043F\u043E\u0434\u043D\u0438\u043C\u0438\u0442\u0435 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u0435\u0440\u0432\u0435\u0440 \u0438\u043B\u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0441\u0430\u0439\u0442 \u043F\u043E HTTPS.", "err");
+  setStatus(t("openHttps"), "err");
+  log(t("fileProtocol"), "err");
 }
 refreshPassword();

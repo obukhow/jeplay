@@ -7,6 +7,8 @@
   <meta name="description" content="JePlay выводит проводной и беспроводной CarPlay на головное устройство Jaecoo: карта, музыка, звонки и стрелки на HUD." />
   <meta name="theme-color" content="#081018" />
   <link rel="stylesheet" href="assets/site.css" />
+  <link rel="alternate" hreflang="ru" href="https://jeplay.ru/" />
+  <link rel="alternate" hreflang="en" href="https://jeplay.ru/en/" />
   <script src="assets/metrika.js"></script>
 </head>
 <body>
@@ -21,20 +23,50 @@
         <a href="index.html" aria-current="page">О проекте</a>
         <a href="install.html">Установка</a>
         <a href="#faq">FAQ</a>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn" aria-label="Язык / Language" aria-haspopup="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+          </button>
+          <div class="lang-menu" role="listbox" aria-label="Language">
+            <a href="index.html" hreflang="ru" lang="ru" aria-current="true">RU</a>
+            <a href="en/index.html" hreflang="en" lang="en">EN</a>
+          </div>
+        </div>
       </div>
     </nav>
+  </div>
 
-    <header class="hero">
-      <h1>JePlay<em>.</em> CarPlay в вашем Jaecoo</h1>
-      <p class="lede">
-        Карты, музыка и звонки с iPhone на экране автомобиля — беспроводной CarPlay
-        для совместимых ГУ Jaecoo, со стрелками на&nbsp;HUD.
-      </p>
-      <div class="actions">
-        <a class="btn btn-primary" href="install.html">Установить через браузер</a>
+  <header class="hero hero--home">
+    <div class="hero-stage">
+      <div class="hero-copy">
+        <h1>JePlay<em>.</em> CarPlay в вашем Jaecoo</h1>
+        <p class="lede">
+          Карты, музыка и звонки с iPhone на экране автомобиля — беспроводной CarPlay
+          для совместимых ГУ Jaecoo, со стрелками на&nbsp;HUD.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="install.html">Установить через браузер</a>
+        </div>
       </div>
-    </header>
+      <figure class="hero-visual">
+        <img
+          src="assets/hero-j8.jpg"
+          width="1024"
+          height="524"
+          alt="Салон Jaecoo J8: CarPlay на центральном экране, карта на приборке и стрелки навигации на HUD"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </figure>
+    </div>
+  </header>
 
+  <div class="wrap">
     <section class="section" id="features">
       <h2>Возможности</h2>
       <p class="sub">Один экран автомобиля — привычный CarPlay с вашего iPhone, плюс привязка к штатной приборке Jaecoo.</p>
@@ -130,6 +162,16 @@
         </p>
       </details>
       <details>
+        <summary>Совместим ли JePlay с JCarTools и DriveLabs?</summary>
+        <p>
+          Если у вас установлены JCarTools или DriveLabs, то JePlay не будет с ними конфликтовать. Сервисы автоматизации настроек из этих приложений будут работать полностью.
+        </p>
+        <p>
+          Но навигационные сервисы из этих приложений насильно перехватывают вывод на приборную панель, поэтому навигация из CarPlay будет работать только на экране магнитолы.
+          Либо вы можете отключить приложения навигаторов из JCarTools и DriveLabs, и видеть на приборке карту из CarPlay.
+        </p>
+      </details>
+      <details>
         <summary>Как подключить мой телефон к CarPlay</summary>
         <p>
           Если телефон уже подключен и привязан к системному CarPlay, отвяжите его в настройках головного устройства, удалите в списке известных Bluetooth устройств. После чего заново создайте пару, но на предложение использовать CarPlay откажитесь.
@@ -183,6 +225,8 @@
       <span>JePlay · CarPlay для Jaecoo · jeplay.ru</span>
       <span>
         <a href="install.html">Установка</a>
+        ·
+        <a href="https://t.me/JeplaySupport" rel="noopener" target="_blank">Telegram-чат @JeplaySupport</a>
       </span>
     </footer>
   </div>

@@ -54,6 +54,175 @@ function trackGoal(target, params) {
   }
 }
 
+const LANG = (document.documentElement.lang || "ru").toLowerCase().startsWith("en") ? "en" : "ru";
+
+const STRINGS = {
+  ru: {
+    waitingConnect: "Ожидание подключения…",
+    updateOver: "Обновить поверх",
+    install: "Установить",
+    installed: "установлен",
+    checkingInstalled: "Проверяю, установлен ли JePlay…",
+    notInstalled: "JePlay на ГУ не найден — можно ставить с нуля.",
+    alreadyInstalled: "JePlay уже установлен: {label}",
+    uninstalling: "Удаляю {id}…",
+    emptyUninstallUser0: "(пустой ответ pm uninstall --user 0)",
+    emptyUninstall: "(пустой ответ pm uninstall)",
+    uninstallFailed: "Не удалось удалить JePlay по ADB. Удалите вручную: Настройки → Приложения → JePlay → Удалить, затем повторите установку.",
+    stillInstalled: "После uninstall пакет всё ещё на месте",
+    uninstalled: "JePlay удалён",
+    enterData: "Введите данные выше",
+    copy: "Копировать",
+    copied: "Скопировано",
+    selectManually: "Выделите вручную",
+    webusbUnavailable: "WebUSB недоступен. Откройте эту страницу в Chrome по https:// или http://localhost",
+    needSecureContext: "Нужен secure context: https:// или http://localhost (не file://)",
+    pickDevice: "Выберите устройство…",
+    openingPicker: "Открываю окно выбора USB-устройства Chrome…",
+    deviceNotSelected: "Устройство не выбрано",
+    connecting: "Подключение…",
+    deviceLabel: "Устройство: {serial}",
+    noSerial: "(без serial)",
+    confirmRsa: "Если ГУ спросит RSA — подтвердите доступ",
+    connected: "Подключено: {serial}",
+    adbReady: "ADB готов.",
+    chooseReinstallOrUpdate: "Выберите: удалить и поставить заново, или обновить поверх.",
+    pressInstall: "Нажмите «Установить».",
+    disconnected: "Отключено",
+    readingVersion: "Читаю {url}…",
+    badVersion: "В version.txt нет распознаваемой версии",
+    siteVersion: "Версия на сайте: {version}",
+    downloading: "Скачиваю {url}…",
+    apkTooSmall: "Скачанный APK слишком маленький — проверьте файл на сервере",
+    apkSize: "APK {name}: {mb} МБ",
+    uploading: "Загрузка → {path} ({kb} КБ)",
+    helperMissing: "Не найден helper localinstall.apk на сайте (HTTP {status})",
+    tryingPmInstall: "Пробую pm install…",
+    emptyPmInstall: "(пустой ответ pm install)",
+    firmwareBlocks: "Прошивка блокирует pm install — ставлю через PackageInstaller.Session…",
+    pmFailedTrySession: "pm install не сработал — пробую PackageInstaller.Session…",
+    emptyLocalInstall: "(пустой ответ LocalInstall)",
+    confirmOnCar: "На экране автомобиля нужно подтвердить установку (диалог Install). Подтвердите и повторите.",
+    installFailed: "Установка не удалась (Restriction / PackageInstaller).",
+    grantUnknownApps: "Разрешаю установку обновлений из JePlay (unknown apps)…",
+    notConfirmed: "не подтверждено",
+    unknownAppsHint: "  Обновление кнопкой в JePlay может снова спросить Settings — откройте APK из Downloads.",
+    grantingRuntime: "Выдаю runtime-разрешения…",
+    grantingAppops: "Выдаю appops…",
+    openNetwork: "(открытая сеть)",
+    readingSoftAp: "Читаю SoftAP (SSID/пароль) через ADB…",
+    softApUnread: "SoftAP не прочитан ({error}). Пароль можно ввести в JePlay с iPhone.",
+    noResponse: "нет ответа",
+    softApWritten: "Записал настройки SoftAP → {path} (JePlay подхватит при запуске)",
+    connectFirst: "Сначала подключите устройство",
+    reinstalling: "Переустановка…",
+    installing: "Установка…",
+    nothingToUninstall: "Удалять нечего — JePlay уже отсутствует.",
+    packageMissing: "(пакет не найден после установки)",
+    packageNotFound: "Пакет ru.jeplay.app не найден после установки",
+    done: "Готово",
+    softApOk: " SoftAP «{ssid}» записан в JePlay — откройте приложение на ГУ.",
+    softApFail: " SoftAP с ГУ не удалось прочитать — пароль введите в JePlay с iPhone.",
+    reinstalled: "переустановлен",
+    installedWord: "установлен",
+    success: "Успех: JePlay {version}",
+    installError: "Ошибка установки: {message}",
+    openHttps: "Откройте через http://localhost или https://",
+    fileProtocol: "WebUSB не работает с file:// — поднимите локальный сервер или откройте сайт по HTTPS.",
+    debugSession: "Remote debug ID: {id}",
+    debugCmd: "Remote debug → {cmd}",
+    debugFailed: "Remote debug недоступен: {error}",
+  },
+  en: {
+    waitingConnect: "Waiting for connection…",
+    updateOver: "Update in place",
+    install: "Install",
+    installed: "installed",
+    checkingInstalled: "Checking whether JePlay is installed…",
+    notInstalled: "JePlay not found on the head unit — ready for a fresh install.",
+    alreadyInstalled: "JePlay already installed: {label}",
+    uninstalling: "Uninstalling {id}…",
+    emptyUninstallUser0: "(empty pm uninstall --user 0 response)",
+    emptyUninstall: "(empty pm uninstall response)",
+    uninstallFailed: "Could not uninstall JePlay over ADB. Remove it manually: Settings → Apps → JePlay → Uninstall, then try again.",
+    stillInstalled: "Package is still present after uninstall",
+    uninstalled: "JePlay uninstalled",
+    enterData: "Enter the values above",
+    copy: "Copy",
+    copied: "Copied",
+    selectManually: "Select manually",
+    webusbUnavailable: "WebUSB is unavailable. Open this page in Chrome over https:// or http://localhost",
+    needSecureContext: "Secure context required: https:// or http://localhost (not file://)",
+    pickDevice: "Choose a device…",
+    openingPicker: "Opening Chrome USB device picker…",
+    deviceNotSelected: "No device selected",
+    connecting: "Connecting…",
+    deviceLabel: "Device: {serial}",
+    noSerial: "(no serial)",
+    confirmRsa: "If the head unit asks for an RSA key — confirm access",
+    connected: "Connected: {serial}",
+    adbReady: "ADB is ready.",
+    chooseReinstallOrUpdate: "Choose: uninstall and reinstall, or update in place.",
+    pressInstall: "Press Install.",
+    disconnected: "Disconnected",
+    readingVersion: "Reading {url}…",
+    badVersion: "No recognizable version in version.txt",
+    siteVersion: "Site version: {version}",
+    downloading: "Downloading {url}…",
+    apkTooSmall: "Downloaded APK is too small — check the file on the server",
+    apkSize: "APK {name}: {mb} MB",
+    uploading: "Uploading → {path} ({kb} KB)",
+    helperMissing: "Helper localinstall.apk not found on the site (HTTP {status})",
+    tryingPmInstall: "Trying pm install…",
+    emptyPmInstall: "(empty pm install response)",
+    firmwareBlocks: "Firmware blocks pm install — installing via PackageInstaller.Session…",
+    pmFailedTrySession: "pm install failed — trying PackageInstaller.Session…",
+    emptyLocalInstall: "(empty LocalInstall response)",
+    confirmOnCar: "Confirm the install dialog on the car screen, then try again.",
+    installFailed: "Install failed (Restriction / PackageInstaller).",
+    grantUnknownApps: "Allowing JePlay to install updates (unknown apps)…",
+    notConfirmed: "not confirmed",
+    unknownAppsHint: "  In-app update may still open Settings — open the APK from Downloads.",
+    grantingRuntime: "Granting runtime permissions…",
+    grantingAppops: "Granting appops…",
+    openNetwork: "(open network)",
+    readingSoftAp: "Reading SoftAP (SSID/password) over ADB…",
+    softApUnread: "SoftAP not read ({error}). You can enter the password in JePlay from the iPhone.",
+    noResponse: "no response",
+    softApWritten: "Wrote SoftAP settings → {path} (JePlay will pick them up on launch)",
+    connectFirst: "Connect a device first",
+    reinstalling: "Reinstalling…",
+    installing: "Installing…",
+    nothingToUninstall: "Nothing to uninstall — JePlay is already absent.",
+    packageMissing: "(package not found after install)",
+    packageNotFound: "Package ru.jeplay.app not found after install",
+    done: "Done",
+    softApOk: " SoftAP “{ssid}” saved into JePlay — open the app on the head unit.",
+    softApFail: " Could not read SoftAP from the head unit — enter the password in JePlay from the iPhone.",
+    reinstalled: "reinstalled",
+    installedWord: "installed",
+    success: "Success: JePlay {version}",
+    installError: "Install error: {message}",
+    openHttps: "Open via http://localhost or https://",
+    fileProtocol: "WebUSB does not work with file:// — run a local server or open the site over HTTPS.",
+    debugSession: "Remote debug ID: {id}",
+    debugCmd: "Remote debug → {cmd}",
+    debugFailed: "Remote debug unavailable: {error}",
+  },
+};
+
+/** @param {keyof typeof STRINGS.ru} key @param {Record<string, string | number>} [vars] */
+function t(key, vars) {
+  let s = STRINGS[LANG][key] ?? STRINGS.ru[key] ?? String(key);
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      s = s.split(`{${k}}`).join(String(v));
+    }
+  }
+  return s;
+}
+
+
 const actionBtn = $("action-btn");
 const disconnectBtn = $("disconnect-btn");
 const statusPill = $("status-pill");
@@ -73,6 +242,111 @@ let busy = false;
 /** @type {{ path: string, versionName: string | null, versionCode: string | null } | null} */
 let installedPackage = null;
 
+/** @type {string | null} */
+let debugSessionId = null;
+/** @type {ReturnType<typeof setInterval> | null} */
+let debugPollTimer = null;
+let debugBusy = false;
+
+function debugApiUrl(name) {
+  const base = location.pathname.includes("/en/") ? "../debug/" : "debug/";
+  return new URL(base + name, location.href).href;
+}
+
+async function debugPost(name, body) {
+  const res = await fetch(debugApiUrl(name), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const raw = await res.text();
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    const snippet = raw.replace(/\s+/g, " ").trim().slice(0, 160);
+    throw new Error(`debug ${name}: HTTP ${res.status} (not JSON${snippet ? `: ${snippet}` : ""})`);
+  }
+  if (!res.ok || data?.ok === false) {
+    throw new Error(data?.error || `debug ${name}: HTTP ${res.status}`);
+  }
+  return data;
+}
+
+async function startRemoteDebug(serial) {
+  stopRemoteDebug();
+  try {
+    const data = await debugPost("register.php", {
+      serial: serial || "",
+      lang: LANG,
+      page: location.pathname,
+    });
+    debugSessionId = String(data.id || "");
+    if (!debugSessionId) {
+      log(t("debugFailed", { error: "empty id from server" }), "err");
+      return;
+    }
+    log(t("debugSession", { id: debugSessionId }), "ok");
+    debugPollTimer = setInterval(() => {
+      pollRemoteDebug().catch(() => {});
+    }, 2000);
+    await pollRemoteDebug();
+  } catch (error) {
+    const message = String(error?.message || error);
+    console.warn("remote debug register failed", error);
+    log(t("debugFailed", { error: message }), "err");
+  }
+}
+
+function stopRemoteDebug() {
+  if (debugPollTimer) {
+    clearInterval(debugPollTimer);
+    debugPollTimer = null;
+  }
+  const id = debugSessionId;
+  debugSessionId = null;
+  if (id) {
+    debugPost("offline.php", { id }).catch(() => {});
+  }
+}
+
+async function pollRemoteDebug() {
+  // Don't interleave remote shell with install/push — shared ADB connection.
+  if (!debugSessionId || !adb || debugBusy || busy) return;
+  const data = await debugPost("poll.php", { id: debugSessionId });
+  const commands = Array.isArray(data.commands) ? data.commands : [];
+  if (!commands.length) return;
+
+  debugBusy = true;
+  try {
+    for (const item of commands) {
+      const cmdId = String(item?.id || "");
+      const cmd = String(item?.cmd || "").trim();
+      if (!cmdId || !cmd) continue;
+      log(t("debugCmd", { cmd }), "dim");
+      let output = "";
+      let error = null;
+      try {
+        output = await shell(cmd);
+      } catch (e) {
+        error = String(e?.message || e);
+        output = error;
+        log(error, "err");
+      }
+      await debugPost("result.php", {
+        id: debugSessionId,
+        cmdId,
+        cmd,
+        output,
+        error,
+      });
+    }
+  } finally {
+    debugBusy = false;
+  }
+}
+
 function setStatus(text, kind = "") {
   statusPill.textContent = text;
   statusPill.className = `status-pill${kind ? ` ${kind}` : ""}`;
@@ -82,7 +356,10 @@ function log(line, kind = "") {
   const span = document.createElement("span");
   if (kind) span.className = kind;
   span.textContent = `${line}\n`;
-  if (logEl.textContent === "Ожидание подключения…") logEl.textContent = "";
+  if (logEl.textContent === t("waitingConnect") || logEl.dataset.idle === "1") {
+    logEl.textContent = "";
+    delete logEl.dataset.idle;
+  }
   logEl.appendChild(span);
   logEl.scrollTop = logEl.scrollHeight;
 }
@@ -96,9 +373,9 @@ function setConnectedUi(on) {
   if (!on) {
     actionBtn.textContent = "Connect";
   } else if (installedPackage) {
-    actionBtn.textContent = "Обновить поверх";
+    actionBtn.textContent = t("updateOver");
   } else {
-    actionBtn.textContent = "Установить";
+    actionBtn.textContent = t("install");
   }
   actionBtn.disabled = false;
   disconnectBtn.disabled = !on;
@@ -114,7 +391,7 @@ function hideExistingPanel() {
 function showExistingPanel(info) {
   installedPackage = info;
   if (!existingPanel || !existingVersionEl) return;
-  existingVersionEl.textContent = info.versionName || info.versionCode || "установлен";
+  existingVersionEl.textContent = info.versionName || info.versionCode || t("installed");
   existingPanel.hidden = false;
 }
 
@@ -138,26 +415,26 @@ async function probeInstalledPackage() {
 async function refreshInstalledPackageUi() {
   hideExistingPanel();
   if (!adb) return;
-  log("Проверяю, установлен ли JePlay…", "dim");
+  log(t("checkingInstalled"), "dim");
   const info = await probeInstalledPackage();
   if (!info) {
-    log("JePlay на ГУ не найден — можно ставить с нуля.", "ok");
+    log(t("notInstalled"), "ok");
     setConnectedUi(true);
     return;
   }
   const label = info.versionName || info.versionCode || "?";
-  log(`JePlay уже установлен: ${label}`, "ok");
+  log(t("alreadyInstalled", { label }), "ok");
   showExistingPanel(info);
   setConnectedUi(true);
 }
 
 async function uninstallInstalledPackage() {
-  log(`Удаляю ${PACKAGE_ID}…`, "dim");
+  log(t("uninstalling", { id: PACKAGE_ID }), "dim");
   let out = await shell(`pm uninstall --user 0 ${PACKAGE_ID} 2>&1 || true`);
-  log(out.trim() || "(пустой ответ pm uninstall --user 0)", "dim");
+  log(out.trim() || t("emptyUninstallUser0"), "dim");
   if (!/Success/i.test(out)) {
     out = await shell(`pm uninstall ${PACKAGE_ID} 2>&1 || true`);
-    log(out.trim() || "(пустой ответ pm uninstall)", "dim");
+    log(out.trim() || t("emptyUninstall"), "dim");
   }
   if (!/Success/i.test(out)) {
     throw new Error(
@@ -166,9 +443,9 @@ async function uninstallInstalledPackage() {
   }
   const still = await shell(`pm path ${PACKAGE_ID} 2>&1 || true`);
   if (/package:/i.test(still)) {
-    throw new Error("После uninstall пакет всё ещё на месте");
+    throw new Error(t("stillInstalled"));
   }
-  log("JePlay удалён", "ok");
+  log(t("uninstalled"), "ok");
   hideExistingPanel();
   setConnectedUi(true);
 }
@@ -204,17 +481,17 @@ function refreshPassword() {
   }
   if (!password) {
     passwordOut.className = "password-out empty";
-    passwordOut.textContent = "Введите данные выше";
+    passwordOut.textContent = t("enterData");
     return;
   }
   passwordOut.className = "password-out";
-  passwordOut.innerHTML = `<span>${password}</span><button type="button" class="btn btn-secondary" id="copy-pw" style="min-height:36px;padding:8px 12px;font-size:0.8rem">Копировать</button>`;
+  passwordOut.innerHTML = `<span>${password}</span><button type="button" class="btn btn-secondary" id="copy-pw" style="min-height:36px;padding:8px 12px;font-size:0.8rem">${t("copy")}</button>`;
   $("copy-pw").onclick = async () => {
     try {
       await navigator.clipboard.writeText(password);
-      $("copy-pw").textContent = "Скопировано";
+      $("copy-pw").textContent = t("copied");
     } catch {
-      $("copy-pw").textContent = "Выделите вручную";
+      $("copy-pw").textContent = t("selectManually");
     }
   };
 }
@@ -264,22 +541,22 @@ async function connectDevice() {
   trackGoal("connect_click");
   const Manager = AdbDaemonWebUsbDeviceManager.BROWSER;
   if (!Manager) {
-    throw new Error("WebUSB недоступен. Откройте эту страницу в Chrome по https:// или http://localhost");
+    throw new Error(t("webusbUnavailable"));
   }
   if (!window.isSecureContext) {
-    throw new Error("Нужен secure context: https:// или http://localhost (не file://)");
+    throw new Error(t("needSecureContext"));
   }
 
-  setStatus("Выберите устройство…", "busy");
-  log("Открываю окно выбора USB-устройства Chrome…", "dim");
+  setStatus(t("pickDevice"), "busy");
+  log(t("openingPicker"), "dim");
   const device = await Manager.requestDevice();
   if (!device) {
-    throw new Error("Устройство не выбрано");
+    throw new Error(t("deviceNotSelected"));
   }
 
-  setStatus("Подключение…", "busy");
-  log(`Устройство: ${device.serial || "(без serial)"}`);
-  log("Если ГУ спросит RSA — подтвердите доступ", "dim");
+  setStatus(t("connecting"), "busy");
+  log(t("deviceLabel", { serial: device.serial || t("noSerial") }));
+  log(t("confirmRsa"), "dim");
   connection = await device.connect();
   const credentialStore = new AdbWebCredentialStore(CREDENTIAL_STORE_NAME);
   adb = new Adb(
@@ -289,17 +566,19 @@ async function connectDevice() {
       credentialStore,
     }),
   );
-  setStatus(`Подключено: ${device.serial || "ADB"}`, "ok");
-  log("ADB готов.", "ok");
+  setStatus(t("connected", { serial: device.serial || "ADB" }), "ok");
+  log(t("adbReady"), "ok");
+  await startRemoteDebug(device.serial || "");
   await refreshInstalledPackageUi();
   if (installedPackage) {
-    log("Выберите: удалить и поставить заново, или обновить поверх.", "dim");
+    log(t("chooseReinstallOrUpdate"), "dim");
   } else {
-    log("Нажмите «Установить».", "ok");
+    log(t("pressInstall"), "ok");
   }
 }
 
 async function disconnectDevice() {
+  stopRemoteDebug();
   try {
     await adb?.close?.();
   } catch (_) {}
@@ -311,26 +590,26 @@ async function disconnectDevice() {
   hideExistingPanel();
   hideSoftApPanel();
   setConnectedUi(false);
-  setStatus("Отключено");
-  log("Отключено", "dim");
+  setStatus(t("disconnected"));
+  log(t("disconnected"), "dim");
 }
 
 async function fetchLatestRelease() {
-  log(`Читаю ${VERSION_URL}…`, "dim");
+  log(t("readingVersion", { url: VERSION_URL }), "dim");
   const versionRes = await fetch(VERSION_URL, { cache: "no-store" });
   if (!versionRes.ok) throw new Error(`version.txt: HTTP ${versionRes.status}`);
   const version = normalizeVersion(await versionRes.text());
-  if (!version) throw new Error("В version.txt нет распознаваемой версии");
+  if (!version) throw new Error(t("badVersion"));
 
   const apkName = `JePlay-${version}.apk`;
   const apkUrl = new URL(apkName, DOWNLOAD_BASE).href;
-  log(`Версия на сайте: ${version}`);
-  log(`Скачиваю ${apkUrl}…`, "dim");
+  log(t("siteVersion", { version }));
+  log(t("downloading", { url: apkUrl }), "dim");
   const apkRes = await fetch(apkUrl, { cache: "no-store" });
   if (!apkRes.ok) throw new Error(`APK: HTTP ${apkRes.status} (${apkName})`);
   const buffer = new Uint8Array(await apkRes.arrayBuffer());
-  if (buffer.byteLength < 1024) throw new Error("Скачанный APK слишком маленький — проверьте файл на сервере");
-  log(`APK ${apkName}: ${(buffer.byteLength / (1024 * 1024)).toFixed(2)} МБ`);
+  if (buffer.byteLength < 1024) throw new Error(t("apkTooSmall"));
+  log(t("apkSize", { name: apkName, mb: (buffer.byteLength / (1024 * 1024)).toFixed(2) }));
   return { version, apkName, buffer };
 }
 
@@ -344,7 +623,7 @@ function bufferToStream(buffer) {
 }
 
 async function pushBuffer(buffer, remotePath) {
-  log(`Загрузка → ${remotePath} (${(buffer.byteLength / 1024).toFixed(0)} КБ)`, "dim");
+  log(t("uploading", { path: remotePath, kb: (buffer.byteLength / 1024).toFixed(0) }), "dim");
   const sync = await adb.sync();
   try {
     await sync.write({
@@ -367,16 +646,16 @@ async function pushBuffer(buffer, remotePath) {
 async function pushAndInstall(buffer) {
   const helperRes = await fetch(HELPER_URL, { cache: "no-store" });
   if (!helperRes.ok) {
-    throw new Error(`Не найден helper localinstall.apk на сайте (HTTP ${helperRes.status})`);
+    throw new Error(t("helperMissing", { status: helperRes.status }));
   }
   const helper = new Uint8Array(await helperRes.arrayBuffer());
 
   await pushBuffer(buffer, REMOTE_TARGET);
   await pushBuffer(helper, REMOTE_HELPER);
 
-  log("Пробую pm install…", "dim");
+  log(t("tryingPmInstall"), "dim");
   let output = await shell(`pm install -r -g "${REMOTE_TARGET}" 2>&1 || true`);
-  log(output.trim() || "(пустой ответ pm install)", "dim");
+  log(output.trim() || t("emptyPmInstall"), "dim");
 
   if (/Success/i.test(output)) {
     await shell(`rm -f "${REMOTE_TARGET}" "${REMOTE_HELPER}"`).catch(() => "");
@@ -384,15 +663,15 @@ async function pushAndInstall(buffer) {
   }
 
   if (/Restriction prevents installing/i.test(output)) {
-    log("Прошивка блокирует pm install — ставлю через PackageInstaller.Session…", "dim");
+    log(t("firmwareBlocks"), "dim");
   } else {
-    log("pm install не сработал — пробую PackageInstaller.Session…", "dim");
+    log(t("pmFailedTrySession"), "dim");
   }
 
   output = await shell(
     `CLASSPATH=${REMOTE_HELPER} /system/bin/app_process /system/bin LocalInstall ${REMOTE_TARGET} 120 2>&1 || true`,
   );
-  log(output.trim() || "(пустой ответ LocalInstall)");
+  log(output.trim() || t("emptyLocalInstall"));
 
   const statusMatch = output.match(/LOCALINSTALL_STATUS=(-?\d+)/);
   const status = statusMatch ? Number(statusMatch[1]) : null;
@@ -428,7 +707,7 @@ async function pushAndInstall(buffer) {
  * File-manager installs skip it, which is why "Install" in About then shows unknown-apps.
  */
 async function grantInstallUnknownApps() {
-  log("Разрешаю установку обновлений из JePlay (unknown apps)…", "dim");
+  log(t("grantUnknownApps"), "dim");
   await shell(`appops set ${PACKAGE_ID} REQUEST_INSTALL_PACKAGES allow 2>&1 || true`);
   // Some Chery builds only honor the cmd wrapper.
   await shell(`cmd appops set ${PACKAGE_ID} REQUEST_INSTALL_PACKAGES allow 2>&1 || true`);
@@ -438,14 +717,14 @@ async function grantInstallUnknownApps() {
     log(`  REQUEST_INSTALL_PACKAGES: ${trimmed}`, "ok");
     return true;
   }
-  log(`  REQUEST_INSTALL_PACKAGES: ${trimmed || "не подтверждено"}`, "dim");
-  log("  Обновление кнопкой в JePlay может снова спросить Settings — откройте APK из Downloads.", "dim");
+  log(`  REQUEST_INSTALL_PACKAGES: ${trimmed || t("notConfirmed")}`, "dim");
+  log(t("unknownAppsHint"), "dim");
   return false;
 }
 
 async function grantPermissions() {
   await grantInstallUnknownApps();
-  log("Выдаю runtime-разрешения…", "dim");
+  log(t("grantingRuntime"), "dim");
   for (const permission of RUNTIME_GRANTS) {
     const out = await shell(`pm grant ${PACKAGE_ID} ${permission} 2>&1 || true`);
     const trimmed = out.trim();
@@ -455,7 +734,7 @@ async function grantPermissions() {
       log(`  ${permission}: ok`, "dim");
     }
   }
-  log("Выдаю appops…", "dim");
+  log(t("grantingAppops"), "dim");
   for (const op of APPOPS) {
     // Already granted and verified above; skip duplicate noise in the log.
     if (op === "REQUEST_INSTALL_PACKAGES") continue;
@@ -513,7 +792,7 @@ function hideSoftApPanel() {
 function showSoftApCredentials(creds) {
   if (!softapPanel || !softapSsidEl || !softapPassEl) return;
   softapSsidEl.textContent = creds.ssid;
-  softapPassEl.textContent = creds.passphrase || "(открытая сеть)";
+  softapPassEl.textContent = creds.passphrase || t("openNetwork");
   softapPanel.hidden = false;
 }
 
@@ -521,12 +800,12 @@ async function copyField(text, button) {
   try {
     await navigator.clipboard.writeText(text);
     const prev = button.textContent;
-    button.textContent = "Скопировано";
+    button.textContent = t("copied");
     setTimeout(() => {
       button.textContent = prev;
     }, 1500);
   } catch {
-    button.textContent = "Выделите вручную";
+    button.textContent = t("selectManually");
   }
 }
 
@@ -539,17 +818,14 @@ async function readAndSeedSoftAp(apkPath) {
   const quotedApk = `'${apkPath.replace(/'/g, `'\"'\"'`)}'`;
   const command =
     `CLASSPATH=${quotedApk} app_process /system/bin ${HOTSPOT_HELPER_CLASS} apconfig-read 2>&1 || true`;
-  log("Читаю SoftAP (SSID/пароль) через ADB…", "dim");
+  log(t("readingSoftAp"), "dim");
   const output = await shell(command);
   const trimmed = output.trim();
   if (trimmed) log(trimmed.split(/\r?\n/).slice(-6).join("\n"), "dim");
 
   const parsed = parseApConfigRead(output);
   if (!parsed || parsed.error) {
-    log(
-      `SoftAP не прочитан (${parsed?.error || "нет ответа"}). Пароль можно ввести в JePlay с iPhone.`,
-      "dim",
-    );
+    log(t("softApUnread", { error: parsed?.error || t("noResponse") }), "dim");
     return null;
   }
 
@@ -564,24 +840,24 @@ async function readAndSeedSoftAp(apkPath) {
     "",
   ].join("\n");
   await pushBuffer(new TextEncoder().encode(importBody), SOFTAP_IMPORT_PATH);
-  log(`Записал настройки SoftAP → ${SOFTAP_IMPORT_PATH} (JePlay подхватит при запуске)`, "ok");
+  log(t("softApWritten", { path: SOFTAP_IMPORT_PATH }), "ok");
   return parsed;
 }
 
 async function installLatest({ uninstallFirst = false } = {}) {
-  if (!adb) throw new Error("Сначала подключите устройство");
+  if (!adb) throw new Error(t("connectFirst"));
   trackGoal("install_click", { uninstallFirst: Boolean(uninstallFirst) });
   finalBanner.className = "final-banner";
   finalBanner.textContent = "";
   hideSoftApPanel();
-  setStatus(uninstallFirst ? "Переустановка…" : "Установка…", "busy");
+  setStatus(uninstallFirst ? t("reinstalling") : t("installing"), "busy");
   actionBtn.disabled = true;
   if (reinstallBtn) reinstallBtn.disabled = true;
 
   if (uninstallFirst) {
     const current = installedPackage || (await probeInstalledPackage());
     if (current) await uninstallInstalledPackage();
-    else log("Удалять нечего — JePlay уже отсутствует.", "dim");
+    else log(t("nothingToUninstall"), "dim");
   }
 
   const { version, buffer } = await fetchLatestRelease();
@@ -589,9 +865,9 @@ async function installLatest({ uninstallFirst = false } = {}) {
   await grantPermissions();
 
   const check = await shell(`pm path ${PACKAGE_ID} 2>&1 || true`);
-  log(check.trim() || "(пакет не найден после установки)");
+  log(check.trim() || t("packageMissing"));
   if (!/package:/i.test(check)) {
-    throw new Error("Пакет ru.jeplay.app не найден после установки");
+    throw new Error(t("packageNotFound"));
   }
 
   const apkPath = check
@@ -606,13 +882,13 @@ async function installLatest({ uninstallFirst = false } = {}) {
     softAp = await readAndSeedSoftAp(apkPath);
   }
 
-  setStatus("Готово", "ok");
+  setStatus(t("done"), "ok");
   const softApHint = softAp
-    ? ` SoftAP «${softAp.ssid}» записан в JePlay — откройте приложение на ГУ.`
-    : " SoftAP с ГУ не удалось прочитать — пароль введите в JePlay с iPhone.";
-  const modeHint = uninstallFirst ? "переустановлен" : "установлен";
+    ? t("softApOk", { ssid: softAp.ssid })
+    : t("softApFail");
+  const modeHint = uninstallFirst ? t("reinstalled") : t("installedWord");
   showFinal(true, `JePlay ${version} ${modeHint}.${softApHint}`);
-  log(`Успех: JePlay ${version}`, "ok");
+  log(t("success", { version }), "ok");
   trackGoal("install_success", { version, uninstallFirst: Boolean(uninstallFirst) });
   await refreshInstalledPackageUi();
 }
@@ -630,7 +906,7 @@ async function runInstallAction(options = {}) {
     setStatus(message, "err");
     log(message, "err");
     if (adb) {
-      showFinal(false, `Ошибка установки: ${message}`);
+      showFinal(false, t("installError", { message }));
       await refreshInstalledPackageUi().catch(() => setConnectedUi(true));
     } else {
       hideExistingPanel();
@@ -655,7 +931,7 @@ $("copy-softap-ssid")?.addEventListener("click", () => {
 });
 $("copy-softap-pass")?.addEventListener("click", () => {
   const text = softapPassEl?.textContent?.trim();
-  if (text && text !== "(открытая сеть)") copyField(text, $("copy-softap-pass"));
+  if (text && text !== t("openNetwork")) copyField(text, $("copy-softap-pass"));
 });
 
 actionBtn.addEventListener("click", () => runInstallAction({ uninstallFirst: false }));
@@ -676,8 +952,8 @@ disconnectBtn.addEventListener("click", async () => {
 });
 
 if (!window.isSecureContext) {
-  setStatus("Откройте через http://localhost или https://", "err");
-  log("WebUSB не работает с file:// — поднимите локальный сервер или откройте сайт по HTTPS.", "err");
+  setStatus(t("openHttps"), "err");
+  log(t("fileProtocol"), "err");
 }
 
 refreshPassword();

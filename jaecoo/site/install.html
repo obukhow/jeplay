@@ -7,6 +7,8 @@
   <meta name="description" content="Установка JePlay на Jaecoo через Chrome: флешка с флагом ADB, пароль ENCRYPTION, Connect и Install по WebUSB." />
   <meta name="theme-color" content="#081018" />
   <link rel="stylesheet" href="assets/site.css" />
+  <link rel="alternate" hreflang="ru" href="https://jeplay.ru/install.html" />
+  <link rel="alternate" hreflang="en" href="https://jeplay.ru/en/install.html" />
   <script src="assets/metrika.js"></script>
 </head>
 <body>
@@ -20,6 +22,20 @@
       <div class="nav-links">
         <a href="index.html">О проекте</a>
         <a href="install.html" aria-current="page">Установить</a>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn" aria-label="Язык / Language" aria-haspopup="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+          </button>
+          <div class="lang-menu" role="listbox" aria-label="Language">
+            <a href="install.html" hreflang="ru" lang="ru" aria-current="true">RU</a>
+            <a href="en/install.html" hreflang="en" lang="en">EN</a>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -126,6 +142,20 @@
               установится через ADB и выдадутся разрешения (в том числе установка обновлений из JePlay).</li>
           </ol>
         </section>
+
+        <section class="panel" style="margin-top: 18px">
+          <h2>5. После установки</h2>
+          <p style="color: var(--muted); margin-top: 0">
+            Чтобы предотвратить запуск штатного CarPlay вместо JePlay:
+          </p>
+          <ol>
+            <li>В настройках ГУ удалите ваш iPhone из списка известных Bluetooth-устройств.</li>
+            <li>В настройках Bluetooth привяжите его снова.</li>
+            <li>В момент, когда на головном устройстве появится вопрос «Разрешить использование CarPlay?»,
+              откажитесь. Это предотвратит автоматический запуск штатного CarPlay при запуске автомобиля.</li>
+            <li>В JePlay выберите в списке подключенных устройств ваш iPhone.</li>
+          </ol>
+        </section>
       </div>
 
       <aside class="install-console">
@@ -173,7 +203,7 @@
           </div>
         </div>
 
-        <pre id="log" aria-live="polite">Ожидание подключения…</pre>
+        <pre id="log" data-idle="1" aria-live="polite">Ожидание подключения…</pre>
         </div>
 
         <div class="panel" style="margin-top:18px;">
@@ -219,6 +249,8 @@
       <span>Основано на <a href="https://github.com/shihabal3amri/DiPlay" rel="noopener" target="_blank">DiPlay</a></span>
       <span>
         <a href="index.html">На главную</a>
+        ·
+        <a href="https://t.me/JeplaySupport" rel="noopener" target="_blank">Telegram-чат @JeplaySupport</a>
       </span>
     </footer>
   </div>
