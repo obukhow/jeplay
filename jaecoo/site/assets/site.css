@@ -304,10 +304,9 @@ a:hover {
   display: block;
   width: 100%;
   height: auto;
-  min-height: 320px;
-  aspect-ratio: 1024 / 524;
+  aspect-ratio: 1920 / 1117;
   object-fit: cover;
-  object-position: 58% 42%;
+  object-position: center;
   transform: scale(1.03);
   animation: hero-reveal 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -391,6 +390,76 @@ a:hover {
   color: var(--muted);
   max-width: 40rem;
   margin: 0 0 28px;
+}
+
+.photo-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.photo-card {
+  appearance: none;
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #050a10;
+  cursor: zoom-in;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.photo-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.photo-lightbox {
+  width: min(1100px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.photo-lightbox::backdrop {
+  background: rgba(4, 8, 14, 0.86);
+}
+
+.photo-lightbox img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 48px);
+  object-fit: contain;
+  border-radius: 12px;
+  background: #050a10;
+}
+
+.photo-lightbox-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(8, 16, 24, 0.82);
+  color: var(--text);
+  font: 400 1.6rem/1 var(--font);
+  cursor: pointer;
 }
 
 .feature-list {
@@ -1103,8 +1172,7 @@ footer {
   }
 
   .hero-visual img {
-    min-height: 220px;
-    object-position: 35% 45%;
+    object-position: center;
   }
 
   .need-icons {

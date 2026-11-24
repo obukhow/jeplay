@@ -1285,7 +1285,7 @@ object AirPlayPersistence {
     /** 0 off, 1 always small-window positions, 2 auto from the cluster. Default off. */
     fun loadClusterSmallWindowMode(context: Context): Int =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getInt(KEY_CLUSTER_SMALL_WINDOW_MODE, 0).coerceIn(0, 2)
+            .getInt(KEY_CLUSTER_SMALL_WINDOW_MODE, 2).coerceIn(0, 2) // JAECOO: follow the cluster well by default
 
     fun saveClusterSmallWindowMode(context: Context, mode: Int) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()

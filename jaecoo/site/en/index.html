@@ -55,10 +55,10 @@
       </div>
       <figure class="hero-visual">
         <img
-          src="../assets/hero-j8.jpg"
-          width="1024"
-          height="524"
-          alt="Jaecoo J8 cabin: CarPlay on the center screen, map on the cluster, and navigation arrows on the HUD"
+          src="../assets/hero-cabin.jpg"
+          width="1920"
+          height="1117"
+          alt="Jaecoo cabin: navigation arrows on the windshield, map on the cluster, and CarPlay on the center screen"
           decoding="async"
           fetchpriority="high"
         />
@@ -221,6 +221,42 @@
       </div>
     </section>
 
+    <section class="section" id="photos">
+      <h2>User photos</h2>
+      <ul class="photo-gallery">
+        <li>
+          <button type="button" class="photo-card" data-full="../assets/user-day.jpg" aria-label="Daytime drive: map on the instrument cluster and CarPlay on the Jaecoo screen">
+            <img
+              src="../assets/user-day.jpg"
+              width="1600"
+              height="1200"
+              alt="Daytime drive: map on the instrument cluster and CarPlay on the Jaecoo screen"
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+        </li>
+        <li>
+          <button type="button" class="photo-card" data-full="../assets/user-night.jpg" aria-label="Night drive: map on the cluster and CarPlay on the Jaecoo screen">
+            <img
+              src="../assets/user-night.jpg"
+              width="1280"
+              height="960"
+              alt="Night drive: map on the cluster and CarPlay on the Jaecoo screen"
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+        </li>
+      </ul>
+      <dialog class="photo-lightbox" id="photo-lightbox">
+        <form method="dialog">
+          <button type="submit" class="photo-lightbox-close" aria-label="Close">×</button>
+        </form>
+        <img alt="" />
+      </dialog>
+    </section>
+
     <footer>
       <span>JePlay · CarPlay for Jaecoo · jeplay.ru</span>
       <span>
@@ -230,5 +266,26 @@
       </span>
     </footer>
   </div>
+  <script>
+    (function () {
+      var dialog = document.getElementById("photo-lightbox");
+      if (!dialog || !dialog.showModal) return;
+      var img = dialog.querySelector("img");
+      document.querySelectorAll(".photo-card").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var source = btn.querySelector("img");
+          img.src = btn.getAttribute("data-full");
+          img.alt = source ? source.alt : "";
+          dialog.showModal();
+        });
+      });
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) dialog.close();
+      });
+      dialog.addEventListener("close", function () {
+        img.removeAttribute("src");
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 # JePlay release (build → site → git tag)
 
+Agent skill for this procedure: [`.cursor/skills/jeplay-release/SKILL.md`](../.cursor/skills/jeplay-release/SKILL.md).
+
 Release a new JePlay patch (`0.2.21.N` / `versionCode = 40NN`), publish APK +
 checksums to [jeplay.ru](https://jeplay.ru), then tag and push.
 

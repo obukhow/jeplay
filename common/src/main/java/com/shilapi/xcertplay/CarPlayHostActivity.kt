@@ -825,6 +825,7 @@ class CarPlayHostActivity : ComponentActivity() {
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         getSystemService(android.hardware.display.DisplayManager::class.java)
             ?.registerDisplayListener(clusterDisplayListener, mainHandler)
+        JaecooClusterMeter.start(this) { onJaecooClusterLayout() } // JAECOO
         initializeSessionLog()
         lastConfiguration = Configuration(resources.configuration)
         darkMode = savedInstanceState?.getBoolean("carplay_night_active")
@@ -1188,22 +1189,16 @@ class CarPlayHostActivity : ComponentActivity() {
         advancedAudioChannelMapping =
             advancedAudioChannelMappingSupported &&
                 AirPlayPersistence.loadAdvancedAudioChannelMapping(this)
-        val followClusterUsage = DiLink51ClusterLayout.automatic(this) ||
-            AirPlayPersistence.loadClusterSmallWindowMode(this) == CLUSTER_SMALL_WINDOW_AUTO
+        // JAECOO: small-window Auto follows the Desay cluster event, not the BYD activity monitor.
+        val followClusterUsage = DiLink51ClusterLayout.automatic(this)
         if (followClusterUsage && clusterMonitor == null) {
             clusterMonitor = DiLink51ClusterMonitor(this, ::onClusterActivityState).also { it.start() }
         } else if (!followClusterUsage) {
             clusterMonitor?.stop()
             clusterMonitor = null
         }
-        if (AirPlayPersistence.loadClusterSmallWindowMode(this) == CLUSTER_SMALL_WINDOW_AUTO) {
-            com.shilapi.xcertplay.hud.BydNavigationOutputs.setClusterNaviModeListener { mode ->
-                mainHandler.post { onAdbNaviMode(mode) }
-            }
-        } else {
-            com.shilapi.xcertplay.hud.BydNavigationOutputs.setClusterNaviModeListener(null)
-            adbNaviMode = null
-        }
+        com.shilapi.xcertplay.hud.BydNavigationOutputs.setClusterNaviModeListener(null)
+        adbNaviMode = null
         syncClusterMusicWindow()
         if (!menuOpen) gestureFingerCount = AirPlayPersistence.loadSettingsGestureFingers(this)
         if (!menuOpen) temporarySystemBarsEnabled = AirPlayPersistence.loadTemporarySystemBars(this)
@@ -1281,14 +1276,16 @@ class CarPlayHostActivity : ComponentActivity() {
         }
     }
 
-    private fun smallWindowActive(): Boolean = when (AirPlayPersistence.loadClusterSmallWindowMode(this)) {
-        CLUSTER_SMALL_WINDOW_ON -> true
-        CLUSTER_SMALL_WINDOW_AUTO -> when (adbNaviMode) {
-            com.shilapi.xcertplay.hud.BydClusterNaviMode.SMALL -> true
-            com.shilapi.xcertplay.hud.BydClusterNaviMode.FULL -> false
-            else -> detectedCluster.smallWindow
-        }
-        else -> false
+    private fun smallWindowActive(): Boolean {
+        // JAECOO: the small-window sliders move the presentation. The car marker stays at the centre of that window.
+        return false
+    }
+
+    /** JAECOO: move the cluster window when Desay switches the well and the full map. */
+    private fun onJaecooClusterLayout() {
+        val layout = JaecooClusterMeter.layout
+        appendLog("Cluster map: Desay meter ${layout?.name?.lowercase()}")
+        applyClusterTurnOverlay()
     }
 
     private fun ensureClusterPresentation() {
@@ -1326,6 +1323,7 @@ class CarPlayHostActivity : ComponentActivity() {
         val presentation = ClusterMapPresentation(this, display, theme) { surface -> runOnUiThread { onClusterSurface(surface) } }
         // The system dismisses a presentation when its display goes away; allow a new one on resume.
         presentation.setOnDismissListener {
+            JaecooClusterMeter.detach(presentation) // JAECOO
             if (clusterPresentation === presentation) {
                 clusterPresentation = null
                 com.shilapi.xcertplay.hud.BydNavigationOutputs.setClusterMapShown(false)
@@ -1335,6 +1333,7 @@ class CarPlayHostActivity : ComponentActivity() {
         try {
             presentation.show()
             clusterPresentation = presentation
+            JaecooClusterMeter.attach(presentation) // JAECOO
             updateClusterMapShown()
             presentation.setStreamActive(SCREEN_TYPE_ALT in activeScreenStreamTypes)
             applyClusterTurnOverlay()
@@ -1421,7 +1420,8 @@ class CarPlayHostActivity : ComponentActivity() {
     }
 
     private fun syncClusterMusicWindow() {
-        ClusterMusicWindow.setSmallWindow(smallWindowActive())
+        // JAECOO: in the well the whole window is the mini map, so the track card must not stay up.
+        ClusterMusicWindow.setSmallWindow(JaecooClusterMeter.showsWell(this))
     }
 
     private fun applyClusterTurnOverlay() {
@@ -1920,6 +1920,7 @@ class CarPlayHostActivity : ComponentActivity() {
         }
         if (MapMirrors.onChanged === mirrorsChanged) MapMirrors.onChanged = null
         dismissClusterPresentation()
+        JaecooClusterMeter.stop() // JAECOO
         mainHandler.removeCallbacks(applyDisplaySize)
         mainHandler.removeCallbacks(expireOldLogLines)
         mainHandler.removeCallbacks(pollConfiguration)
