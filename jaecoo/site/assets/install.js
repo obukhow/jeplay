@@ -6,6 +6,7 @@
 import { Adb, AdbDaemonTransport } from "@yume-chan/adb";
 import { AdbDaemonWebUsbDeviceManager } from "@yume-chan/adb-daemon-webusb";
 import AdbWebCredentialStore from "@yume-chan/adb-credential-web";
+import { analyzeConnectionLogs } from "./connection-diagnose.js";
 
 const PACKAGE_ID = "ru.jeplay.app";
 const VERSION_URL = new URL("../version.txt", import.meta.url).href;
@@ -17,6 +18,12 @@ const SOFTAP_IMPORT_PATH = "/data/local/tmp/ru.jeplay.app-softap-import";
 const APCONFIG_READ_HEADER = "DIPLAY_HOTSPOT_APCONFIG_READ_V1|";
 const HOTSPOT_HELPER_CLASS = "com.shilapi.xcertplay.network.CarHotspotStartMain";
 const CREDENTIAL_STORE_NAME = "jeplay-webadb";
+
+/** OEM packages toggled from the Utilities popup / post-install. */
+const OEM_CARPLAY_PKG = "com.desaysv.vehicle.carplayapp";
+const DRIVELABS_NAVI_PKG = "ru.yandex.yandexnavi.auto";
+const YANDEX_MAPS_PKGS = ["ru.yandex.yandexmaps", "ru.yandex.yandexmaps.app"];
+const TURBODOG_PKG = "com.astrob.turbodog";
 
 /** ENCRYPTION v2 multiplier (password = (K * productId * rand) % 1e6). */
 const V2_K = 566789n;
@@ -99,6 +106,7 @@ const STRINGS = {
     helperMissing: "Не найден helper localinstall.apk на сайте (HTTP {status})",
     tryingPmInstall: "Пробую pm install…",
     emptyPmInstall: "(пустой ответ pm install)",
+    shellSocketFallback: "ADB отклонил команду (Socket open failed) — запускаю через временный sh-скрипт…",
     firmwareBlocks: "Прошивка блокирует pm install — ставлю через PackageInstaller.Session…",
     pmFailedTrySession: "pm install не сработал — пробую PackageInstaller.Session…",
     emptyLocalInstall: "(пустой ответ LocalInstall)",
@@ -132,6 +140,52 @@ const STRINGS = {
     debugSession: "Remote debug ID: {id}",
     debugCmd: "Remote debug → {cmd}",
     debugFailed: "Remote debug недоступен: {error}",
+    utilities: "Утилиты",
+    utilDisableCarplay: "Выключить системный CarPlay",
+    utilEnableCarplay: "Включить системный CarPlay",
+    utilDisableDrivelabs: "Выключить навигатор DriveLabs",
+    utilEnableDrivelabs: "Включить навигатор DriveLabs",
+    utilDisableMaps: "Выключить Яндекс.Карты",
+    utilEnableMaps: "Включить Яндекс.Карты",
+    utilDisableTurbodog: "Выключить TurboDog",
+    utilEnableTurbodog: "Включить TurboDog",
+    utilDisablingTurbodog: "Отключаю TurboDog ({id})…",
+    utilTurbodogDisabled: "TurboDog отключён",
+    utilTurbodogSkip: "TurboDog ({id}) не найден или уже выключен — пропускаю",
+    utilPkgMissing: "Пакет {id} на ГУ не найден",
+    utilPkgEnabled: "{label}: включён",
+    utilPkgDisabled: "{label}: выключен",
+    utilToggling: "{action}…",
+    utilToggleOk: "Готово: {id} → {state}",
+    utilToggleFail: "Не удалось изменить {id}: {error}",
+    utilStateOn: "включён",
+    utilStateOff: "выключен",
+    utilDisablingOem: "Отключаю системный CarPlay ({id})…",
+    utilEnablingOem: "Включаю системный CarPlay ({id})…",
+    utilOemDisabled: "Системный CarPlay отключён",
+    utilOemEnabled: "Системный CarPlay снова включён",
+    utilOemSkip: "Системный CarPlay ({id}) не найден — пропускаю",
+    utilReadingHotspot: "Читаю SoftAP заново…",
+    utilHotspotOk: "Hotspot: {ssid} / {pass}",
+    utilHotspotFail: "Не удалось прочитать SoftAP ({error})",
+    utilReportCollect: "Собираю диагностический отчёт с ГУ…",
+    utilReportUpload: "Отправляю отчёт на сервер…",
+    utilReportOk: "Отчёт отправлен разработчику (id {id}, {kb} КБ)",
+    utilReportFail: "Не удалось отправить отчёт: {error}",
+    utilReportEmpty: "В logcat нет свежих строк JePlay. Попробуйте подключиться в приложении и повторите.",
+    utilNeedConnect: "Сначала подключите устройство",
+    utilDiag: "Диагностика подключения",
+    utilDiagCollecting: "Слушаю logcat… Сейчас попробуйте подключиться в JePlay на ГУ.",
+    utilDiagCollectTick: "Сбор logcat… ({n} фрагм., {kb} КБ)",
+    utilDiagFinish: "Завершить анализ",
+    utilDiagSend: "Отправить логи разработчику",
+    utilDiagAnalyzing: "Разбираю logcat…",
+    utilDiagNoJeplay: "JePlay на ГУ не найден — сначала установите приложение и попробуйте подключиться.",
+    utilDiagDoneTitle: "Результат",
+    utilDiagSendOk: "Логи сохранены на сервере. Передайте разработчику код: {code}",
+    utilDiagSendNeedSession: "Нет Remote debug ID — логи всё равно загружены (id {id}). Лучше переподключитесь, чтобы был ID сессии.",
+    utilDiagReason: "Вероятная причина",
+    utilDiagWhatToDo: "Что сделать",
   },
   en: {
     waitingConnect: "Waiting for connection…",
@@ -175,6 +229,7 @@ const STRINGS = {
     helperMissing: "Helper localinstall.apk not found on the site (HTTP {status})",
     tryingPmInstall: "Trying pm install…",
     emptyPmInstall: "(empty pm install response)",
+    shellSocketFallback: "ADB rejected the command (Socket open failed) — retrying via a temporary sh script…",
     firmwareBlocks: "Firmware blocks pm install — installing via PackageInstaller.Session…",
     pmFailedTrySession: "pm install failed — trying PackageInstaller.Session…",
     emptyLocalInstall: "(empty LocalInstall response)",
@@ -208,6 +263,52 @@ const STRINGS = {
     debugSession: "Remote debug ID: {id}",
     debugCmd: "Remote debug → {cmd}",
     debugFailed: "Remote debug unavailable: {error}",
+    utilities: "Utilities",
+    utilDisableCarplay: "Disable system CarPlay",
+    utilEnableCarplay: "Enable system CarPlay",
+    utilDisableDrivelabs: "Disable DriveLabs navigator",
+    utilEnableDrivelabs: "Enable DriveLabs navigator",
+    utilDisableMaps: "Disable Yandex Maps",
+    utilEnableMaps: "Enable Yandex Maps",
+    utilDisableTurbodog: "Disable TurboDog",
+    utilEnableTurbodog: "Enable TurboDog",
+    utilDisablingTurbodog: "Disabling TurboDog ({id})…",
+    utilTurbodogDisabled: "TurboDog disabled",
+    utilTurbodogSkip: "TurboDog ({id}) not found or already disabled — skipped",
+    utilPkgMissing: "Package {id} not found on the head unit",
+    utilPkgEnabled: "{label}: enabled",
+    utilPkgDisabled: "{label}: disabled",
+    utilToggling: "{action}…",
+    utilToggleOk: "Done: {id} → {state}",
+    utilToggleFail: "Could not change {id}: {error}",
+    utilStateOn: "enabled",
+    utilStateOff: "disabled",
+    utilDisablingOem: "Disabling system CarPlay ({id})…",
+    utilEnablingOem: "Enabling system CarPlay ({id})…",
+    utilOemDisabled: "System CarPlay disabled",
+    utilOemEnabled: "System CarPlay re-enabled",
+    utilOemSkip: "System CarPlay ({id}) not found — skipped",
+    utilReadingHotspot: "Re-reading SoftAP…",
+    utilHotspotOk: "Hotspot: {ssid} / {pass}",
+    utilHotspotFail: "Could not read SoftAP ({error})",
+    utilReportCollect: "Collecting diagnostic report from the head unit…",
+    utilReportUpload: "Uploading report to the server…",
+    utilReportOk: "Report sent to developer (id {id}, {kb} KB)",
+    utilReportFail: "Could not send report: {error}",
+    utilReportEmpty: "No recent JePlay lines in logcat. Try connecting in the app, then retry.",
+    utilNeedConnect: "Connect a device first",
+    utilDiag: "Connection diagnostics",
+    utilDiagCollecting: "Listening to logcat… Try connecting in JePlay on the head unit now.",
+    utilDiagCollectTick: "Collecting logcat… ({n} chunks, {kb} KB)",
+    utilDiagFinish: "Finish analysis",
+    utilDiagSend: "Send logs to developer",
+    utilDiagAnalyzing: "Analyzing logcat…",
+    utilDiagNoJeplay: "JePlay is not installed — install it first and try connecting.",
+    utilDiagDoneTitle: "Result",
+    utilDiagSendOk: "Logs saved on the server. Tell the developer this code: {code}",
+    utilDiagSendNeedSession: "No Remote debug ID — logs were still uploaded (id {id}). Reconnect so a session ID is available.",
+    utilDiagReason: "Likely cause",
+    utilDiagWhatToDo: "What to do",
   },
 };
 
@@ -225,6 +326,7 @@ function t(key, vars) {
 
 const actionBtn = $("action-btn");
 const disconnectBtn = $("disconnect-btn");
+const utilitiesBtn = $("utilities-btn");
 const statusPill = $("status-pill");
 const logEl = $("log");
 const finalBanner = $("final-banner");
@@ -235,6 +337,30 @@ const softapPanel = $("softap-panel");
 const softapSsidEl = $("softap-ssid");
 const softapPassEl = $("softap-pass");
 const passwordOut = $("password-out");
+const utilModal = $("util-modal");
+const utilModalLog = $("util-modal-log");
+const utilCarplayBtn = $("util-carplay-btn");
+const utilDrivelabsBtn = $("util-drivelabs-btn");
+const utilMapsBtn = $("util-maps-btn");
+const utilTurbodogBtn = $("util-turbodog-btn");
+const utilHotspotBtn = $("util-hotspot-btn");
+const utilDiagBtn = $("util-diag-btn");
+const utilDiagPanel = $("util-diag-panel");
+const utilDiagProgress = $("util-diag-progress");
+const utilDiagStatus = $("util-diag-status");
+const utilDiagFinish = $("util-diag-finish");
+const utilDiagSend = $("util-diag-send");
+const utilDiagResult = $("util-diag-result");
+const utilReportBtn = $("util-report-btn");
+
+/** @type {{ timer: ReturnType<typeof setInterval> | null, chunks: string[], running: boolean, result: ReturnType<typeof analyzeConnectionLogs> | null, text: string }} */
+const diagState = {
+  timer: null,
+  chunks: [],
+  running: false,
+  result: null,
+  text: "",
+};
 
 let adb = null;
 let connection = null;
@@ -372,6 +498,7 @@ function showFinal(ok, message) {
 function setConnectedUi(on) {
   if (!on) {
     actionBtn.textContent = "Connect";
+    closeUtilitiesModal();
   } else if (installedPackage) {
     actionBtn.textContent = t("updateOver");
   } else {
@@ -379,6 +506,11 @@ function setConnectedUi(on) {
   }
   actionBtn.disabled = false;
   disconnectBtn.disabled = !on;
+  if (utilitiesBtn) {
+    utilitiesBtn.hidden = !on;
+    utilitiesBtn.disabled = !on || busy;
+    utilitiesBtn.textContent = t("utilities");
+  }
   if (reinstallBtn) reinstallBtn.disabled = !on || busy;
 }
 
@@ -446,6 +578,7 @@ async function uninstallInstalledPackage() {
     throw new Error(t("stillInstalled"));
   }
   log(t("uninstalled"), "ok");
+  await enableOemCarplayAfterUninstall();
   hideExistingPanel();
   setConnectedUi(true);
 }
@@ -512,7 +645,7 @@ document.querySelectorAll(".calc-tabs button").forEach((button) => {
   $(id)?.addEventListener("input", refreshPassword);
 });
 
-async function shell(command) {
+async function shellRaw(command) {
   if (adb.subprocess.spawnAndWaitLegacy) {
     return await adb.subprocess.spawnAndWaitLegacy(command);
   }
@@ -535,6 +668,52 @@ async function shell(command) {
     /* some transports omit exit */
   }
   return chunks.join("");
+}
+
+function isSocketOpenFailed(errorOrOutput) {
+  return /Socket open failed/i.test(String(errorOrOutput?.message || errorOrOutput || ""));
+}
+
+function utf8ToBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+/**
+ * Some DesaySV/Chery adbd builds reject ADB OPEN when the service string contains
+ * "pm install" (Socket open failed). Writing the command into a temp script and
+ * running `sh` avoids putting that phrase into the OPEN payload.
+ */
+async function runViaTempScript(scriptBody) {
+  const remote = `/data/local/tmp/jeplay-run-${Date.now()}-${Math.floor(Math.random() * 1e6)}.sh`;
+  const body = scriptBody.endsWith("\n") ? scriptBody : `${scriptBody}\n`;
+  const b64 = utf8ToBase64(body);
+  await shellRaw(
+    `(echo ${b64} | base64 -d > "${remote}" 2>/dev/null) || (echo ${b64} | toybox base64 -d > "${remote}"); chmod 755 "${remote}"`,
+  );
+  try {
+    return await shellRaw(`sh "${remote}"`);
+  } finally {
+    await shellRaw(`rm -f "${remote}"`).catch(() => "");
+  }
+}
+
+async function shell(command) {
+  try {
+    const output = await shellRaw(command);
+    // Some transports surface the failure as returned text instead of throwing.
+    if (isSocketOpenFailed(output) && String(output).trim().length < 120) {
+      log(t("shellSocketFallback"), "dim");
+      return await runViaTempScript(`#!/system/bin/sh\n${command}\n`);
+    }
+    return output;
+  } catch (error) {
+    if (!isSocketOpenFailed(error)) throw error;
+    log(t("shellSocketFallback"), "dim");
+    return await runViaTempScript(`#!/system/bin/sh\n${command}\n`);
+  }
 }
 
 async function connectDevice() {
@@ -809,6 +988,511 @@ async function copyField(text, button) {
   }
 }
 
+function utilLog(line, kind = "") {
+  if (!utilModalLog) {
+    log(line, kind);
+    return;
+  }
+  const span = document.createElement("span");
+  if (kind) span.className = kind;
+  span.textContent = `${line}\n`;
+  utilModalLog.appendChild(span);
+  utilModalLog.scrollTop = utilModalLog.scrollHeight;
+  log(line, kind);
+}
+
+function clearUtilLog() {
+  if (utilModalLog) utilModalLog.textContent = "";
+}
+
+function closeUtilitiesModal() {
+  resetDiagPanel();
+  if (utilModal) utilModal.hidden = true;
+}
+
+async function openUtilitiesModal() {
+  if (!adb) {
+    log(t("utilNeedConnect"), "err");
+    return;
+  }
+  if (!utilModal) return;
+  clearUtilLog();
+  utilModal.hidden = false;
+  await refreshUtilityButtons();
+}
+
+/** @returns {Promise<boolean>} */
+async function packagePresent(pkg) {
+  const out = await shell(`pm path ${pkg} 2>&1 || true`);
+  return /package:/i.test(out);
+}
+
+/**
+ * @param {string} pkg
+ * @returns {Promise<"missing"|"enabled"|"disabled">}
+ */
+async function packageState(pkg) {
+  if (!(await packagePresent(pkg))) return "missing";
+  const disabled = await shell(`pm list packages -d ${pkg} 2>&1 || true`);
+  if (disabled.includes(`package:${pkg}`)) return "disabled";
+  const enabled = await shell(`pm list packages -e ${pkg} 2>&1 || true`);
+  if (enabled.includes(`package:${pkg}`)) return "enabled";
+  const dump = await shell(`dumpsys package ${pkg} 2>&1 || true`);
+  if (/enabled=false|enabled=\[false\]|ceDataInode=.*enabled=0/i.test(dump)) return "disabled";
+  if (/User 0:.*(disabled|HIDDEN)/i.test(dump) && !/User 0:.*enabled/i.test(dump)) return "disabled";
+  return "enabled";
+}
+
+/**
+ * @param {string} pkg
+ * @param {boolean} enable
+ */
+async function setPackageEnabled(pkg, enable) {
+  if (enable) {
+    let out = await shell(`pm enable --user 0 ${pkg} 2>&1 || true`);
+    if (!/new state|enabled|Package .* new state: enabled/i.test(out) && !/Success/i.test(out)) {
+      out = await shell(`pm enable ${pkg} 2>&1 || true`);
+    }
+    return out;
+  }
+  let out = await shell(`pm disable-user --user 0 ${pkg} 2>&1 || true`);
+  if (!/new state|disabled|Package .* new state: disabled/i.test(out) && !/Success/i.test(out)) {
+    out = await shell(`pm disable ${pkg} 2>&1 || true`);
+  }
+  return out;
+}
+
+/** @returns {Promise<string | null>} first installed maps package id */
+async function resolveMapsPackage() {
+  for (const id of YANDEX_MAPS_PKGS) {
+    if (await packagePresent(id)) return id;
+  }
+  return null;
+}
+
+/**
+ * @param {HTMLButtonElement | null} button
+ * @param {"missing"|"enabled"|"disabled"} state
+ * @param {{ enableLabel: string, disableLabel: string, missingId: string }} labels
+ */
+function paintToggleButton(button, state, labels) {
+  if (!button) return;
+  if (state === "missing") {
+    button.disabled = true;
+    button.textContent = t("utilPkgMissing", { id: labels.missingId });
+    button.dataset.action = "";
+    return;
+  }
+  button.disabled = false;
+  if (state === "enabled") {
+    button.textContent = labels.disableLabel;
+    button.dataset.action = "disable";
+  } else {
+    button.textContent = labels.enableLabel;
+    button.dataset.action = "enable";
+  }
+}
+
+async function refreshUtilityButtons() {
+  if (!adb) return;
+  const [carplay, drivelabs, turbodog, mapsId] = await Promise.all([
+    packageState(OEM_CARPLAY_PKG),
+    packageState(DRIVELABS_NAVI_PKG),
+    packageState(TURBODOG_PKG),
+    resolveMapsPackage(),
+  ]);
+  paintToggleButton(utilCarplayBtn, carplay, {
+    enableLabel: t("utilEnableCarplay"),
+    disableLabel: t("utilDisableCarplay"),
+    missingId: OEM_CARPLAY_PKG,
+  });
+  paintToggleButton(utilDrivelabsBtn, drivelabs, {
+    enableLabel: t("utilEnableDrivelabs"),
+    disableLabel: t("utilDisableDrivelabs"),
+    missingId: DRIVELABS_NAVI_PKG,
+  });
+  paintToggleButton(utilTurbodogBtn, turbodog, {
+    enableLabel: t("utilEnableTurbodog"),
+    disableLabel: t("utilDisableTurbodog"),
+    missingId: TURBODOG_PKG,
+  });
+  if (!mapsId) {
+    paintToggleButton(utilMapsBtn, "missing", {
+      enableLabel: t("utilEnableMaps"),
+      disableLabel: t("utilDisableMaps"),
+      missingId: YANDEX_MAPS_PKGS[0],
+    });
+  } else {
+    const mapsState = await packageState(mapsId);
+    if (utilMapsBtn) utilMapsBtn.dataset.pkg = mapsId;
+    paintToggleButton(utilMapsBtn, mapsState, {
+      enableLabel: t("utilEnableMaps"),
+      disableLabel: t("utilDisableMaps"),
+      missingId: mapsId,
+    });
+  }
+}
+
+/**
+ * @param {string} pkg
+ * @param {boolean} enable
+ * @param {string} actionLabel
+ */
+async function toggleUtilityPackage(pkg, enable, actionLabel) {
+  utilLog(t("utilToggling", { action: actionLabel }), "dim");
+  try {
+    const out = await setPackageEnabled(pkg, enable);
+    if (out.trim()) utilLog(out.trim(), "dim");
+    const state = await packageState(pkg);
+    if ((enable && state !== "enabled") || (!enable && state !== "disabled")) {
+      throw new Error(out.trim() || state);
+    }
+    utilLog(
+      t("utilToggleOk", {
+        id: pkg,
+        state: enable ? t("utilStateOn") : t("utilStateOff"),
+      }),
+      "ok",
+    );
+  } catch (error) {
+    utilLog(t("utilToggleFail", { id: pkg, error: String(error?.message || error) }), "err");
+  }
+  await refreshUtilityButtons();
+}
+
+async function disableOemCarplayAfterInstall() {
+  const state = await packageState(OEM_CARPLAY_PKG);
+  if (state === "missing") {
+    log(t("utilOemSkip", { id: OEM_CARPLAY_PKG }), "dim");
+    return;
+  }
+  if (state === "disabled") {
+    log(t("utilOemDisabled"), "ok");
+    return;
+  }
+  log(t("utilDisablingOem", { id: OEM_CARPLAY_PKG }), "dim");
+  const out = await setPackageEnabled(OEM_CARPLAY_PKG, false);
+  if (out.trim()) log(out.trim(), "dim");
+  const after = await packageState(OEM_CARPLAY_PKG);
+  if (after === "disabled") log(t("utilOemDisabled"), "ok");
+  else log(t("utilToggleFail", { id: OEM_CARPLAY_PKG, error: after }), "err");
+}
+
+async function disableTurbodogAfterInstall() {
+  const state = await packageState(TURBODOG_PKG);
+  if (state === "missing" || state === "disabled") {
+    log(t("utilTurbodogSkip", { id: TURBODOG_PKG }), "dim");
+    return;
+  }
+  log(t("utilDisablingTurbodog", { id: TURBODOG_PKG }), "dim");
+  const out = await setPackageEnabled(TURBODOG_PKG, false);
+  if (out.trim()) log(out.trim(), "dim");
+  const after = await packageState(TURBODOG_PKG);
+  if (after === "disabled") log(t("utilTurbodogDisabled"), "ok");
+  else log(t("utilToggleFail", { id: TURBODOG_PKG, error: after }), "err");
+}
+
+async function enableOemCarplayAfterUninstall() {
+  const state = await packageState(OEM_CARPLAY_PKG);
+  if (state === "missing") {
+    log(t("utilOemSkip", { id: OEM_CARPLAY_PKG }), "dim");
+    return;
+  }
+  if (state === "enabled") {
+    log(t("utilOemEnabled"), "ok");
+    return;
+  }
+  log(t("utilEnablingOem", { id: OEM_CARPLAY_PKG }), "dim");
+  const out = await setPackageEnabled(OEM_CARPLAY_PKG, true);
+  if (out.trim()) log(out.trim(), "dim");
+  const after = await packageState(OEM_CARPLAY_PKG);
+  if (after === "enabled") log(t("utilOemEnabled"), "ok");
+  else log(t("utilToggleFail", { id: OEM_CARPLAY_PKG, error: after }), "err");
+}
+
+async function installedJeplayApkPath() {
+  const info = installedPackage || (await probeInstalledPackage());
+  return info?.path || null;
+}
+
+async function pullRemoteFileBytes(remotePath) {
+  const sync = await adb.sync();
+  try {
+    const stream = sync.read(remotePath);
+    const reader = stream.getReader();
+    const chunks = [];
+    let total = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value?.byteLength) {
+        chunks.push(value);
+        total += value.byteLength;
+        if (total > 8 * 1024 * 1024) throw new Error("file too large");
+      }
+    }
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      out.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return out;
+  } finally {
+    try {
+      if (typeof sync.dispose === "function") await sync.dispose();
+      else if (typeof sync.close === "function") await sync.close();
+    } catch (_) {}
+  }
+}
+
+async function pullRemoteText(remotePath) {
+  const bytes = await pullRemoteFileBytes(remotePath);
+  return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+}
+
+async function findNewestReportPath() {
+  const script = [
+    "for d in /sdcard/Download/DiPlay /storage/emulated/0/Download/DiPlay",
+    " /data/user/0/ru.jeplay.app/files/diagnostic-reports",
+    " /storage/emulated/0/Android/data/ru.jeplay.app/files/diagnostic-reports; do",
+    '  [ -d "$d" ] || continue',
+    '  f=$(ls -t "$d"/DiPlay-*.txt "$d"/*.txt 2>/dev/null | head -1)',
+    '  [ -n "$f" ] && echo "$f" && exit 0',
+    "done",
+    "exit 0",
+  ].join("\n");
+  const out = await runViaTempScript(script);
+  const line = out
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .find((s) => s.startsWith("/") && s.endsWith(".txt"));
+  return line || null;
+}
+
+/** Connection diagnostics + “send report”: logcat is what ADB can always see. */
+async function collectDiagnosticReportText() {
+  const chunk = await pullLogcatDiagnosticsChunk();
+  if (chunk && chunk.replace(/\s+/g, "").length > 40) return chunk;
+  // Optional bonus if the user already exported a report to Downloads.
+  const newest = await findNewestReportPath();
+  if (newest) {
+    utilLog(`report file: ${newest}`, "dim");
+    const text = await pullRemoteText(newest);
+    if (text?.trim()) return text;
+  }
+  return null;
+}
+
+async function pullLogcatDiagnosticsChunk() {
+  const script = [
+    "#!/system/bin/sh",
+    'echo "=== logcat $(date) ==="',
+    "getprop ro.product.model",
+    "getprop ro.build.display.id",
+    "pm path ru.jeplay.app 2>&1 || true",
+    "pm path com.desaysv.vehicle.carplayapp 2>&1 || true",
+    "pm path com.astrob.turbodog 2>&1 || true",
+    // CONNECTION_DIAGNOSTIC goes to Log.i(\"xcertplay-usb\", …); other DiPlay-* tags too.
+    'logcat -d -v time -t 6000 2>/dev/null | grep -E "xcertplay|DiPlay|CONNECTION_DIAGNOSTIC|JAECOO|SoftAP|ru\\.jeplay|BluetoothSocket|iAP2" || true',
+  ].join("\n");
+  return await runViaTempScript(script);
+}
+
+async function uploadReportPayload(text, source, analysis = "") {
+  const serialOut = await shell("getprop ro.serialno 2>&1 || true");
+  const serial = serialOut.trim().split(/\r?\n/)[0] || "";
+  const version = installedPackage?.versionName || "";
+  return debugPost("report-upload.php", {
+    text,
+    serial,
+    version,
+    source,
+    session: debugSessionId || "",
+    analysis: analysis || "",
+  });
+}
+
+async function sendDiagnosticReportToServer() {
+  utilLog(t("utilReportCollect"), "dim");
+  const text = await collectDiagnosticReportText();
+  if (!text) throw new Error(t("utilReportEmpty"));
+  utilLog(t("utilReportUpload"), "dim");
+  const data = await uploadReportPayload(text, "installer-utilities");
+  utilLog(
+    t("utilReportOk", {
+      id: data.id || "?",
+      kb: (Number(data.bytes || text.length) / 1024).toFixed(0),
+    }),
+    "ok",
+  );
+  const code = data.tellDeveloper || data.session || data.id;
+  if (debugSessionId) utilLog(t("utilDiagSendOk", { code }), "ok");
+  else utilLog(t("utilDiagSendNeedSession", { id: data.id || "?" }), "dim");
+}
+
+function stopDiagCollection() {
+  if (diagState.timer) {
+    clearInterval(diagState.timer);
+    diagState.timer = null;
+  }
+  diagState.running = false;
+}
+
+function resetDiagPanel() {
+  stopDiagCollection();
+  diagState.chunks = [];
+  diagState.result = null;
+  diagState.text = "";
+  if (utilDiagPanel) utilDiagPanel.hidden = true;
+  if (utilDiagProgress) utilDiagProgress.hidden = true;
+  if (utilDiagFinish) utilDiagFinish.hidden = true;
+  if (utilDiagSend) utilDiagSend.hidden = true;
+  if (utilDiagResult) {
+    utilDiagResult.hidden = true;
+    utilDiagResult.innerHTML = "";
+  }
+  if (utilDiagStatus) utilDiagStatus.textContent = "";
+}
+
+function showDiagResult(result) {
+  if (!utilDiagResult) return;
+  const steps = (result.steps || [])
+    .map((step) => `<li>${escapeHtml(step)}</li>`)
+    .join("");
+  utilDiagResult.innerHTML = `
+    <h4>${escapeHtml(t("utilDiagReason"))}: ${escapeHtml(result.title)}</h4>
+    <p>${escapeHtml(result.detail)}</p>
+    <div><strong>${escapeHtml(t("utilDiagWhatToDo"))}</strong></div>
+    <ol>${steps}</ol>
+    <span class="util-diag-code">${escapeHtml(result.code)}</span>
+  `;
+  utilDiagResult.hidden = false;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+async function startConnectionDiagnostics() {
+  if (!adb) throw new Error(t("utilNeedConnect"));
+  if (!utilDiagPanel) return;
+
+  resetDiagPanel();
+  utilDiagPanel.hidden = false;
+  if (utilDiagProgress) utilDiagProgress.hidden = false;
+  if (utilDiagFinish) {
+    utilDiagFinish.hidden = false;
+    utilDiagFinish.disabled = false;
+    utilDiagFinish.textContent = t("utilDiagFinish");
+  }
+  if (utilDiagSend) utilDiagSend.hidden = true;
+
+  const info = installedPackage || (await probeInstalledPackage());
+  if (!info) {
+    if (utilDiagStatus) utilDiagStatus.textContent = t("utilDiagNoJeplay");
+    if (utilDiagProgress) utilDiagProgress.hidden = true;
+    if (utilDiagFinish) utilDiagFinish.hidden = true;
+    utilLog(t("utilDiagNoJeplay"), "err");
+    return;
+  }
+
+  if (utilDiagStatus) utilDiagStatus.textContent = t("utilDiagCollecting");
+  utilLog(t("utilDiagCollecting"), "dim");
+  diagState.running = true;
+  diagState.chunks = [];
+
+  const collectOnce = async () => {
+    if (!diagState.running || !adb) return;
+    try {
+      const chunk = await pullLogcatDiagnosticsChunk();
+      if (chunk?.trim()) diagState.chunks.push(chunk.trim());
+      const text = diagState.chunks.join("\n\n");
+      const kb = (new TextEncoder().encode(text).byteLength / 1024).toFixed(0);
+      if (utilDiagStatus) {
+        utilDiagStatus.textContent = t("utilDiagCollectTick", {
+          n: diagState.chunks.length,
+          kb,
+        });
+      }
+    } catch (error) {
+      utilLog(String(error?.message || error), "err");
+    }
+  };
+
+  await collectOnce();
+  diagState.timer = setInterval(() => {
+    collectOnce().catch(() => {});
+  }, 2500);
+}
+
+async function finishConnectionDiagnostics() {
+  if (!diagState.running && !diagState.chunks.length && !diagState.text) {
+    await startConnectionDiagnostics();
+  }
+  stopDiagCollection();
+  if (utilDiagProgress) utilDiagProgress.hidden = true;
+  if (utilDiagFinish) utilDiagFinish.disabled = true;
+  if (utilDiagStatus) utilDiagStatus.textContent = t("utilDiagAnalyzing");
+  utilLog(t("utilDiagAnalyzing"), "dim");
+
+  try {
+    const chunk = await pullLogcatDiagnosticsChunk();
+    if (chunk?.trim()) diagState.chunks.push(chunk.trim());
+  } catch (_) {}
+
+  const text = diagState.chunks.join("\n\n");
+  diagState.text = text;
+  const result = analyzeConnectionLogs(text, LANG);
+  diagState.result = result;
+  showDiagResult(result);
+  if (utilDiagSend) {
+    utilDiagSend.hidden = false;
+    utilDiagSend.disabled = false;
+    utilDiagSend.textContent = t("utilDiagSend");
+  }
+  if (utilDiagStatus) utilDiagStatus.textContent = t("utilDiagDoneTitle");
+  utilLog(`${result.title} [${result.code}]`, "ok");
+}
+
+async function sendConnectionDiagLogs() {
+  if (!diagState.text) throw new Error(t("utilReportEmpty"));
+  utilLog(t("utilReportUpload"), "dim");
+  const analysis = diagState.result
+    ? `${diagState.result.code}\n${diagState.result.title}\n${diagState.result.detail}\n${(diagState.result.steps || []).map((s, i) => `${i + 1}. ${s}`).join("\n")}`
+    : "";
+  const data = await uploadReportPayload(diagState.text, "installer-connection-diag", analysis);
+  const code = data.tellDeveloper || data.session || data.id || "?";
+  if (debugSessionId || data.session) {
+    utilLog(t("utilDiagSendOk", { code }), "ok");
+    if (utilDiagStatus) utilDiagStatus.textContent = t("utilDiagSendOk", { code });
+  } else {
+    utilLog(t("utilDiagSendNeedSession", { id: data.id || "?" }), "dim");
+  }
+}
+
+async function rereadHotspotPassword() {
+  utilLog(t("utilReadingHotspot"), "dim");
+  const apkPath = await installedJeplayApkPath();
+  if (!apkPath) throw new Error(t("packageNotFound"));
+  const softAp = await readAndSeedSoftAp(apkPath);
+  if (!softAp) {
+    utilLog(t("utilHotspotFail", { error: t("noResponse") }), "err");
+    return;
+  }
+  utilLog(
+    t("utilHotspotOk", {
+      ssid: softAp.ssid,
+      pass: softAp.passphrase || t("openNetwork"),
+    }),
+    "ok",
+  );
+}
+
 /**
  * After install: shell UID can read SoftApConfiguration; the app usually cannot.
  * Show SSID/pass on the page and seed JePlay prefs via a tmp import file.
@@ -882,6 +1566,9 @@ async function installLatest({ uninstallFirst = false } = {}) {
     softAp = await readAndSeedSoftAp(apkPath);
   }
 
+  await disableOemCarplayAfterInstall();
+  await disableTurbodogAfterInstall();
+
   setStatus(t("done"), "ok");
   const softApHint = softAp
     ? t("softApOk", { ssid: softAp.ssid })
@@ -898,6 +1585,7 @@ async function runInstallAction(options = {}) {
   busy = true;
   actionBtn.disabled = true;
   if (reinstallBtn) reinstallBtn.disabled = true;
+  if (utilitiesBtn) utilitiesBtn.disabled = true;
   try {
     if (!adb) await connectDevice();
     else await installLatest(options);
@@ -907,21 +1595,15 @@ async function runInstallAction(options = {}) {
     log(message, "err");
     if (adb) {
       showFinal(false, t("installError", { message }));
-      await refreshInstalledPackageUi().catch(() => setConnectedUi(true));
+      await refreshInstalledPackageUi().catch(() => {});
     } else {
       hideExistingPanel();
-      setConnectedUi(false);
     }
     console.error(error);
   } finally {
+    // setConnectedUi reads `busy`; clear it first so Utilities unlocks after Connect.
     busy = false;
-    if (adb) {
-      actionBtn.disabled = false;
-      if (reinstallBtn) reinstallBtn.disabled = !installedPackage;
-    } else {
-      actionBtn.disabled = false;
-      if (reinstallBtn) reinstallBtn.disabled = true;
-    }
+    setConnectedUi(Boolean(adb));
   }
 }
 
@@ -939,6 +1621,151 @@ actionBtn.addEventListener("click", () => runInstallAction({ uninstallFirst: fal
 reinstallBtn?.addEventListener("click", () => {
   if (!adb || !installedPackage) return;
   runInstallAction({ uninstallFirst: true });
+});
+
+utilitiesBtn?.addEventListener("click", () => {
+  if (!adb || busy) return;
+  openUtilitiesModal().catch((error) => {
+    utilLog(String(error?.message || error), "err");
+  });
+});
+
+utilModal?.querySelectorAll("[data-util-close]").forEach((el) => {
+  el.addEventListener("click", () => closeUtilitiesModal());
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && utilModal && !utilModal.hidden) closeUtilitiesModal();
+});
+
+utilCarplayBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  const enable = utilCarplayBtn.dataset.action === "enable";
+  busy = true;
+  try {
+    await toggleUtilityPackage(
+      OEM_CARPLAY_PKG,
+      enable,
+      enable ? t("utilEnableCarplay") : t("utilDisableCarplay"),
+    );
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilDrivelabsBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  const enable = utilDrivelabsBtn.dataset.action === "enable";
+  busy = true;
+  try {
+    await toggleUtilityPackage(
+      DRIVELABS_NAVI_PKG,
+      enable,
+      enable ? t("utilEnableDrivelabs") : t("utilDisableDrivelabs"),
+    );
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilMapsBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  const pkg = utilMapsBtn.dataset.pkg || YANDEX_MAPS_PKGS[0];
+  const enable = utilMapsBtn.dataset.action === "enable";
+  busy = true;
+  try {
+    await toggleUtilityPackage(
+      pkg,
+      enable,
+      enable ? t("utilEnableMaps") : t("utilDisableMaps"),
+    );
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilTurbodogBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  const enable = utilTurbodogBtn.dataset.action === "enable";
+  busy = true;
+  try {
+    await toggleUtilityPackage(
+      TURBODOG_PKG,
+      enable,
+      enable ? t("utilEnableTurbodog") : t("utilDisableTurbodog"),
+    );
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilHotspotBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  busy = true;
+  try {
+    await rereadHotspotPassword();
+  } catch (error) {
+    utilLog(t("utilHotspotFail", { error: String(error?.message || error) }), "err");
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilDiagBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  busy = true;
+  try {
+    await startConnectionDiagnostics();
+  } catch (error) {
+    utilLog(String(error?.message || error), "err");
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilDiagFinish?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  busy = true;
+  try {
+    await finishConnectionDiagnostics();
+  } catch (error) {
+    utilLog(String(error?.message || error), "err");
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilDiagSend?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  busy = true;
+  try {
+    await sendConnectionDiagLogs();
+  } catch (error) {
+    utilLog(t("utilReportFail", { error: String(error?.message || error) }), "err");
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
+});
+
+utilReportBtn?.addEventListener("click", async () => {
+  if (!adb || busy) return;
+  busy = true;
+  try {
+    await sendDiagnosticReportToServer();
+  } catch (error) {
+    utilLog(t("utilReportFail", { error: String(error?.message || error) }), "err");
+  } finally {
+    busy = false;
+    setConnectedUi(true);
+  }
 });
 
 disconnectBtn.addEventListener("click", async () => {

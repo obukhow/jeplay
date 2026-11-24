@@ -27,6 +27,7 @@ object SoftApAdbInstallImport {
     fun applyIfPresent(context: Context, log: (String) -> Unit = {}): Boolean {
         val file = File(PATH)
         if (!file.isFile) return false
+        var applied = false
         return try {
             val lines = file.readLines().map(String::trim).filter { it.isNotEmpty() }
             if (lines.firstOrNull() != HEADER) {
@@ -35,14 +36,19 @@ object SoftApAdbInstallImport {
             }
             val map = lines.drop(1).mapNotNull { line ->
                 val i = line.indexOf('=')
-                if (i <= 0) null else line.substring(0, i) to line.substring(i + 1)
+                if (i <= 0) null else line.substring(0, i).trim() to line.substring(i + 1).trim()
             }.toMap()
-            val ssid = decodeB64(map["ssid_b64"]).orEmpty()
+            val ssid = decodeB64(map["ssid_b64"])
             if (ssid.isBlank()) {
                 log("softap import: empty ssid")
                 return false
             }
-            val passphrase = decodeB64(map["pass_b64"]).orEmpty()
+            val passphrase = decodeB64(map["pass_b64"])
+            if (passphrase.isBlank()) {
+                // Keep the file so a later launch / support rewrite can retry with a full payload.
+                log("softap import: empty passphrase for ssid=$ssid — not applying")
+                return false
+            }
             val security = when (map["security"]?.toIntOrNull()) {
                 0 -> ManualHotspotSecurity.OPEN
                 2 -> ManualHotspotSecurity.WPA3_TRANSITION
@@ -56,21 +62,26 @@ object SoftApAdbInstallImport {
             AirPlayPersistence.saveManualHotspotInterface(context, JaecooBuiltinHotspot.INTERFACE)
             AirPlayPersistence.saveManualHotspotBand(context, JaecooBuiltinHotspot.BAND)
             AirPlayPersistence.saveManualHotspotChannel(context, JaecooBuiltinHotspot.CHANNEL)
-            log("softap import: saved $ssid (${security.name}, pass=${passphrase.isNotEmpty()})")
+            log("softap import: saved $ssid (${security.name}, passphraseLen=${passphrase.length})")
+            applied = true
             true
         } catch (error: Exception) {
             log("softap import: ${error.message}")
             false
         } finally {
-            runCatching { file.delete() }
+            // Only consume the file after a successful apply. Failed/partial reads used to
+            // delete it in finally and left Built-in hotspot with a blank password.
+            if (applied) {
+                runCatching { file.delete() }
+            }
         }
     }
 
-    private fun decodeB64(field: String?): String? {
-        if (field.isNullOrEmpty()) return ""
+    private fun decodeB64(field: String?): String {
+        if (field.isNullOrBlank()) return ""
         return runCatching {
-            val decoded = Base64.decode(field, Base64.NO_WRAP)
-            String(decoded).takeIf { Base64.encodeToString(decoded, Base64.NO_WRAP) == field }
-        }.getOrNull()
+            val decoded = Base64.decode(field.trim(), Base64.DEFAULT)
+            String(decoded, Charsets.UTF_8)
+        }.getOrDefault("")
     }
 }

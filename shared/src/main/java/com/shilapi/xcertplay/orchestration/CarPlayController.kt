@@ -2486,13 +2486,18 @@ class CarPlayController(
                         "Manual hotspot SSID is not configured",
                     )
                 val passphrase = jaecooCredentials?.passphrase ?: config.manualHotspotPassphrase.orEmpty()
-                if (passphrase.isEmpty() && config.manualHotspotSecurity != ManualHotspotSecurity.OPEN &&
-                    jaecooCredentials?.security != ManualHotspotSecurity.OPEN
+                val security = jaecooCredentials?.security ?: config.manualHotspotSecurity
+                // Empty password used to fall back to ManualHotspotSecurity.OPEN via prefs, so this
+                // check was skipped and wireless "connected" forever while the iPhone never joined
+                // the real WPA SoftAP. Built-in Jaecoo SoftAP always needs a saved password.
+                if (passphrase.isEmpty() && (
+                        hotspotMode == WirelessHotspotMode.JAECOO_BUILTIN ||
+                            security != ManualHotspotSecurity.OPEN
+                        )
                 ) {
                     throw WirelessStartupException(
                         WirelessStartupFailure.HOTSPOT_CONFIGURATION,
-                        "Jaecoo SoftAP needs the password for \"$ssid\". On the iPhone: Settings → " +
-                            "Wi-Fi → ⓘ → Password. Save that password in Connection setup.",
+                        "JAECOO_SOFTAP_PASSWORD_REQUIRED:$ssid",
                     )
                 }
                 ManualHotspotManager(
@@ -2504,7 +2509,7 @@ class CarPlayController(
                     channel = jaecooCredentials?.channel?.takeIf { it > 0 }
                         ?: com.shilapi.xcertplay.network.JaecooBuiltinHotspot.preferredChannel(
                             hotspotMode, config.manualHotspotChannel),
-                    security = jaecooCredentials?.security ?: config.manualHotspotSecurity,
+                    security = security,
                     onDiagnostic = { debugLog("generation=$generation $it") },
                     isCancelled = { isStaleWirelessRun(generation) },
                     preferredInterface = com.shilapi.xcertplay.network.JaecooBuiltinHotspot.preferredInterface(

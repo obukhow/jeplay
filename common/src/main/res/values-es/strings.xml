@@ -858,7 +858,7 @@
     <string name="settings_fce_cluster_guidance">Indicaciones en el cuadro FCE (experimental)</string>
     <string name="settings_fce_cluster_guidance_description">Muestra las flechas de CarPlay y la distancia al próximo giro en la vista de navegación del cuadro de instrumentos en unidades FCE, escribiendo en el servicio del vehículo de la unidad. Probado solo en un coche; desactívalo si el cuadro se comporta de forma inesperada.</string>
     <string name="settings_cluster_music">Música en el cuadro (experimental)</string>
-    <string name="settings_cluster_music_description">Muestra la portada cuadrada sobre el mapa del cuadro, con el título y el artista a su derecha, alineados a la izquierda contra la portada. Elige temporal (8 segundos) o permanente; portada y texto siguen ese modo. La posición y el tamaño se aplican al instante. Requiere proyección al cuadro y datos del iPhone.</string>
+    <string name="settings_cluster_music_description">Muestra la portada cuadrada sobre el mapa del cuadro, con el título y el artista a su derecha, alineados a la izquierda contra la portada. Elige temporal (8 segundos) o permanente; portada y texto siguen ese modo. En la ventana pequeña de navegación la tarjeta aparece solo 8 segundos tras cambiar de pista. La posición y el tamaño se aplican al instante. Requiere proyección al cuadro y datos del iPhone.</string>
     <string name="settings_cluster_music_mode">Visibilidad de la portada</string>
     <string name="settings_cluster_music_temporary">Temporal · 8 segundos</string>
     <string name="settings_cluster_music_permanent">Permanente</string>

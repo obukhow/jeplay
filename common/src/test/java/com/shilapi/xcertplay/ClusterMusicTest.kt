@@ -32,6 +32,7 @@ class ClusterMusicTest {
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
     @Before fun clear() {
         context.getSharedPreferences("xcertplay_airplay", 0).edit().clear().commit()
+        ClusterMusicWindow.setSmallWindow(false)
         ClusterMusicState.publish(CarPlayNowPlaying(), null)
         idle()
     }
@@ -90,6 +91,31 @@ class ClusterMusicTest {
         val replacement = ClusterMusicView(controller.get())
         controller.get().setContentView(replacement); idle()
         assertEquals(View.GONE, replacement.visibility)
+        controller.pause().stop().destroy()
+    }
+
+    @Test fun smallWindowHidesAPermanentCardUntilTheTrackChanges() {
+        ClusterMusicWindow.setSmallWindow(true)
+        val controller = Robolectric.buildActivity(Activity::class.java).setup().visible()
+        val view = ClusterMusicView(controller.get())
+        controller.get().setContentView(view)
+        ClusterMusicSettings.saveEnabled(context, true)
+        ClusterMusicSettings.savePermanent(context, true)
+        val track = CarPlayNowPlaying(title = "Song", artist = "Artist", playing = true)
+        ClusterMusicState.publish(track, null); idle()
+        assertEquals(View.VISIBLE, view.visibility)
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(9))
+        assertEquals(View.GONE, view.visibility)
+        ClusterMusicState.publish(track.copy(elapsedMillis = 12_000), null); idle()
+        assertEquals(View.GONE, view.visibility)
+        ClusterMusicState.publish(track.copy(title = "Next song"), null); idle()
+        assertEquals(View.VISIBLE, view.visibility)
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(9))
+        assertEquals(View.GONE, view.visibility)
+        ClusterMusicWindow.setSmallWindow(false)
+        assertEquals(View.VISIBLE, view.visibility)
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(9))
+        assertEquals(View.VISIBLE, view.visibility)
         controller.pause().stop().destroy()
     }
 

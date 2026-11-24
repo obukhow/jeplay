@@ -163,12 +163,12 @@
            <div class="status-pill" id="status-pill">Не подключено</div>
         <h2 style="margin-top: 0">Установка</h2>
         <p style="color: var(--muted); margin-top: 0; font-size: 0.92rem">
-          Актуальная версия берётся из <code>version.txt</code>, APK —
-          из <code>download/JePlay-&lt;версия&gt;.apk</code>.
+          Мастер установит JePlay в вашем автомобиле, и внесет необходимые настройки для правильной работы.
         </p>
 
         <div class="actions" style="margin-top: 18px">
           <button type="button" class="btn btn-primary" id="action-btn">Connect</button>
+          <button type="button" class="btn btn-secondary" id="utilities-btn" disabled hidden>Утилиты</button>
           <button type="button" class="btn btn-secondary" id="disconnect-btn" disabled>Отключить</button>
         </div>
 
@@ -253,6 +253,42 @@
         <a href="https://t.me/JeplaySupport" rel="noopener" target="_blank">Telegram-чат @JeplaySupport</a>
       </span>
     </footer>
+  </div>
+
+  <div class="util-modal" id="util-modal" hidden>
+    <div class="util-modal-backdrop" data-util-close="1"></div>
+    <div class="util-modal-card" role="dialog" aria-modal="true" aria-labelledby="util-modal-title">
+      <div class="util-modal-head">
+        <h2 id="util-modal-title">Утилиты</h2>
+        <button type="button" class="btn btn-secondary util-modal-close" data-util-close="1" aria-label="Закрыть">✕</button>
+      </div>
+      <p class="util-modal-lead">
+        Управление системными приложениями ГУ и SoftAP. После установки JePlay
+        штатный CarPlay отключается автоматически.
+      </p>
+      <div class="util-actions" id="util-actions">
+        <button type="button" class="btn btn-secondary util-btn" id="util-carplay-btn" disabled>Системный CarPlay…</button>
+        <button type="button" class="btn btn-secondary util-btn" id="util-drivelabs-btn" disabled>Навигатор DriveLabs…</button>
+        <button type="button" class="btn btn-secondary util-btn" id="util-maps-btn" disabled>Яндекс.Карты…</button>
+        <button type="button" class="btn btn-secondary util-btn" id="util-turbodog-btn" disabled>TurboDog…</button>
+        <button type="button" class="btn btn-secondary util-btn" id="util-hotspot-btn">Перечитать пароль Hotspot</button>
+        <button type="button" class="btn btn-secondary util-btn" id="util-diag-btn">Диагностика подключения</button>
+        <button type="button" class="btn btn-primary util-btn" id="util-report-btn">Отправить диагностический отчёт разработчику</button>
+      </div>
+      <div class="util-diag-panel" id="util-diag-panel" hidden>
+        <h3 class="util-diag-title">Диагностика подключения</h3>
+        <div class="util-progress" id="util-diag-progress" hidden>
+          <div class="util-progress-bar" id="util-diag-bar"></div>
+        </div>
+        <p class="util-diag-status" id="util-diag-status"></p>
+        <div class="util-diag-actions">
+          <button type="button" class="btn btn-primary util-btn" id="util-diag-finish" hidden>Завершить анализ</button>
+          <button type="button" class="btn btn-secondary util-btn" id="util-diag-send" hidden>Отправить логи разработчику</button>
+        </div>
+        <div class="util-diag-result" id="util-diag-result" hidden></div>
+      </div>
+      <pre class="util-modal-log" id="util-modal-log" aria-live="polite"></pre>
+    </div>
   </div>
 
   <script type="module" src="assets/install.bundle.js"></script>

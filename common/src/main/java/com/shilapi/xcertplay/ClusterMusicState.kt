@@ -6,6 +6,28 @@ import android.os.Looper
 import android.os.SystemClock
 import com.shilapi.xcertplay.media.CarPlayNowPlaying
 
+/** Live cluster layout. Small-window navi keeps a permanent card from staying on the map. */
+internal object ClusterMusicWindow {
+    private val main = Handler(Looper.getMainLooper())
+    private val listeners = mutableSetOf<() -> Unit>()
+    private var smallWindow = false
+
+    fun smallWindow(): Boolean = smallWindow
+
+    fun setSmallWindow(value: Boolean) {
+        if (value == smallWindow) return
+        smallWindow = value
+        val notify = { listeners.toList().forEach { it() } }
+        if (Looper.myLooper() == Looper.getMainLooper()) notify() else main.post(notify)
+    }
+
+    fun observe(listener: () -> Unit): () -> Unit {
+        check(Looper.myLooper() == Looper.getMainLooper())
+        listeners.add(listener)
+        return { listeners.remove(listener) }
+    }
+}
+
 /** Main-thread snapshots reuse the bounded media artwork cache; they never own/recycle its bitmap. */
 internal object ClusterMusicState {
     data class Snapshot(val info: CarPlayNowPlaying = CarPlayNowPlaying(), val artwork: Bitmap? = null,

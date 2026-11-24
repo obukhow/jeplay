@@ -4092,7 +4092,20 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         com.shilapi.xcertplay.orchestration.ManualHotspotValidation.error(ssid, password)?.let { getString(it.messageResource()) }
 
     /** True until a usable car hotspot name and password are saved, as on a first run. */
-    private fun carHotspotDetailsMissing() = pendingCarHotspotSetup || hotspotError(storedSsid(), storedPassword()) != null
+    private fun carHotspotDetailsMissing(): Boolean {
+        if (pendingCarHotspotSetup) return true
+        val ssid = storedSsid()
+        val password = storedPassword()
+        // Built-in Jaecoo SoftAP is WPA in practice; an empty password must block connect/readiness
+        // even though ManualHotspotValidation still allows open manual hotspots.
+        if (AirPlayPersistence.loadWirelessHotspotMode(this) ==
+            com.shilapi.xcertplay.orchestration.WirelessHotspotMode.JAECOO_BUILTIN &&
+            (ssid.isBlank() || password.isBlank())
+        ) {
+            return true
+        }
+        return hotspotError(ssid, password) != null
+    }
 
     private fun saveHotspotCredentials(
         ssid: String,
@@ -6015,7 +6028,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         if (setupError != null) { toast(setupError!!); return }
         if (wireless && com.shilapi.xcertplay.network.JaecooBuiltinHotspot.usesManualBackend( // JAECOO
                 AirPlayPersistence.loadWirelessHotspotMode(this)) &&
-            hotspotError(storedSsid(), storedPassword()) != null) {
+            carHotspotDetailsMissing()
+        ) {
             pendingCarHotspotSetup = true
             page = "connection"
             render()

@@ -44,7 +44,7 @@
     <string name="settings_jaecoo_softap_import">Прочитать SoftAP с магнитолы</string>
     <string name="settings_jaecoo_softap_imported">Сохранены данные SoftAP с магнитолы: %1$s</string>
     <string name="settings_jaecoo_softap_import_failed">Не удалось прочитать SoftAP. Нажмите «Включить SoftAP и узнать имя сети», затем введите пароль с iPhone.</string>
-    <string name="settings_jaecoo_need_password_for">Сначала сохраните пароль SoftAP для %1$s в настройках подключения (iPhone: Wi‑Fi → ⓘ → Пароль).</string>
+    <string name="settings_jaecoo_need_password_for">Сначала укажите пароль SoftAP «%1$s» в настройках подключения. Без пароля iPhone не подключится — даже если кажется, что CarPlay «подключается».</string>
     <string name="hotspot_mode_p2p_desc">Для автомобилей без точки доступа. Требует включённого переключателя Wi-Fi автомобиля. Пока автомобиль ищет сети Wi-Fi, звук и изображение могут подтормаживать каждые несколько секунд.</string>
     <string name="hotspot_details_off">Точка доступа выключена · Включите её в настройках автомобиля.</string>
     <string name="hotspot_details_saved">Данные сохранены · Перед подключением убедитесь, что точка доступа автомобиля включена.</string>
@@ -881,7 +881,7 @@
     <string name="settings_fce_cluster_guidance">Подсказки на приборной панели FCE (экспериментально)</string>
     <string name="settings_fce_cluster_guidance_description">Показывает стрелки CarPlay и расстояние до следующего манёвра в навигационном виде приборной панели на головных устройствах FCE, записывая данные в сервис автомобиля. Проверено только на одном автомобиле; отключите, если панель ведёт себя необычно.</string>
     <string name="settings_cluster_music">Музыка на приборной панели (экспериментально)</string>
-    <string name="settings_cluster_music_description">Показывает квадратную обложку поверх карты, а справа от неё — название и исполнителя, выровненные по левому краю обложки. Выберите временный режим (8 секунд) или постоянный: обложка и текст следуют ему вместе. Положение и размер применяются сразу. Нужны проекция и данные iPhone.</string>
+    <string name="settings_cluster_music_description">Показывает квадратную обложку поверх карты, а справа от неё — название и исполнителя, выровненные по левому краю обложки. Выберите временный режим (8 секунд) или постоянный: обложка и текст следуют ему вместе. В малом окне навигации карточка всё равно появляется только на 8 секунд после смены трека. Положение и размер применяются сразу. Нужны проекция и данные iPhone.</string>
     <string name="settings_cluster_music_mode">Видимость карточки</string>
     <string name="settings_cluster_music_temporary">Временно · 8 секунд</string>
     <string name="settings_cluster_music_permanent">Постоянно</string>

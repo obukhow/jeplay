@@ -44,7 +44,7 @@
     <string name="settings_jaecoo_softap_import">Read SoftAP details from the car</string>
     <string name="settings_jaecoo_softap_imported">Saved SoftAP details from the car: %1$s</string>
     <string name="settings_jaecoo_softap_import_failed">Could not read SoftAP name/password from the car. Use “Start SoftAP and find network name”, then enter the password from the iPhone.</string>
-    <string name="settings_jaecoo_need_password_for">Save the SoftAP password for %1$s in Connection setup first (iPhone Wi‑Fi → ⓘ → Password).</string>
+    <string name="settings_jaecoo_need_password_for">Enter the SoftAP password for %1$s in Connection settings first. Without it the iPhone cannot join, even if CarPlay looks like it is connecting.</string>
     <string name="hotspot_mode_p2p_desc">For cars without a hotspot. Requires the car’s Wi-Fi switch on. While the car searches for Wi-Fi networks, sound and picture may stutter every few seconds.</string>
     <string name="hotspot_details_off">Hotspot is off · Turn it on in car settings.</string>
     <string name="hotspot_details_saved">Details saved · Check that the car hotspot is on before connecting.</string>
@@ -984,7 +984,7 @@
     <string name="settings_fce_cluster_guidance">Guidance in the FCE cluster (experimental)</string>
     <string name="settings_fce_cluster_guidance_description">Shows CarPlay arrows and the next-turn distance in the instrument cluster’s navigation view on FCE head units, by writing to the head unit’s vehicle service. Tested on one car only; turn it off if the cluster behaves unexpectedly.</string>
     <string name="settings_cluster_music">Music on cluster (experimental)</string>
-    <string name="settings_cluster_music_description">Show a square album cover over the cluster map, with the title and artist to its right, left-aligned against the cover. Choose temporary (8 seconds) or permanent; both cover and text follow that mode. Position and size apply immediately. Requires cluster projection and iPhone metadata.</string>
+    <string name="settings_cluster_music_description">Show a square album cover over the cluster map, with the title and artist to its right, left-aligned against the cover. Choose temporary (8 seconds) or permanent; both cover and text follow that mode. In small-window navigation the card still appears only for 8 seconds after a track change. Position and size apply immediately. Requires cluster projection and iPhone metadata.</string>
     <string name="settings_cluster_music_mode">Music card visibility</string>
     <string name="settings_cluster_music_temporary">Temporary · 8 seconds</string>
     <string name="settings_cluster_music_permanent">Permanent</string>

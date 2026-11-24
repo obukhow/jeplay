@@ -20,6 +20,7 @@ internal class ClusterMusicView(context: Context) : View(context) {
     private val main = Handler(Looper.getMainLooper())
     private var stopState: (() -> Unit)? = null
     private var stopSettings: (() -> Unit)? = null
+    private var stopWindow: (() -> Unit)? = null
     private var snapshot = ClusterMusicState.Snapshot()
     private var visibleUntil = 0L
     private var lastTrackRevision: Long? = null
@@ -39,6 +40,7 @@ internal class ClusterMusicView(context: Context) : View(context) {
             visibleUntil = SystemClock.elapsedRealtime() + TEMPORARY_MILLIS
             updateVisibility()
         }
+        stopWindow = ClusterMusicWindow.observe { updateVisibility() }
         stopState = ClusterMusicState.observe {
             snapshot = it
             if (lastTrackRevision != it.revision) {
@@ -52,6 +54,7 @@ internal class ClusterMusicView(context: Context) : View(context) {
     override fun onDetachedFromWindow() {
         stopState?.invoke(); stopState = null
         stopSettings?.invoke(); stopSettings = null
+        stopWindow?.invoke(); stopWindow = null
         main.removeCallbacksAndMessages(null)
         visibility = GONE
         snapshot = ClusterMusicState.Snapshot()
@@ -62,7 +65,8 @@ internal class ClusterMusicView(context: Context) : View(context) {
     private fun updateVisibility() {
         main.removeCallbacks(expire)
         val hasTrack = !snapshot.info.title.isNullOrBlank() || !snapshot.info.artist.isNullOrBlank()
-        val permanent = ClusterMusicSettings.permanent(context)
+        // The well is too small to keep a cover up; a track change still shows it for a few seconds.
+        val permanent = ClusterMusicSettings.permanent(context) && !ClusterMusicWindow.smallWindow()
         val remaining = visibleUntil - SystemClock.elapsedRealtime()
         visibility = if (ClusterMusicSettings.enabled(context) && hasTrack && (permanent || remaining > 0)) VISIBLE else GONE
         // Temporary mode hides the whole card; permanent keeps cover and caption together.

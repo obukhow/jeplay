@@ -1204,6 +1204,7 @@ class CarPlayHostActivity : ComponentActivity() {
             com.shilapi.xcertplay.hud.BydNavigationOutputs.setClusterNaviModeListener(null)
             adbNaviMode = null
         }
+        syncClusterMusicWindow()
         if (!menuOpen) gestureFingerCount = AirPlayPersistence.loadSettingsGestureFingers(this)
         if (!menuOpen) temporarySystemBarsEnabled = AirPlayPersistence.loadTemporarySystemBars(this)
         settingsGestureHint?.text = settingsGestureHintText()
@@ -1245,6 +1246,7 @@ class CarPlayHostActivity : ComponentActivity() {
         val previous = adbNaviMode
         if (mode == previous) return
         adbNaviMode = mode
+        syncClusterMusicWindow()
         appendLog("Cluster map: ADB navi mode=${mode?.label ?: "unknown"}")
         if (AirPlayPersistence.loadClusterSmallWindowMode(this) != CLUSTER_SMALL_WINDOW_AUTO) return
         if (mode == com.shilapi.xcertplay.hud.BydClusterNaviMode.SMALL ||
@@ -1261,6 +1263,7 @@ class CarPlayHostActivity : ComponentActivity() {
         val previous = detectedCluster
         if (state != previous) appendLog("Cluster map: detected theme=${state.theme} mapVisible=${state.mapVisible} smallWindow=${state.smallWindow}")
         detectedCluster = state
+        syncClusterMusicWindow()
         if (!AirPlayPersistence.loadClusterMapEnabled(this)) { dismissClusterPresentation(); return }
         ensureClusterPresentation()
         if (AirPlayPersistence.loadClusterSmallWindowMode(this) == CLUSTER_SMALL_WINDOW_AUTO &&
@@ -1312,7 +1315,10 @@ class CarPlayHostActivity : ComponentActivity() {
             ensureDiLink51ClusterPresentation(theme)
             return
         }
-        if (clusterPresentation != null) return
+        if (clusterPresentation != null) {
+            syncClusterMusicWindow()
+            return
+        }
         val display = ClusterMapPresentation.findDisplay(this, theme) ?: run {
             appendLog("Cluster map: no cluster projection display among ${ClusterMapPresentation.describeDisplays(this)}")
             return
@@ -1414,7 +1420,12 @@ class CarPlayHostActivity : ComponentActivity() {
         applyClusterTurnOverlay()
     }
 
+    private fun syncClusterMusicWindow() {
+        ClusterMusicWindow.setSmallWindow(smallWindowActive())
+    }
+
     private fun applyClusterTurnOverlay() {
+        syncClusterMusicWindow()
         val overlay = CarPlayClusterDisplay.usesCustomTurnCard(AirPlayPersistence.loadClusterContent(this))
         // CN: the small-window navi keeps a second card rect, and the card glass has a theme override.
         val smallWindow = smallWindowActive()
@@ -5967,9 +5978,22 @@ class CarPlayHostActivity : ComponentActivity() {
             startupRetryStopped = true
             startupRetryButton?.visibility = View.VISIBLE
             if (startupFailure == WirelessStartupFailure.HOTSPOT_CONFIGURATION) {
-                // Its cause is in English, for the report; the help line below says what to check.
-                setConnectionStage("${getString(R.string.hotspot_network_not_ready)}\n" +
-                    getString(R.string.wireless_startup_retries_exhausted))
+                val passwordMarker = "JAECOO_SOFTAP_PASSWORD_REQUIRED:"
+                val passwordSource = when {
+                    reason.startsWith(passwordMarker) -> reason
+                    englishReason.startsWith(passwordMarker) -> englishReason
+                    else -> null
+                }
+                if (passwordSource != null) {
+                    val ssid = passwordSource.removePrefix(passwordMarker).ifBlank { "HS…" }
+                    setConnectionStage(getString(R.string.settings_jaecoo_need_password_for, ssid))
+                } else {
+                    // Its cause is in English, for the report; the help line below says what to check.
+                    setConnectionStage(
+                        "${getString(R.string.hotspot_network_not_ready)}\n" +
+                            getString(R.string.wireless_startup_retries_exhausted),
+                    )
+                }
             } else if (!startupFailure.retryable) {
                 setConnectionStage(reason, englishReason)
             } else {
@@ -6768,6 +6792,17 @@ class CarPlayHostActivity : ComponentActivity() {
             WirelessStartupFailure.HOTSPOT_NOT_READY -> res.getString(R.string.hotspot_network_not_ready)
             WirelessStartupFailure.FIRST_TCP_TIMEOUT -> res.getString(R.string.first_tcp_timeout)
             WirelessStartupFailure.WIFI_DIRECT_BESIDE_HOTSPOT -> res.getString(R.string.wifi_direct_refused_beside_hotspot)
+            WirelessStartupFailure.HOTSPOT_CONFIGURATION -> {
+                val marker = "JAECOO_SOFTAP_PASSWORD_REQUIRED:"
+                if (message.startsWith(marker)) {
+                    res.getString(
+                        R.string.settings_jaecoo_need_password_for,
+                        message.removePrefix(marker).ifBlank { "HS…" },
+                    )
+                } else {
+                    res.getString(R.string.hotspot_network_not_ready)
+                }
+            }
             else -> res.getString(R.string.status_failed, message)
         }
     }
