@@ -5,8 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.shilapi.xcertplay.host.R
+import com.shilapi.xcertplay.update.UpdateApkExport
 import com.shilapi.xcertplay.update.UpdateAvailability
 import com.shilapi.xcertplay.update.UpdateRelease
+import java.io.File
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,6 +44,34 @@ class UpdateHomeAvailabilityTest {
         assertEquals(SettingsCategory.ABOUT, ReflectionHelpers.getField<SettingsCategory>(activity, "settingsCategory"))
         assertTrue(descendants(activity.window.decorView).filterIsInstance<TextView>().any {
             it.text == activity.getString(R.string.update_download)
+        })
+        controller.pause().stop().destroy()
+    }
+
+    @Test fun readyDownloadSurvivesRecreationAndOpensInstall() {
+        val release = release()
+        val apk = File(application.cacheDir, "update/ready/DiPlay.apk").apply {
+            parentFile!!.mkdirs()
+            writeBytes(byteArrayOf(1))
+        }
+        UpdateAvailability.save(application, release)
+        UpdateAvailability.saveReady(
+            application,
+            release,
+            apk,
+            UpdateApkExport.Saved("Download/JePlay/DiPlay.apk", null),
+        )
+        val controller = Robolectric.buildActivity(DiPlayActivity::class.java).setup()
+        val activity = controller.get()
+        descendants(activity.window.decorView).filterIsInstance<TextView>()
+            .single { it.text == activity.getString(R.string.update_available_home) }
+            .performClick()
+
+        assertTrue(descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+            it.text == activity.getString(R.string.update_install, release.tagName)
+        })
+        assertTrue(descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+            it.text == activity.getString(R.string.update_saved_to, "Download/JePlay/DiPlay.apk")
         })
         controller.pause().stop().destroy()
     }

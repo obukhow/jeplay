@@ -383,6 +383,7 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         }
         scheduleBackgroundUpdateChecks()
         availableUpdate = UpdateAvailability.available(this, version())
+        restoreDownloadedUpdate()
         enforceInterfaceSize()
         refreshAppearance()
         rememberLaunchAppearance()
@@ -2758,10 +2759,29 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
     private fun openAvailableUpdate(release: UpdateRelease) {
         updateRelease = release
         updateMessage = null
-        updateStage = UpdateStage.AVAILABLE
+        val ready = UpdateAvailability.ready(this, version())
+        if (ready != null && ready.release.tagName == release.tagName) {
+            updateFile = ready.apk
+            updateSavedPath = ready.savedPath
+            updateSavedUri = ready.savedUri
+            updateStage = UpdateStage.READY
+        } else {
+            updateStage = UpdateStage.AVAILABLE
+        }
         page = "settings"
         settingsCategory = SettingsCategory.ABOUT
         render()
+    }
+
+    /** Install keeps working after Settings / process death: READY lives in prefs + on disk. */
+    private fun restoreDownloadedUpdate() {
+        val ready = UpdateAvailability.ready(this, version()) ?: return
+        updateRelease = ready.release
+        updateFile = ready.apk
+        updateSavedPath = ready.savedPath
+        updateSavedUri = ready.savedUri
+        updateStage = UpdateStage.READY
+        availableUpdate = ready.release
     }
 
     private fun scheduleBackgroundUpdateChecks() {
@@ -2775,8 +2795,10 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         updateStage = UpdateStage.DOWNLOADING
         updateSavedPath = null
         updateSavedUri = null
+        updateFile = null
         updateProgress = null
         updateMessage = null
+        UpdateAvailability.clearReady(this)
         val generation = ++updateGeneration
         render()
         Thread({
@@ -2822,6 +2844,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                         updateSavedPath = saved?.path
                         updateSavedUri = saved?.uri
                         updateStage = UpdateStage.READY
+                        UpdateAvailability.save(applicationContext, release)
+                        UpdateAvailability.saveReady(applicationContext, release, file, saved)
                         render()
                     },
                     { failure ->
@@ -2844,14 +2868,40 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             installApk(file)
             return
         }
-        // JePlay is the install source for ACTION_VIEW; without this op the system shows
-        // "not allowed to install unknown apps from this source". File managers already have it.
+        // Without install rights the system installer is blocked; (re)copy the APK where a file
+        // manager can open it and stay in JePlay — opening unknown-app settings often tears down
+        // CarPlay and used to forget the download because READY lived only in memory.
         updateInstallWorker(Runnable {
             tryGrantInstallPermission()
+            val saved = UpdateApkExport.copy(applicationContext, file)
+                ?: updateSavedPath?.let { UpdateApkExport.Saved(it, updateSavedUri) }
+            val release = updateRelease
+            if (release != null) {
+                UpdateAvailability.saveReady(
+                    applicationContext,
+                    release,
+                    file,
+                    saved,
+                )
+            }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
+                if (saved != null) {
+                    updateSavedPath = saved.path
+                    updateSavedUri = saved.uri
+                }
                 if (canInstallPackages()) {
                     installApk(file)
+                    return@runOnUiThread
+                }
+                if (updateSavedPath != null) {
+                    updateMessage = getString(R.string.update_install_via_file, updateSavedPath)
+                    UpdateAvailability.recordInstall(
+                        applicationContext,
+                        System.currentTimeMillis(),
+                        "file-manager path=${updateSavedPath}",
+                    )
+                    render()
                     return@runOnUiThread
                 }
                 openInstallPermissionSettings()

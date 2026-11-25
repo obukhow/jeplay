@@ -11,7 +11,10 @@ import com.shilapi.xcertplay.FileProviderPathTestShadow
 import java.io.ByteArrayInputStream
 import java.io.File
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,12 +98,32 @@ class UpdateInstallCompatibilityTest {
     }
 
     @Config(sdk = [28, 33])
-    @Test fun missingInstallPermissionOpensUnknownAppSourcesSettings() {
-        val started = install(publicUriReadable = true, installers = 1, canInstall = false)
+    @Test fun missingInstallPermissionKeepsTheDriverInJePlayWithAFilePath() {
+        val activity = activityWithUpdate(publicUriReadable = true, installers = 1, canInstall = false)
+        DiPlayActivity::class.java.getDeclaredMethod("installUpdate").apply { isAccessible = true }.invoke(activity)
+        assertNull(shadowOf(activity).nextStartedActivity)
+        val message = DiPlayActivity::class.java.getDeclaredField("updateMessage").apply { isAccessible = true }.get(activity) as String?
+        assertNotNull(message)
+        val report = UpdateAvailability.report(RuntimeEnvironment.getApplication(), System.currentTimeMillis())
+        assertTrue(report.contains("lastInstall=file-manager path="))
+    }
+
+    @Config(sdk = [28, 33])
+    @Test fun missingInstallPermissionFallsBackToSettingsWhenNoPublicCopyExists() {
+        val activity = activityWithUpdate(
+            publicUriReadable = false,
+            installers = 1,
+            canInstall = false,
+            savedPath = null,
+        )
+        DiPlayActivity::class.java.getDeclaredField("updateSavedUri").apply { isAccessible = true }.set(activity, null)
+        // Wipe the APK so export cannot make a public copy; Settings is the only path left.
+        val apk = DiPlayActivity::class.java.getDeclaredField("updateFile").apply { isAccessible = true }.get(activity) as File
+        apk.delete()
+        DiPlayActivity::class.java.getDeclaredMethod("installUpdate").apply { isAccessible = true }.invoke(activity)
+        val started = shadowOf(activity).nextStartedActivity
         assertEquals(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, started.action)
         assertEquals("package", started.data!!.scheme)
-        val report = UpdateAvailability.report(RuntimeEnvironment.getApplication(), System.currentTimeMillis())
-        assertEquals(true, report.contains("lastInstall=permission-settings"))
     }
 
     @Test fun providerRejectsSiblingDirectoriesWithTheSameUpdatePrefix() {
