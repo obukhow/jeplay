@@ -1080,7 +1080,7 @@ object AirPlayPersistence {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.contains(KEY_CLUSTER_SMALL_WINDOW_MARKER_X_PERCENT)) {
             return ClusterTurnCardOverlay.snap(
-                prefs.getInt(KEY_CLUSTER_SMALL_WINDOW_MARKER_X_PERCENT, 80),
+                prefs.getInt(KEY_CLUSTER_SMALL_WINDOW_MARKER_X_PERCENT, JaecooClusterMeter.DEFAULT_CENTER_X_PERCENT),
                 CarPlayClusterDisplay.markerXPercents,
             )
         }
@@ -1099,7 +1099,7 @@ object AirPlayPersistence {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.contains(KEY_CLUSTER_SMALL_WINDOW_MARKER_Y_PERCENT)) {
             return ClusterTurnCardOverlay.snap(
-                prefs.getInt(KEY_CLUSTER_SMALL_WINDOW_MARKER_Y_PERCENT, 45),
+                prefs.getInt(KEY_CLUSTER_SMALL_WINDOW_MARKER_Y_PERCENT, JaecooClusterMeter.DEFAULT_CENTER_Y_PERCENT),
                 CarPlayClusterDisplay.markerYPercents,
             )
         }

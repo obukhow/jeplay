@@ -448,7 +448,7 @@
     <string name="cluster_small_window_vertical">Pantalla en el pozo · arriba / abajo</string>
     <string name="cluster_well_scale">Pantalla en el pozo · tamaño</string>
     <string name="cluster_well_scale_option">%1$d%%</string>
-    <string name="cluster_small_window_hint">El centro predeterminado queda a la derecha, al 85 %. La pantalla completa no usa estos valores.</string>
+    <string name="cluster_small_window_hint">Por defecto es el pozo (centro ~81/43, tamaño 100%%). Más de 100%% muestra más mapa en el mismo hueco. La pantalla completa no usa estos valores.</string>
     <string name="cluster_small_window_access_ok">Acceso de uso concedido · se usa si ADB no puede leer el modo de navegación.</string>
     <string name="cluster_small_window_access_missing">El modo automático prefiere ADB para leer Pequeña/Pantalla completa en el volante. Si ADB no está aprobado, concede el acceso de uso y reconecta.</string>
     <string name="cluster_small_window_grant_access">Conceder acceso de uso</string>

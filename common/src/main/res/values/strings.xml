@@ -530,12 +530,12 @@
     <string name="cluster_small_window_on">On · always the well</string>
     <string name="cluster_small_window_auto">Auto · follow the cluster</string>
     <string name="cluster_small_window_marker">Navigation in the well</string>
-    <string name="cluster_small_window_marker_description">Moves the whole map frame into the small cluster window. The car marker stays at the centre of that frame. Left/right and up/down choose where the centre lands. Size shrinks the frame so more of the map fits in the well. Auto follows the cluster and applies immediately.</string>
+    <string name="cluster_small_window_marker_description">Places the map in the 500×620 cluster well. The car marker stays at the centre of the frame. Left/right and up/down choose where the centre lands. Scale 100%% makes the window equal the well; 85%% grows the window so the same 500×620 hole shows more map. Auto follows the cluster and applies immediately.</string>
     <string name="cluster_small_window_horizontal">Well frame · left/right</string>
     <string name="cluster_small_window_vertical">Well frame · up/down</string>
-    <string name="cluster_well_scale">Well frame · size</string>
+    <string name="cluster_well_scale">Well map · scale</string>
     <string name="cluster_well_scale_option">%1$d%%</string>
-    <string name="cluster_small_window_hint">Default centre is right of the middle of the panel, at 85% size. Full screen ignores these and fills the panel.</string>
+    <string name="cluster_small_window_hint">The on-screen hole stays ~500×620. Scale 100%% → window = well; 85%% → larger window behind that hole. Full screen ignores these.</string>
     <string name="cluster_small_window_access_ok">Usage Access granted · used if ADB cannot read the wheel navi mode.</string>
     <string name="cluster_small_window_access_missing">Auto prefers ADB (same as pausing the dashboard map). If ADB is not approved, grant Usage Access so the cluster small-map state can still be followed, then reconnect.</string>
     <string name="cluster_small_window_grant_access">Grant Usage Access</string>

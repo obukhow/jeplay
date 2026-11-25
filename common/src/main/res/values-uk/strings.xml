@@ -455,12 +455,12 @@
     <string name="cluster_small_window_on">Увімк · завжди колодязь</string>
     <string name="cluster_small_window_auto">Авто · за панеллю</string>
     <string name="cluster_small_window_marker">Навігація в колодязі</string>
-    <string name="cluster_small_window_marker_description">У колодязі зсувається весь екран карти, курсор лишається в центрі кадру. Ліворуч/праворуч і вгору/вниз задають, куди потрапляє центр. Розмір зменшує кадр, щоб у колодязь вміщалося більше карти. Авто повторює подію панелі одразу, без перепідключення.</string>
+    <string name="cluster_small_window_marker_description">У колодязі кадр карти ставиться в те саме вікно, що й у Яндекса. Курсор лишається в центрі кадру. Ліворуч/праворуч і вгору/вниз задають, куди потрапляє центр. Масштаб менше 100%% збільшує кадр, щоб у колі було більше карти і не було видно країв прямокутника. Авто повторює подію панелі одразу, без перепідключення.</string>
     <string name="cluster_small_window_horizontal">Екран у колодязі · ліворуч / праворуч</string>
     <string name="cluster_small_window_vertical">Екран у колодязі · вгору / вниз</string>
-    <string name="cluster_well_scale">Екран у колодязі · розмір</string>
+    <string name="cluster_well_scale">Карта в колодязі · масштаб</string>
     <string name="cluster_well_scale_option">%1$d%%</string>
-    <string name="cluster_small_window_hint">Типово центр правіше середини панелі, розмір 85 %. Повний екран ці значення не використовує.</string>
+    <string name="cluster_small_window_hint">Типово центр колодязя (~81/43). Масштаб 100%% заповнює колодязь; 85%% збільшує кадр, щоб у коло вміщалося більше карти. Повний екран ці значення не використовує.</string>
     <string name="cluster_small_window_access_ok">Доступ до використання надано · запасний варіант, якщо ADB не читає режим навігації.</string>
     <string name="cluster_small_window_access_missing">Авто надає перевагу ADB, щоб читати «малий/повний екран навігації» на кермі. Якщо ADB не дозволено, надайте доступ до використання й перепідключіться.</string>
     <string name="cluster_small_window_grant_access">Надати доступ до використання</string>

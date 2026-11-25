@@ -11,7 +11,7 @@ User-facing docs: [README.md](../README.md) · [README.ru.md](../README.ru.md)
 |------|--------|
 | App name / APK | `JePlay` → artifact `JePlay-<versionName>.apk` |
 | `applicationId` | `ru.jeplay.app` (not upstream `com.shihab.diplay`) |
-| `versionName` | `0.2.21.35` — first three digits track DiPlay upstream; **fourth** is the JePlay-only patch |
+| `versionName` | `0.2.21.36` — first three digits track DiPlay upstream; **fourth** is the JePlay-only patch |
 | `versionCode` | `upstreamCode * 100 + jeplayPatch` (e.g. DiPlay `40` → `4013`) |
 
 When merging a new DiPlay release (e.g. `0.2.22` / code `41`), bump the first three
@@ -31,8 +31,8 @@ Full release steps (bump → assemble → FTP → git tag/push): [deploy.md](dep
 Server layout example:
 
 ```text
-jeplay.ru/version.txt          →  0.2.21.35
-jeplay.ru/download/JePlay-0.2.21.35.apk
+jeplay.ru/version.txt          →  0.2.21.36
+jeplay.ru/download/JePlay-0.2.21.36.apk
 jeplay.ru/download/SHA256SUMS.txt   (optional)
 ```
 

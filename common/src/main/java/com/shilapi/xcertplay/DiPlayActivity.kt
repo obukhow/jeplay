@@ -2441,7 +2441,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                     } })
                                 card.addView(overlaySliderRow(
                                     getString(R.string.cluster_well_scale),
-                                    (60..100 step 5).toList(),
+                                    (com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SCALE_MIN..
+                                        com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SCALE_MAX step 5).toList(),
                                     com.shilapi.xcertplay.hud.JaecooSettings.clusterWellScale(this),
                                 ) { it -> getString(R.string.cluster_well_scale_option, it) }
                                     .also { it.onSave = { v ->

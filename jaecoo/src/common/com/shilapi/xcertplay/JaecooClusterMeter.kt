@@ -13,10 +13,11 @@ import com.shilapi.xcertplay.hud.JaecooSettings
 
 /**
  * Desay tells the cluster which map slot is showing. The instrument does not know about CarPlay.
- * YaSwitcher answers that for Yandex by moving the navi window. CarPlay's cluster stream is one
- * widescreen frame whose car marker sits at the centre, so this receiver slides that frame until
- * the centre lands in the well and draws it slightly smaller there, so the fixed crop shows more
- * map. Full screen puts the frame back. The session stays up.
+ * YaSwitcher answers that for Yandex by moving the navi window into the well rect. CarPlay's
+ * cluster stream keeps the car at the centre of its frame, so this receiver places that frame on
+ * the YaSwitcher well. Scale 100% makes the window exactly that well; below 100% grows it
+ * (`well / scale`) so the on-screen hole stays 500×620 while more map fits inside. The session
+ * stays up.
  *
  * On a 1920×720 Jaecoo cluster the well is the rect YaSwitcher sends as
  * `show_cluster?x=1300&y=0&width=500&height=620`. Other panel sizes keep that same fraction.
@@ -35,9 +36,9 @@ internal object JaecooClusterMeter {
     const val WELL_WIDTH = 500
     const val WELL_HEIGHT = 620
 
-    /** Where the small-window sliders put the frame centre when the driver has not moved them. */
-    const val DEFAULT_CENTER_X_PERCENT = 80
-    const val DEFAULT_CENTER_Y_PERCENT = 45
+    /** Well centre as percent of the reference panel — the small-window slider defaults. */
+    const val DEFAULT_CENTER_X_PERCENT = 81
+    const val DEFAULT_CENTER_Y_PERCENT = 43
 
     enum class Layout { FULL, WELL, HIDDEN }
 
@@ -141,9 +142,13 @@ internal object JaecooClusterMeter {
             return Frame(0, 0, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                 Gravity.CENTER, layout != Layout.HIDDEN && panelWidth > 0 && panelHeight > 0)
         }
-        val scale = scalePercent.coerceIn(60, 100)
-        val width = (panelWidth * scale / 100).coerceAtLeast(1)
-        val height = (panelHeight * scale / 100).coerceAtLeast(1)
+        // On-screen well hole is always ~500×620. Scale 100 → window == well.
+        // Scale 85 → window = well/0.85, centred on the well; the hole crops more map.
+        val scale = scalePercent.coerceIn(JaecooSettings.CLUSTER_WELL_SCALE_MIN, JaecooSettings.CLUSTER_WELL_SCALE_MAX)
+        val wellWidth = (WELL_WIDTH * panelWidth / REFERENCE_WIDTH).coerceAtLeast(1)
+        val wellHeight = (WELL_HEIGHT * panelHeight / REFERENCE_HEIGHT).coerceAtLeast(1)
+        val width = (wellWidth * 100 / scale).coerceAtLeast(wellWidth)
+        val height = (wellHeight * 100 / scale).coerceAtLeast(wellHeight)
         val centerX = panelWidth * centerXPercent.coerceIn(5, 95) / 100
         val centerY = panelHeight * centerYPercent.coerceIn(5, 95) / 100
         return Frame(

@@ -19,9 +19,9 @@ android {
         minSdk = 25
         targetSdk = 37
         // versionCode = upstream DiPlay code * 100 + JePlay patch (e.g. 40 → 4020).
-        versionCode = 4035
+        versionCode = 4036
         // First three digits track DiPlay upstream; fourth is the JePlay-only patch.
-        versionName = "0.2.21.35"
+        versionName = "0.2.21.36"
     }
 
 

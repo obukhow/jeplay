@@ -19,8 +19,8 @@ class JaecooSettingsTest {
         assertTrue(JaecooSettings.compatibleVideoDecode(app))
     }
 
-    @Test fun clusterWellScaleDefaultsToASlightlySmallerFrame() {
-        assertEquals(JaecooSettings.CLUSTER_WELL_SCALE_DEFAULT, JaecooSettings.clusterWellScale(app))
+    @Test fun clusterWellScaleDefaultsToEightyFive() {
+        assertEquals(85, JaecooSettings.clusterWellScale(app))
     }
 
     @Test fun clusterWellScalePersists() {

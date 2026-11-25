@@ -27,24 +27,41 @@ class JaecooClusterMeterTest {
         assertEquals(JaecooClusterMeter.Layout.HIDDEN, JaecooClusterMeter.layoutOf(0, 0, true))
     }
 
-    @Test fun wellFrameUsesTheSmallWindowSlidersAsItsCentre() {
-        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 1920, 720, 80, 45, 85)
-        assertEquals(1632, frame.width)
-        assertEquals(612, frame.height)
-        assertEquals(720, frame.x)
-        assertEquals(18, frame.y)
+    @Test fun scale100MatchesTheYaSwitcherWell() {
+        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 1920, 720, 81, 43, 100)
+        assertEquals(500, frame.width)
+        assertEquals(620, frame.height)
         assertEquals(Gravity.TOP or Gravity.LEFT, frame.gravity)
         assertEquals(true, frame.visible)
-        assertEquals(1536, frame.x + frame.width / 2)
-        assertEquals(324, frame.y + frame.height / 2)
+        assertEquals(1555, frame.x + frame.width / 2)
+        assertEquals(309, frame.y + frame.height / 2)
+        assertEquals(1305, frame.x)
+        assertEquals(-1, frame.y)
+    }
+
+    @Test fun scale85GrowsTheWindowSoThe500x620HoleShowsMoreMap() {
+        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 1920, 720, 81, 43, 85)
+        assertEquals(588, frame.width)
+        assertEquals(729, frame.height)
+        assertEquals(true, frame.width > JaecooClusterMeter.WELL_WIDTH)
+        assertEquals(true, frame.height > JaecooClusterMeter.WELL_HEIGHT)
+        assertEquals(1555, frame.x + frame.width / 2)
+        assertEquals(309, frame.y + frame.height / 2)
     }
 
     @Test fun wellFrameKeepsTheSameFractionOnAnotherPanel() {
-        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 960, 360, 80, 45, 85)
-        assertEquals(816, frame.width)
-        assertEquals(306, frame.height)
-        assertEquals(360, frame.x)
-        assertEquals(9, frame.y)
+        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 960, 360, 81, 43, 100)
+        assertEquals(250, frame.width)
+        assertEquals(310, frame.height)
+        assertEquals(652, frame.x)
+        assertEquals(-1, frame.y)
+    }
+
+    @Test fun maxRightSliderPutsTheCarPastTheWellCentre() {
+        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 1920, 720, 95, 43, 85)
+        assertEquals(588, frame.width)
+        assertEquals(1824, frame.x + frame.width / 2)
+        assertEquals(true, frame.x + frame.width / 2 > JaecooClusterMeter.WELL_X + JaecooClusterMeter.WELL_WIDTH / 2)
     }
 
     @Test fun modeChoosesWhetherTheReportedSlotIsUsed() {
