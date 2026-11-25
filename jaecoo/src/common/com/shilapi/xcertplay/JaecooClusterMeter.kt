@@ -13,14 +13,13 @@ import com.shilapi.xcertplay.hud.JaecooSettings
 
 /**
  * Desay tells the cluster which map slot is showing. The instrument does not know about CarPlay.
- * YaSwitcher answers that for Yandex by moving the navi window into the well rect. CarPlay's
- * cluster stream keeps the car at the centre of its frame, so this receiver places that frame on
- * the YaSwitcher well. Scale 100% makes the window exactly that well; below 100% grows it
- * (`well / scale`) so the on-screen hole stays 500×620 while more map fits inside.
+ * YaSwitcher answers that for Yandex by moving the navi window into the well rect.
  *
- * The advertised stream 111 size follows the well frame (not the full 1920×720 panel), otherwise
- * the iPhone keeps encoding an ultrawide map that Android then squashes into ~500×620. Switching
- * well ↔ full reconnects so `/info` picks up the new aspect.
+ * Two fits:
+ * - **Resize** — shrink the Presentation to the well (optionally grown by scale) and advertise that
+ *   size as stream 111. Well ↔ full reconnects so `/info` picks up the new aspect.
+ * - **Shift** — keep the full-panel stream and slide the Presentation so the car marker lands on
+ *   the well centre. No reconnect; full screen puts the window back at (0,0).
  *
  * On a 1920×720 Jaecoo cluster the well is the rect YaSwitcher sends as
  * `show_cluster?x=1300&y=0&width=500&height=620`. Other panel sizes keep that same fraction.
@@ -133,6 +132,10 @@ internal object JaecooClusterMeter {
     fun showsWell(context: Context): Boolean =
         shown(AirPlayPersistence.loadClusterSmallWindowMode(context), layout) == Layout.WELL
 
+    /** True only for resize fit: stream 111 must advertise the well size. */
+    fun resizesStream(context: Context): Boolean =
+        showsWell(context) && JaecooSettings.clusterWellFit(context) == JaecooSettings.CLUSTER_WELL_FIT_RESIZE
+
     fun frame(
         layout: Layout,
         panelWidth: Int,
@@ -140,13 +143,31 @@ internal object JaecooClusterMeter {
         centerXPercent: Int = DEFAULT_CENTER_X_PERCENT,
         centerYPercent: Int = DEFAULT_CENTER_Y_PERCENT,
         scalePercent: Int = JaecooSettings.CLUSTER_WELL_SCALE_DEFAULT,
+        fit: Int = JaecooSettings.CLUSTER_WELL_FIT_RESIZE,
+        markerXPercent: Int = 50,
+        markerYPercent: Int = 45,
+        shiftXPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
+        shiftYPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
     ): Frame {
         if (layout != Layout.WELL || panelWidth <= 0 || panelHeight <= 0) {
             return Frame(0, 0, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                 Gravity.CENTER, layout != Layout.HIDDEN && panelWidth > 0 && panelHeight > 0)
         }
-        // On-screen well hole is always ~500×620. Scale 100 → window == well.
-        // Scale 85 → window = well/0.85, centred on the well; the hole crops more map.
+        return if (fit == JaecooSettings.CLUSTER_WELL_FIT_SHIFT) {
+            shiftFrame(panelWidth, panelHeight, markerXPercent, markerYPercent, shiftXPercent, shiftYPercent)
+        } else {
+            resizeFrame(panelWidth, panelHeight, centerXPercent, centerYPercent, scalePercent)
+        }
+    }
+
+    /** Shrink/grow a well-sized window centred on the hole (resize fit). */
+    private fun resizeFrame(
+        panelWidth: Int,
+        panelHeight: Int,
+        centerXPercent: Int,
+        centerYPercent: Int,
+        scalePercent: Int,
+    ): Frame {
         val scale = scalePercent.coerceIn(JaecooSettings.CLUSTER_WELL_SCALE_MIN, JaecooSettings.CLUSTER_WELL_SCALE_MAX)
         val wellWidth = (WELL_WIDTH * panelWidth / REFERENCE_WIDTH).coerceAtLeast(1)
         val wellHeight = (WELL_HEIGHT * panelHeight / REFERENCE_HEIGHT).coerceAtLeast(1)
@@ -159,6 +180,35 @@ internal object JaecooClusterMeter {
             centerY - height / 2,
             width,
             height,
+            Gravity.TOP or Gravity.LEFT,
+            true,
+        )
+    }
+
+    /**
+     * Keep the full-panel window and slide it so the car marker (at [markerXPercent]/[markerYPercent]
+     * of the panel) lands on the well centre. [shiftXPercent]/[shiftYPercent] at 50 add nothing;
+     * each step away from 50 is 1 % of the panel as fine-tune.
+     */
+    fun shiftFrame(
+        panelWidth: Int,
+        panelHeight: Int,
+        markerXPercent: Int,
+        markerYPercent: Int,
+        shiftXPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
+        shiftYPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
+    ): Frame {
+        val wellCenterX = (WELL_X + WELL_WIDTH / 2) * panelWidth / REFERENCE_WIDTH
+        val wellCenterY = (WELL_Y + WELL_HEIGHT / 2) * panelHeight / REFERENCE_HEIGHT
+        val markerX = panelWidth * markerXPercent.coerceIn(5, 95) / 100
+        val markerY = panelHeight * markerYPercent.coerceIn(5, 95) / 100
+        val fineX = panelWidth * (shiftXPercent.coerceIn(5, 95) - 50) / 100
+        val fineY = panelHeight * (shiftYPercent.coerceIn(5, 95) - 50) / 100
+        return Frame(
+            wellCenterX - markerX + fineX,
+            wellCenterY - markerY + fineY,
+            panelWidth,
+            panelHeight,
             Gravity.TOP or Gravity.LEFT,
             true,
         )
@@ -181,6 +231,11 @@ internal object JaecooClusterMeter {
             AirPlayPersistence.loadClusterSmallWindowMarkerXPercent(context),
             AirPlayPersistence.loadClusterSmallWindowMarkerYPercent(context),
             JaecooSettings.clusterWellScale(context),
+            JaecooSettings.clusterWellFit(context),
+            AirPlayPersistence.loadClusterMarkerXPercent(context),
+            AirPlayPersistence.loadClusterMarkerYPercent(context),
+            JaecooSettings.clusterWellShiftXPercent(context),
+            JaecooSettings.clusterWellShiftYPercent(context),
         ))
         presentation.setMapVisible(current != Layout.HIDDEN)
     }

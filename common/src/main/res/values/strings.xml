@@ -530,12 +530,18 @@
     <string name="cluster_small_window_on">On · always the well</string>
     <string name="cluster_small_window_auto">Auto · follow the cluster</string>
     <string name="cluster_small_window_marker">Navigation in the well</string>
-    <string name="cluster_small_window_marker_description">Places the map in the 500×620 cluster well and tells the iPhone that size so the map is not squashed. The car marker stays at the centre of the frame. Left/right and up/down choose where the centre lands. Scale 100%% makes the window equal the well; 85%% grows the window so the same 500×620 hole shows more map. Switching well ↔ full (or changing scale) reconnects CarPlay.</string>
+    <string name="cluster_small_window_marker_description">Puts CarPlay’s map into the 500×620 cluster well when On or Auto. Choose how below: resize the stream, or slide the full panel.</string>
+    <string name="cluster_well_fit">Well · how</string>
+    <string name="cluster_well_fit_resize">Resize · reconnect</string>
+    <string name="cluster_well_fit_shift">Shift · no reconnect</string>
+    <string name="cluster_well_fit_description">Resize shrinks the window and tells the iPhone the well size (reconnects on well ↔ full). Shift keeps the full 1920×720 stream and slides it so the car marker sits on the well centre; the shift sliders fine-tune that. Full screen slides back.</string>
+    <string name="cluster_well_shift_horizontal">Well shift · left / right</string>
+    <string name="cluster_well_shift_vertical">Well shift · up / down</string>
     <string name="cluster_small_window_horizontal">Well frame · left/right</string>
     <string name="cluster_small_window_vertical">Well frame · up/down</string>
     <string name="cluster_well_scale">Well map · scale</string>
     <string name="cluster_well_scale_option">%1$d%%</string>
-    <string name="cluster_small_window_hint">The on-screen hole stays ~500×620. Scale 100%% → window = well; 85%% → larger window behind that hole. Full screen ignores these.</string>
+    <string name="cluster_small_window_hint">Resize: hole stays ~500×620; scale grows the window behind it. Shift: uses the full-screen car marker and slides the panel; 50/50 on the shift sliders is exact alignment. Full screen ignores well placement.</string>
     <string name="cluster_small_window_access_ok">Usage Access granted · used if ADB cannot read the wheel navi mode.</string>
     <string name="cluster_small_window_access_missing">Auto prefers ADB (same as pausing the dashboard map). If ADB is not approved, grant Usage Access so the cluster small-map state can still be followed, then reconnect.</string>
     <string name="cluster_small_window_grant_access">Grant Usage Access</string>

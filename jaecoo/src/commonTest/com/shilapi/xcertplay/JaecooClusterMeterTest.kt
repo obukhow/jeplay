@@ -57,6 +57,35 @@ class JaecooClusterMeterTest {
         assertEquals(true, 1920.0 / 720 > 2.0)
     }
 
+    @Test fun shiftPutsTheCarMarkerOnTheWellCentre() {
+        // Marker at 50%,45% on 1920×720 → (960,324). Well centre → (1550,310).
+        val frame = JaecooClusterMeter.shiftFrame(1920, 720, 50, 45, 50, 50)
+        assertEquals(1920, frame.width)
+        assertEquals(720, frame.height)
+        assertEquals(590, frame.x)
+        assertEquals(-14, frame.y)
+        assertEquals(1550, frame.x + 960)
+        assertEquals(310, frame.y + 324)
+    }
+
+    @Test fun shiftFineTuneMovesFurtherRight() {
+        val base = JaecooClusterMeter.shiftFrame(1920, 720, 50, 45, 50, 50)
+        val tuned = JaecooClusterMeter.shiftFrame(1920, 720, 50, 45, 55, 50)
+        assertEquals(base.x + 1920 / 20, tuned.x) // +5% of panel
+        assertEquals(base.y, tuned.y)
+    }
+
+    @Test fun shiftFitKeepsFullPanelSizeViaFrame() {
+        val frame = JaecooClusterMeter.frame(
+            JaecooClusterMeter.Layout.WELL, 1920, 720,
+            fit = com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_FIT_SHIFT,
+            markerXPercent = 50, markerYPercent = 45,
+        )
+        assertEquals(1920, frame.width)
+        assertEquals(720, frame.height)
+        assertEquals(590, frame.x)
+    }
+
     @Test fun wellFrameKeepsTheSameFractionOnAnotherPanel() {
         val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 960, 360, 81, 43, 100)
         assertEquals(250, frame.width)

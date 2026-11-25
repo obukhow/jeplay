@@ -2407,12 +2407,14 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                 render()
                                 markReconnectNeeded()
                             }, matchButton(10, 56))
-                            // JAECOO: Off/On/Auto change whether stream 111 is full-panel or well-sized.
+                            // JAECOO: Off/On/Auto — when the well applies. Resize fit reconnects; shift does not.
+                            val wellFitResize = com.shilapi.xcertplay.hud.JaecooSettings.clusterWellFit(this) ==
+                                com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_FIT_RESIZE
                             choice(card, getString(R.string.cluster_small_window_marker), listOf(
                                 getString(R.string.cluster_small_window_off),
                                 getString(R.string.cluster_small_window_on),
                                 getString(R.string.cluster_small_window_auto),
-                            ), AirPlayPersistence.loadClusterSmallWindowMode(this), reconnects = true) {
+                            ), AirPlayPersistence.loadClusterSmallWindowMode(this), reconnects = wellFitResize) {
                                 AirPlayPersistence.saveClusterSmallWindowMode(this, it)
                                 JaecooClusterMeter.relayout(this)
                                 render()
@@ -2421,35 +2423,68 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                 setPadding(0, dp(8), 0, dp(6))
                             })
                             if (AirPlayPersistence.loadClusterSmallWindowMode(this) != 0) {
-                                card.addView(overlaySliderRow(
-                                    getString(R.string.cluster_small_window_horizontal),
-                                    CarPlayClusterDisplay.markerXPercents,
-                                    AirPlayPersistence.loadClusterSmallWindowMarkerXPercent(this),
-                                ) { it -> overlayOffsetLabel(it, getString(R.string.marker_left), getString(R.string.marker_right), 50) }
-                                    .also { it.onSave = { v ->
-                                        AirPlayPersistence.saveClusterSmallWindowMarkerXPercent(this, v)
-                                        JaecooClusterMeter.relayout(this)
-                                    } })
-                                card.addView(overlaySliderRow(
-                                    getString(R.string.cluster_small_window_vertical),
-                                    CarPlayClusterDisplay.markerYPercents,
-                                    AirPlayPersistence.loadClusterSmallWindowMarkerYPercent(this),
-                                ) { it -> overlayOffsetLabel(it, getString(R.string.marker_up), getString(R.string.marker_down), 45) }
-                                    .also { it.onSave = { v ->
-                                        AirPlayPersistence.saveClusterSmallWindowMarkerYPercent(this, v)
-                                        JaecooClusterMeter.relayout(this)
-                                    } })
-                                card.addView(overlaySliderRow(
-                                    getString(R.string.cluster_well_scale),
-                                    (com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SCALE_MIN..
-                                        com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SCALE_MAX step 5).toList(),
-                                    com.shilapi.xcertplay.hud.JaecooSettings.clusterWellScale(this),
-                                ) { it -> getString(R.string.cluster_well_scale_option, it) }
-                                    .also { it.onSave = { v ->
-                                        com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellScale(this, v)
-                                        JaecooClusterMeter.relayout(this)
-                                    } }
-                                    .also { it.onCommit = { markReconnectNeeded() } })
+                                choice(card, getString(R.string.cluster_well_fit), listOf(
+                                    getString(R.string.cluster_well_fit_resize),
+                                    getString(R.string.cluster_well_fit_shift),
+                                ), com.shilapi.xcertplay.hud.JaecooSettings.clusterWellFit(this),
+                                    reconnects = true) {
+                                    com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellFit(this, it)
+                                    JaecooClusterMeter.relayout(this)
+                                    render()
+                                }
+                                card.addView(label(getString(R.string.cluster_well_fit_description), 14, MUTED).apply {
+                                    setPadding(0, dp(4), 0, dp(6))
+                                })
+                                if (wellFitResize) {
+                                    card.addView(overlaySliderRow(
+                                        getString(R.string.cluster_small_window_horizontal),
+                                        CarPlayClusterDisplay.markerXPercents,
+                                        AirPlayPersistence.loadClusterSmallWindowMarkerXPercent(this),
+                                    ) { it -> overlayOffsetLabel(it, getString(R.string.marker_left), getString(R.string.marker_right), 50) }
+                                        .also { it.onSave = { v ->
+                                            AirPlayPersistence.saveClusterSmallWindowMarkerXPercent(this, v)
+                                            JaecooClusterMeter.relayout(this)
+                                        } })
+                                    card.addView(overlaySliderRow(
+                                        getString(R.string.cluster_small_window_vertical),
+                                        CarPlayClusterDisplay.markerYPercents,
+                                        AirPlayPersistence.loadClusterSmallWindowMarkerYPercent(this),
+                                    ) { it -> overlayOffsetLabel(it, getString(R.string.marker_up), getString(R.string.marker_down), 45) }
+                                        .also { it.onSave = { v ->
+                                            AirPlayPersistence.saveClusterSmallWindowMarkerYPercent(this, v)
+                                            JaecooClusterMeter.relayout(this)
+                                        } })
+                                    card.addView(overlaySliderRow(
+                                        getString(R.string.cluster_well_scale),
+                                        (com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SCALE_MIN..
+                                            com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SCALE_MAX step 5).toList(),
+                                        com.shilapi.xcertplay.hud.JaecooSettings.clusterWellScale(this),
+                                    ) { it -> getString(R.string.cluster_well_scale_option, it) }
+                                        .also { it.onSave = { v ->
+                                            com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellScale(this, v)
+                                            JaecooClusterMeter.relayout(this)
+                                        } }
+                                        .also { it.onCommit = { markReconnectNeeded() } })
+                                } else {
+                                    card.addView(overlaySliderRow(
+                                        getString(R.string.cluster_well_shift_horizontal),
+                                        CarPlayClusterDisplay.markerXPercents,
+                                        com.shilapi.xcertplay.hud.JaecooSettings.clusterWellShiftXPercent(this),
+                                    ) { it -> overlayOffsetLabel(it, getString(R.string.marker_left), getString(R.string.marker_right), 50) }
+                                        .also { it.onSave = { v ->
+                                            com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellShiftXPercent(this, v)
+                                            JaecooClusterMeter.relayout(this)
+                                        } })
+                                    card.addView(overlaySliderRow(
+                                        getString(R.string.cluster_well_shift_vertical),
+                                        CarPlayClusterDisplay.markerYPercents,
+                                        com.shilapi.xcertplay.hud.JaecooSettings.clusterWellShiftYPercent(this),
+                                    ) { it -> overlayOffsetLabel(it, getString(R.string.marker_up), getString(R.string.marker_down), 50) }
+                                        .also { it.onSave = { v ->
+                                            com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellShiftYPercent(this, v)
+                                            JaecooClusterMeter.relayout(this)
+                                        } })
+                                }
                                 if (AirPlayPersistence.loadClusterContent(this) ==
                                     com.shilapi.xcertplay.airplay.CarPlayClusterDisplay.Content.MAP_WITH_CUSTOM_CARD) {
                                     choice(card, getString(R.string.cluster_small_window_card_theme), listOf(

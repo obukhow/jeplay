@@ -1277,16 +1277,18 @@ class CarPlayHostActivity : ComponentActivity() {
     }
 
     private fun smallWindowActive(): Boolean {
-        // JAECOO: well mode shrinks the Presentation and advertises that size as stream 111.
-        return JaecooClusterMeter.showsWell(this)
+        // JAECOO resize fit: advertise the well size as stream 111. Shift fit keeps full-panel size.
+        return JaecooClusterMeter.resizesStream(this)
     }
 
     /** JAECOO: move the cluster window when Desay switches the well and the full map. */
     private fun onJaecooClusterLayout() {
         val layout = JaecooClusterMeter.layout
-        appendLog("Cluster map: Desay meter ${layout?.name?.lowercase()}")
+        val fit = if (com.shilapi.xcertplay.hud.JaecooSettings.clusterWellFit(this) ==
+            com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_FIT_SHIFT) "shift" else "resize"
+        appendLog("Cluster map: Desay meter ${layout?.name?.lowercase()} fit=$fit")
         applyClusterTurnOverlay()
-        // Stream 111 size is declared at connect time; well ↔ full needs a new /info.
+        // Resize fit changes stream 111 size; shift only moves the Presentation (no reconnect).
         if (CarPlayBackgroundSession.active && requestedSmallWindowForStream != null &&
             requestedSmallWindowForStream != smallWindowActive()) {
             reconnectAfterLoss("Cluster small-window navi ${if (smallWindowActive()) "on" else "off"}")

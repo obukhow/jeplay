@@ -28,6 +28,22 @@ class JaecooSettingsTest {
         assertEquals(70, JaecooSettings.clusterWellScale(app))
     }
 
+    @Test fun clusterWellFitDefaultsToShift() {
+        assertEquals(JaecooSettings.CLUSTER_WELL_FIT_SHIFT, JaecooSettings.clusterWellFit(app))
+    }
+
+    @Test fun clusterWellFitPersists() {
+        JaecooSettings.setClusterWellFit(app, JaecooSettings.CLUSTER_WELL_FIT_RESIZE)
+        assertEquals(JaecooSettings.CLUSTER_WELL_FIT_RESIZE, JaecooSettings.clusterWellFit(app))
+        JaecooSettings.setClusterWellFit(app, JaecooSettings.CLUSTER_WELL_FIT_SHIFT)
+        assertEquals(JaecooSettings.CLUSTER_WELL_FIT_SHIFT, JaecooSettings.clusterWellFit(app))
+    }
+
+    @Test fun clusterWellShiftDefaultsToCentre() {
+        assertEquals(50, JaecooSettings.clusterWellShiftXPercent(app))
+        assertEquals(50, JaecooSettings.clusterWellShiftYPercent(app))
+    }
+
     @Test fun compatibleVideoDecodePersists() {
         JaecooSettings.setCompatibleVideoDecode(app, false)
         assertFalse(JaecooSettings.compatibleVideoDecode(app))
