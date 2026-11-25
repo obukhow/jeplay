@@ -530,7 +530,7 @@
     <string name="cluster_small_window_on">On · always the well</string>
     <string name="cluster_small_window_auto">Auto · follow the cluster</string>
     <string name="cluster_small_window_marker">Navigation in the well</string>
-    <string name="cluster_small_window_marker_description">Places the map in the 500×620 cluster well. The car marker stays at the centre of the frame. Left/right and up/down choose where the centre lands. Scale 100%% makes the window equal the well; 85%% grows the window so the same 500×620 hole shows more map. Auto follows the cluster and applies immediately.</string>
+    <string name="cluster_small_window_marker_description">Places the map in the 500×620 cluster well and tells the iPhone that size so the map is not squashed. The car marker stays at the centre of the frame. Left/right and up/down choose where the centre lands. Scale 100%% makes the window equal the well; 85%% grows the window so the same 500×620 hole shows more map. Switching well ↔ full (or changing scale) reconnects CarPlay.</string>
     <string name="cluster_small_window_horizontal">Well frame · left/right</string>
     <string name="cluster_small_window_vertical">Well frame · up/down</string>
     <string name="cluster_well_scale">Well map · scale</string>

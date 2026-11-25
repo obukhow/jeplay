@@ -515,7 +515,7 @@
     <string name="cluster_small_window_on">オン · 常に小窓</string>
     <string name="cluster_small_window_auto">自動 · メーターに従う</string>
     <string name="cluster_small_window_marker">小窓ナビ</string>
-    <string name="cluster_small_window_marker_description">小窓では地図画面全体を動かし、車のマークは画面の中央のままです。左右と上下で中心の位置を決め、サイズを小さくするとより広い地図が入ります。自動はメーターにすぐ従い、再接続は不要です。</string>
+    <string name="cluster_small_window_marker_description">小窓では地図を井戸サイズにし、その解像度を iPhone に伝えて横長パネルの潰れを防ぎます。車のマークは中央のまま。左右と上下で中心位置、100%%未満で窓を広げてより広い地図を見せます。井戸↔全画面（や倍率変更）では CarPlay を再接続します。</string>
     <string name="cluster_small_window_horizontal">小窓の画面 · 左右</string>
     <string name="cluster_small_window_vertical">小窓の画面 · 上下</string>
     <string name="cluster_well_scale">小窓の画面 · サイズ</string>

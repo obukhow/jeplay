@@ -75,6 +75,24 @@ class CarPlayClusterDisplayTest {
     }
 
     @Test
+    fun jaecooWellStreamKeepsPortraitAspect() {
+        // YaSwitcher well 500×620 (and 588×729 at 85% window scale) must not become ultrawide.
+        val well = CarPlayClusterDisplay.config(
+            500, 620, scalePercent = 100,
+            markerXPercent = 50, markerYPercent = 50,
+            baseSafeArea = CarPlayClusterDisplay.VIRTUAL_SAFE_AREA_PERCENT,
+        )
+        assertEquals(504, well.widthPixels) // round-to-8 from height-led aspect
+        assertEquals(624, well.heightPixels)
+        assertTrue(well.widthPixels < well.heightPixels)
+
+        val scaledWindow = CarPlayClusterDisplay.config(588, 729, scalePercent = 83)
+        assertTrue(scaledWindow.widthPixels < scaledWindow.heightPixels)
+        val aspect = scaledWindow.widthPixels.toDouble() / scaledWindow.heightPixels
+        assertEquals(588.0 / 729.0, aspect, 0.02)
+    }
+
+    @Test
     fun markerStepsMoveTheWholeSafeArea() {
         val centre = CarPlayClusterDisplay.config(1920, 720, scalePercent = 100).safeArea!!
         val farLeftHigher = CarPlayClusterDisplay.config(1920, 720, scalePercent = 100, horizontalStep = -2, verticalStep = -1).safeArea!!

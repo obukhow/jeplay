@@ -16,8 +16,11 @@ import com.shilapi.xcertplay.hud.JaecooSettings
  * YaSwitcher answers that for Yandex by moving the navi window into the well rect. CarPlay's
  * cluster stream keeps the car at the centre of its frame, so this receiver places that frame on
  * the YaSwitcher well. Scale 100% makes the window exactly that well; below 100% grows it
- * (`well / scale`) so the on-screen hole stays 500×620 while more map fits inside. The session
- * stays up.
+ * (`well / scale`) so the on-screen hole stays 500×620 while more map fits inside.
+ *
+ * The advertised stream 111 size follows the well frame (not the full 1920×720 panel), otherwise
+ * the iPhone keeps encoding an ultrawide map that Android then squashes into ~500×620. Switching
+ * well ↔ full reconnects so `/info` picks up the new aspect.
  *
  * On a 1920×720 Jaecoo cluster the well is the rect YaSwitcher sends as
  * `show_cluster?x=1300&y=0&width=500&height=620`. Other panel sizes keep that same fraction.

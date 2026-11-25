@@ -443,7 +443,7 @@
     <string name="cluster_small_window_on">Activado · siempre el pozo</string>
     <string name="cluster_small_window_auto">Automático · sigue el cuadro</string>
     <string name="cluster_small_window_marker">Navegación en el pozo</string>
-    <string name="cluster_small_window_marker_description">En el pozo se mueve toda la pantalla del mapa y el cursor se queda en el centro. Izquierda/derecha y arriba/abajo eligen dónde cae el centro. El tamaño reduce el cuadro para que quepa más mapa. Automático sigue el cuadro al momento, sin reconectar.</string>
+    <string name="cluster_small_window_marker_description">En el pozo se mueve el mapa y el iPhone recibe ese tamaño para no aplastar el panel ancho. El cursor queda en el centro. Izquierda/derecha y arriba/abajo eligen el centro. El tamaño bajo 100%% agranda el cuadro para ver más mapa. Cambiar pozo ↔ pantalla completa (o el tamaño) reconecta CarPlay.</string>
     <string name="cluster_small_window_horizontal">Pantalla en el pozo · izquierda / derecha</string>
     <string name="cluster_small_window_vertical">Pantalla en el pozo · arriba / abajo</string>
     <string name="cluster_well_scale">Pantalla en el pozo · tamaño</string>

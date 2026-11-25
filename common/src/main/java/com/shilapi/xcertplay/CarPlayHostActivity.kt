@@ -1277,8 +1277,8 @@ class CarPlayHostActivity : ComponentActivity() {
     }
 
     private fun smallWindowActive(): Boolean {
-        // JAECOO: the small-window sliders move the presentation. The car marker stays at the centre of that window.
-        return false
+        // JAECOO: well mode shrinks the Presentation and advertises that size as stream 111.
+        return JaecooClusterMeter.showsWell(this)
     }
 
     /** JAECOO: move the cluster window when Desay switches the well and the full map. */
@@ -1286,6 +1286,11 @@ class CarPlayHostActivity : ComponentActivity() {
         val layout = JaecooClusterMeter.layout
         appendLog("Cluster map: Desay meter ${layout?.name?.lowercase()}")
         applyClusterTurnOverlay()
+        // Stream 111 size is declared at connect time; well ↔ full needs a new /info.
+        if (CarPlayBackgroundSession.active && requestedSmallWindowForStream != null &&
+            requestedSmallWindowForStream != smallWindowActive()) {
+            reconnectAfterLoss("Cluster small-window navi ${if (smallWindowActive()) "on" else "off"}")
+        }
     }
 
     private fun ensureClusterPresentation() {
@@ -1550,17 +1555,45 @@ class CarPlayHostActivity : ComponentActivity() {
                 val requestedScale = AirPlayPersistence.loadClusterMapScalePercent(this)
                 val smallWindow = smallWindowActive()
                 requestedSmallWindowForStream = smallWindow
+                // JAECOO well: advertise the well frame size so the iPhone encodes that aspect
+                // instead of squeezing the full-panel ultrawide into ~500×620. Window X/Y only
+                // place the Presentation; the car marker stays centred in the well stream.
+                val panelWidth: Int
+                val panelHeight: Int
+                val markerX: Int
+                val markerY: Int
+                val baseSafeArea: com.shilapi.xcertplay.airplay.AirPlayInsets
+                if (smallWindow) {
+                    val well = JaecooClusterMeter.frame(
+                        JaecooClusterMeter.Layout.WELL,
+                        size.x,
+                        size.y,
+                        AirPlayPersistence.loadClusterSmallWindowMarkerXPercent(this),
+                        AirPlayPersistence.loadClusterSmallWindowMarkerYPercent(this),
+                        com.shilapi.xcertplay.hud.JaecooSettings.clusterWellScale(this),
+                    )
+                    panelWidth = well.width
+                    panelHeight = well.height
+                    markerX = 50
+                    markerY = 50
+                    baseSafeArea = CarPlayClusterDisplay.VIRTUAL_SAFE_AREA_PERCENT
+                } else {
+                    panelWidth = size.x
+                    panelHeight = size.y
+                    markerX = AirPlayPersistence.loadClusterMarkerXPercent(this)
+                    markerY = AirPlayPersistence.loadClusterMarkerYPercent(this)
+                    baseSafeArea = CarPlayClusterDisplay.SAFE_AREA_PERCENT
+                }
                 fun streamAt(scale: Int) = CarPlayClusterDisplay.config(
-                    size.x,
-                    size.y,
+                    panelWidth,
+                    panelHeight,
                     scale,
                     0,
                     0,
                     AirPlayPersistence.loadClusterContent(this),
-                    markerXPercent = if (smallWindow) AirPlayPersistence.loadClusterSmallWindowMarkerXPercent(this)
-                    else AirPlayPersistence.loadClusterMarkerXPercent(this),
-                    markerYPercent = if (smallWindow) AirPlayPersistence.loadClusterSmallWindowMarkerYPercent(this)
-                    else AirPlayPersistence.loadClusterMarkerYPercent(this),
+                    markerXPercent = markerX,
+                    markerYPercent = markerY,
+                    baseSafeArea = baseSafeArea,
                 )
                 val requested = streamAt(requestedScale)
                 // The smaller-map preset enlarges the encoded canvas beyond this panel. Probe
@@ -1579,7 +1612,8 @@ class CarPlayHostActivity : ComponentActivity() {
                 } else requested
                 return effective.also {
                     MapMirrors.streamAspect = it.widthPixels.toDouble() / it.heightPixels
-                    appendLog("Cluster map: requesting ${it.widthPixels}x${it.heightPixels} on ${size.x}x${size.y} safeArea=${it.safeArea} url=${it.initialUrl}")
+                    val mode = if (smallWindow) "well ${panelWidth}x${panelHeight}" else "full ${size.x}x${size.y}"
+                    appendLog("Cluster map: requesting ${it.widthPixels}x${it.heightPixels} on $mode safeArea=${it.safeArea} url=${it.initialUrl}")
                 }
             }
         }

@@ -510,7 +510,7 @@
     <string name="cluster_small_window_on">Attiva · sempre il pozzetto</string>
     <string name="cluster_small_window_auto">Automatico · segue il quadro</string>
     <string name="cluster_small_window_marker">Navigazione nel pozzetto</string>
-    <string name="cluster_small_window_marker_description">Nel pozzetto si sposta l’intero schermo della mappa e il cursore resta al centro. Sinistra/destra e su/giù scelgono dove cade il centro. La dimensione rimpicciolisce il quadro così entra più mappa. Automatico segue il quadro subito, senza riconnettere.</string>
+    <string name="cluster_small_window_marker_description">Nel pozzetto la mappa usa ~500×620 e l’iPhone riceve quella misura, senza schiacciare il pannello largo. Il cursore resta al centro. Sinistra/destra e su/giù scelgono il centro; sotto il 100%% allarga la finestra per più mappa. Passare pozzetto ↔ schermo intero (o cambiare scala) riconnette CarPlay.</string>
     <string name="cluster_small_window_horizontal">Schermata nel pozzetto · sinistra/destra</string>
     <string name="cluster_small_window_vertical">Schermata nel pozzetto · su/giù</string>
     <string name="cluster_well_scale">Schermata nel pozzetto · dimensione</string>

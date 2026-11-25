@@ -443,7 +443,7 @@
     <string name="cluster_small_window_on">تشغيل · البئر دائمًا</string>
     <string name="cluster_small_window_auto">تلقائي · يتبع العداد</string>
     <string name="cluster_small_window_marker">الملاحة في البئر</string>
-    <string name="cluster_small_window_marker_description">في البئر تتحرك شاشة الخريطة كلها ويبقى المؤشر في وسط الإطار. اليمين/اليسار والأعلى/الأسفل يحددان موضع الوسط. الحجم يصغّر الإطار لتظهر مساحة أكبر من الخريطة. الوضع التلقائي يتبع العداد فورًا دون إعادة اتصال.</string>
+    <string name="cluster_small_window_marker_description">في البئر تُوضع الخريطة بحجم البئر ويُبلَّغ الآيفون بهذا الحجم حتى لا تُضغط اللوحة العريضة. المؤشر في الوسط. اليمين/اليسار والأعلى/الأسفل يحددان الوسط؛ أقل من 100%% يكبّر النافذة لمزيد من الخريطة. التبديل بئر ↔ ملء الشاشة (أو تغيير المقياس) يعيد اتصال CarPlay.</string>
     <string name="cluster_small_window_horizontal">الشاشة في البئر · يسار / يمين</string>
     <string name="cluster_small_window_vertical">الشاشة في البئر · أعلى / أسفل</string>
     <string name="cluster_well_scale">الشاشة في البئر · الحجم</string>

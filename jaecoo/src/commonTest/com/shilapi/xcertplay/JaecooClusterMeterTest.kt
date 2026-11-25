@@ -49,6 +49,14 @@ class JaecooClusterMeterTest {
         assertEquals(309, frame.y + frame.height / 2)
     }
 
+    @Test fun wellFrameAspectIsPortraitNotUltrawide() {
+        val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 1920, 720, 81, 43, 100)
+        // Full panel is ~2.67:1; the well must stay ~0.81:1 so stream 111 is not squashed.
+        assertEquals(true, frame.width < frame.height)
+        assertEquals(true, frame.width.toDouble() / frame.height < 1.0)
+        assertEquals(true, 1920.0 / 720 > 2.0)
+    }
+
     @Test fun wellFrameKeepsTheSameFractionOnAnotherPanel() {
         val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 960, 360, 81, 43, 100)
         assertEquals(250, frame.width)

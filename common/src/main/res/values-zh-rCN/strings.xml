@@ -478,7 +478,7 @@
     <string name="cluster_small_window_on">开 · 始终小窗</string>
     <string name="cluster_small_window_auto">自动 · 跟随仪表</string>
     <string name="cluster_small_window_marker">小窗导航</string>
-    <string name="cluster_small_window_marker_description">小窗时移动整幅地图画面，车标留在画面中心。左右和上下决定中心落点，大小让画面缩小以便看到更多地图。自动立即跟随仪表，无需重连。</string>
+    <string name="cluster_small_window_marker_description">小窗时地图放入仪表井，并告知 iPhone 该尺寸以免压扁宽屏画面。车标留在画面中心。左右和上下决定中心落点；低于 100%% 的大小放大窗口以显示更多地图。小窗与全屏切换（或改大小）会重连 CarPlay。</string>
     <string name="cluster_small_window_horizontal">小窗画面 · 左右</string>
     <string name="cluster_small_window_vertical">小窗画面 · 上下</string>
     <string name="cluster_well_scale">小窗画面 · 大小</string>

@@ -2407,12 +2407,12 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                 render()
                                 markReconnectNeeded()
                             }, matchButton(10, 56))
-                            // JAECOO: these sliders move the cluster window. The car marker stays centred, so nothing here reconnects.
+                            // JAECOO: Off/On/Auto change whether stream 111 is full-panel or well-sized.
                             choice(card, getString(R.string.cluster_small_window_marker), listOf(
                                 getString(R.string.cluster_small_window_off),
                                 getString(R.string.cluster_small_window_on),
                                 getString(R.string.cluster_small_window_auto),
-                            ), AirPlayPersistence.loadClusterSmallWindowMode(this), reconnects = false) {
+                            ), AirPlayPersistence.loadClusterSmallWindowMode(this), reconnects = true) {
                                 AirPlayPersistence.saveClusterSmallWindowMode(this, it)
                                 JaecooClusterMeter.relayout(this)
                                 render()
@@ -2448,7 +2448,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                     .also { it.onSave = { v ->
                                         com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellScale(this, v)
                                         JaecooClusterMeter.relayout(this)
-                                    } })
+                                    } }
+                                    .also { it.onCommit = { markReconnectNeeded() } })
                                 if (AirPlayPersistence.loadClusterContent(this) ==
                                     com.shilapi.xcertplay.airplay.CarPlayClusterDisplay.Content.MAP_WITH_CUSTOM_CARD) {
                                     choice(card, getString(R.string.cluster_small_window_card_theme), listOf(

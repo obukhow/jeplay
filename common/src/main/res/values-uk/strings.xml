@@ -455,7 +455,7 @@
     <string name="cluster_small_window_on">Увімк · завжди колодязь</string>
     <string name="cluster_small_window_auto">Авто · за панеллю</string>
     <string name="cluster_small_window_marker">Навігація в колодязі</string>
-    <string name="cluster_small_window_marker_description">У колодязі кадр карти ставиться в те саме вікно, що й у Яндекса. Курсор лишається в центрі кадру. Ліворуч/праворуч і вгору/вниз задають, куди потрапляє центр. Масштаб менше 100%% збільшує кадр, щоб у колі було більше карти і не було видно країв прямокутника. Авто повторює подію панелі одразу, без перепідключення.</string>
+    <string name="cluster_small_window_marker_description">У колодязі кадр карти ставиться в те саме вікно, що й у Яндекса, і iPhone отримує цей розмір — без сплющення широкої панелі. Курсор у центрі кадру. Ліворуч/праворуч і вгору/вниз задають центр. Масштаб менше 100%% збільшує кадр, щоб у колі було більше карти. Перемикання колодязь ↔ повний екран (і зміна масштабу) перепідключає CarPlay.</string>
     <string name="cluster_small_window_horizontal">Екран у колодязі · ліворуч / праворуч</string>
     <string name="cluster_small_window_vertical">Екран у колодязі · вгору / вниз</string>
     <string name="cluster_well_scale">Карта в колодязі · масштаб</string>

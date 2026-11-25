@@ -455,7 +455,7 @@
     <string name="cluster_small_window_on">Вкл · всегда колодец</string>
     <string name="cluster_small_window_auto">Авто · по приборке</string>
     <string name="cluster_small_window_marker">Навигация в колодце</string>
-    <string name="cluster_small_window_marker_description">Карта ставится в колодец 500×620. Курсор в центре кадра. Влево/вправо и вверх/вниз — куда попадает центр. Масштаб 100%% — окно = колодец; 85%% — окно больше, а на экране по-прежнему дырка 500×620 с большей областью карты. Авто без переподключения.</string>
+    <string name="cluster_small_window_marker_description">Карта ставится в колодец 500×620, и iPhone получает этот размер — без сплющивания широкой панели. Курсор в центре кадра. Влево/вправо и вверх/вниз — куда попадает центр. Масштаб 100%% — окно = колодец; 85%% — окно больше, дырка 500×620 показывает больше карты. Переключение колодец ↔ полный экран (и смена масштаба) переподключает CarPlay.</string>
     <string name="cluster_small_window_horizontal">Экран в колодце · влево / вправо</string>
     <string name="cluster_small_window_vertical">Экран в колодце · вверх / вниз</string>
     <string name="cluster_well_scale">Карта в колодце · масштаб</string>
