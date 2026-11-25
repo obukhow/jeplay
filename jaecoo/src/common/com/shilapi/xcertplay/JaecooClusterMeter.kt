@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
@@ -18,8 +21,9 @@ import com.shilapi.xcertplay.hud.JaecooSettings
  * Two fits:
  * - **Resize** — shrink the Presentation to the well (optionally grown by scale) and advertise that
  *   size as stream 111. Well ↔ full reconnects so `/info` picks up the new aspect.
- * - **Shift** — keep the full-panel stream and slide the Presentation so the car marker lands on
- *   the well centre. No reconnect; full screen puts the window back at (0,0).
+ * - **Shift** — keep the full-panel stream and slide the **map content** so the car marker lands on
+ *   the well centre. The Presentation window stays fullscreen: WindowManager will not place a
+ *   full-size window at x>0 on the cluster display. No reconnect; full screen clears the offset.
  *
  * On a 1920×720 Jaecoo cluster the well is the rect YaSwitcher sends as
  * `show_cluster?x=1300&y=0&width=500&height=620`. Other panel sizes keep that same fraction.
@@ -29,6 +33,7 @@ internal object JaecooClusterMeter {
     const val EXTRA_MAP_AREA = "map_area"
     const val EXTRA_MAP_STATUS = "map_status"
     const val EXTRA_CLOSE_ALL = "close_all_variants"
+    const val SHIFT_PROBE_MS = 20_000L
 
     /** Reference panel the well rect was measured on. */
     const val REFERENCE_WIDTH = 1920
@@ -60,6 +65,14 @@ internal object JaecooClusterMeter {
     private var onChange: (() -> Unit)? = null
     private var registered = false
     private val presentations = ArrayList<ClusterMapPresentation>()
+    private val probeHandler = Handler(Looper.getMainLooper())
+    @Volatile private var probeWellUntilElapsed = 0L
+    private val endProbe = Runnable {
+        probeWellUntilElapsed = 0L
+        presentations.toList().forEach { apply(it) }
+        onChange?.invoke()
+        Log.i(ClusterMapPresentation.TAG, "well shift probe ended")
+    }
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -92,6 +105,8 @@ internal object JaecooClusterMeter {
     }
 
     fun stop() {
+        probeHandler.removeCallbacks(endProbe)
+        probeWellUntilElapsed = 0L
         val app = appContext
         if (registered && app != null) {
             runCatching { app.unregisterReceiver(receiver) }
@@ -101,6 +116,34 @@ internal object JaecooClusterMeter {
         onChange = null
         presentations.clear()
         layout = null
+    }
+
+    fun probingWell(): Boolean = SystemClock.elapsedRealtime() < probeWellUntilElapsed
+
+    /**
+     * Settings probe: force the well + shift fit for [durationMs] while the instrument still shows
+     * the full panel, so the driver can see whether the map slides without waiting for Desay.
+     */
+    fun probeShiftWell(context: Context, durationMs: Long = SHIFT_PROBE_MS): String {
+        appContext = context.applicationContext
+        probeHandler.removeCallbacks(endProbe)
+        probeWellUntilElapsed = SystemClock.elapsedRealtime() + durationMs
+        presentations.toList().forEach { apply(it) }
+        onChange?.invoke()
+        probeHandler.postDelayed(endProbe, durationMs)
+        val size = presentations.firstOrNull()?.let { ClusterMapPresentation.sizeOf(it.display) }
+        val panelW = size?.x?.takeIf { it > 0 } ?: REFERENCE_WIDTH
+        val panelH = size?.y?.takeIf { it > 0 } ?: REFERENCE_HEIGHT
+        val offset = shiftFrame(
+            panelW,
+            panelH,
+            AirPlayPersistence.loadClusterMarkerXPercent(context),
+            AirPlayPersistence.loadClusterMarkerYPercent(context),
+            JaecooSettings.clusterWellShiftXPercent(context),
+            JaecooSettings.clusterWellShiftYPercent(context),
+        )
+        Log.i(ClusterMapPresentation.TAG, "well shift probe ${durationMs}ms offset=${offset.x},${offset.y} panel=${panelW}x${panelH}")
+        return "shift probe ${durationMs / 1000}s · offset ${offset.x},${offset.y}"
     }
 
     fun attach(presentation: ClusterMapPresentation) {
@@ -130,11 +173,16 @@ internal object JaecooClusterMeter {
     }
 
     fun showsWell(context: Context): Boolean =
-        shown(AirPlayPersistence.loadClusterSmallWindowMode(context), layout) == Layout.WELL
+        effectiveLayout(context) == Layout.WELL
+
+    private fun effectiveLayout(context: Context): Layout =
+        if (probingWell()) Layout.WELL
+        else shown(AirPlayPersistence.loadClusterSmallWindowMode(context), layout)
 
     /** True only for resize fit: stream 111 must advertise the well size. */
     fun resizesStream(context: Context): Boolean =
-        showsWell(context) && JaecooSettings.clusterWellFit(context) == JaecooSettings.CLUSTER_WELL_FIT_RESIZE
+        showsWell(context) && !probingWell() &&
+            JaecooSettings.clusterWellFit(context) == JaecooSettings.CLUSTER_WELL_FIT_RESIZE
 
     fun frame(
         layout: Layout,
@@ -222,21 +270,46 @@ internal object JaecooClusterMeter {
 
     fun apply(presentation: ClusterMapPresentation) {
         val context = appContext ?: presentation.context
-        val current = shown(AirPlayPersistence.loadClusterSmallWindowMode(context), layout)
+        val current = effectiveLayout(context)
         val size = ClusterMapPresentation.sizeOf(presentation.display)
-        apply(presentation.window, frame(
+        // Probe always uses shift so the driver sees the slide without switching fit or Desay.
+        val fit = if (probingWell()) JaecooSettings.CLUSTER_WELL_FIT_SHIFT
+        else JaecooSettings.clusterWellFit(context)
+        val target = frame(
             current,
             size.x,
             size.y,
             AirPlayPersistence.loadClusterSmallWindowMarkerXPercent(context),
             AirPlayPersistence.loadClusterSmallWindowMarkerYPercent(context),
             JaecooSettings.clusterWellScale(context),
-            JaecooSettings.clusterWellFit(context),
+            fit,
             AirPlayPersistence.loadClusterMarkerXPercent(context),
             AirPlayPersistence.loadClusterMarkerYPercent(context),
             JaecooSettings.clusterWellShiftXPercent(context),
             JaecooSettings.clusterWellShiftYPercent(context),
-        ))
+        )
+        if (current == Layout.WELL && fit == JaecooSettings.CLUSTER_WELL_FIT_SHIFT) {
+            // Keep the Presentation fullscreen; slide map pixels. WM clamps a full-size window to x=0.
+            apply(
+                presentation.window,
+                Frame(
+                    0,
+                    0,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER,
+                    true,
+                ),
+            )
+            presentation.setContentOffset(target.x, target.y)
+            Log.i(
+                ClusterMapPresentation.TAG,
+                "well shift content offset=${target.x},${target.y} panel=${size.x}x${size.y} probe=${probingWell()}",
+            )
+        } else {
+            presentation.setContentOffset(0, 0)
+            apply(presentation.window, target)
+        }
         presentation.setMapVisible(current != Layout.HIDDEN)
     }
 

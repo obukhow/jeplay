@@ -2486,6 +2486,12 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                             JaecooClusterMeter.relayout(this)
                                         } })
                                 }
+                                card.addView(label(getString(R.string.cluster_well_shift_probe_description), 14, MUTED).apply {
+                                    setPadding(0, dp(10), 0, dp(4))
+                                })
+                                card.addView(button(getString(R.string.cluster_well_shift_probe), false) {
+                                    toast(JaecooClusterMeter.probeShiftWell(this))
+                                }, matchButton(8, 54))
                                 if (AirPlayPersistence.loadClusterContent(this) ==
                                     com.shilapi.xcertplay.airplay.CarPlayClusterDisplay.Content.MAP_WITH_CUSTOM_CARD) {
                                     choice(card, getString(R.string.cluster_small_window_card_theme), listOf(

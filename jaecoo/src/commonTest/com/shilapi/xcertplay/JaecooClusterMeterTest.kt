@@ -109,6 +109,10 @@ class JaecooClusterMeterTest {
         assertEquals(JaecooClusterMeter.Layout.FULL, JaecooClusterMeter.shown(2, null))
     }
 
+    @Test fun shiftProbeIsOffByDefault() {
+        assertEquals(false, JaecooClusterMeter.probingWell())
+    }
+
     @Test fun fullscreenFillsThePanel() {
         val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.FULL, 1920, 720)
         assertEquals(0, frame.x)

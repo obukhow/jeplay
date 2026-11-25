@@ -46,6 +46,8 @@ internal class ClusterMapPresentation(
     private var waitingLabel: View? = null
     private var turnCardView: ClusterTurnCardView? = null
     private var videoView: View? = null
+    /** Map pixels that Jaecoo well-shift translates; the Presentation window itself stays fullscreen. */
+    private var mapLayer: FrameLayout? = null
     private var streamActive = false
     var outputSurface: Surface? = null
         private set
@@ -63,6 +65,9 @@ internal class ClusterMapPresentation(
         val placeholder = if (dark) Color.BLACK else Color.rgb(233, 238, 246)
         val root = FrameLayout(context).apply {
             setBackgroundColor(if (plan == null) placeholder else if (plan.fullMap) backdrop else Color.TRANSPARENT)
+            // Well-shift slides the map past the display edge; do not clip that overflow.
+            clipChildren = false
+            clipToPadding = false
         }
         if (plan != null) {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -72,6 +77,11 @@ internal class ClusterMapPresentation(
             FrameLayout.LayoutParams(plan.width, plan.height, Gravity.TOP or Gravity.LEFT).apply {
                 leftMargin = plan.left; topMargin = plan.top
             }
+        val map = FrameLayout(context).apply {
+            clipChildren = false
+            clipToPadding = false
+        }
+        mapLayer = map
         if (plan != null) {
             val textureView = TextureView(context)
             fun transform() {
@@ -96,7 +106,7 @@ internal class ClusterMapPresentation(
                     return true
                 }
             }
-            root.addView(textureView, videoParams)
+            map.addView(textureView, videoParams)
             videoView = textureView
             if (plan.fullMap) root.addView(InstrumentContrastView(context, plan, backdrop), FrameLayout.LayoutParams(-1, -1))
             Log.i(TAG, "layout=$theme viewport=$plan source=${plan.sourceLeft},${plan.sourceTop} dark=$dark")
@@ -121,7 +131,7 @@ internal class ClusterMapPresentation(
                     outputSurface = null
                 }
             })
-            root.addView(surfaceView, videoParams)
+            map.addView(surfaceView, videoParams)
             videoView = surfaceView
         }
         val waitingColor = if (dark) Color.WHITE else Color.DKGRAY
@@ -134,7 +144,8 @@ internal class ClusterMapPresentation(
                 contentDescription = context.getString(R.string.cluster_waiting_for_map)
             }, FrameLayout.LayoutParams((40 * density).toInt(), (40 * density).toInt(), Gravity.CENTER))
         }
-        root.addView(waitingLabel, FrameLayout.LayoutParams(videoParams))
+        map.addView(waitingLabel, FrameLayout.LayoutParams(videoParams))
+        root.addView(map, FrameLayout.LayoutParams(-1, -1))
         turnCardView = ClusterTurnCardView(context).apply { visibility = View.GONE }
         root.addView(turnCardView, FrameLayout.LayoutParams(-1, -1))
         root.addView(ClusterMusicView(context), FrameLayout.LayoutParams(videoParams))
@@ -149,6 +160,32 @@ internal class ClusterMapPresentation(
             visibility = if (streamActive) View.GONE else View.VISIBLE
         }
         setContentView(root)
+    }
+
+    /**
+     * Slides the map pixels inside a fullscreen Presentation. WindowManager will not place a
+     * full-size window at x>0 on the cluster display, so Jaecoo well-shift uses this instead.
+     * SurfaceView often ignores parent translation, so the video also gets explicit margins.
+     */
+    fun setContentOffset(x: Int, y: Int) {
+        val layer = mapLayer ?: return
+        layer.translationX = x.toFloat()
+        layer.translationY = y.toFloat()
+        val size = sizeOf(display)
+        fun place(view: View?, width: Int = size.x, height: Int = size.y) {
+            if (view == null) return
+            val lp = view.layoutParams as? FrameLayout.LayoutParams ?: return
+            if (lp.leftMargin == x && lp.topMargin == y && lp.width == width && lp.height == height) return
+            view.layoutParams = FrameLayout.LayoutParams(width, height, Gravity.TOP or Gravity.LEFT).apply {
+                leftMargin = x
+                topMargin = y
+            }
+        }
+        if (videoView is SurfaceView) {
+            place(videoView)
+            place(waitingLabel)
+        }
+        Log.i(TAG, "map content offset=${x},${y}")
     }
 
     /**

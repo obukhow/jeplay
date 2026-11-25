@@ -537,6 +537,8 @@
     <string name="cluster_well_fit_description">Resize shrinks the window and tells the iPhone the well size (reconnects on well ↔ full). Shift keeps the full 1920×720 stream and slides it so the car marker sits on the well centre; the shift sliders fine-tune that. Full screen slides back.</string>
     <string name="cluster_well_shift_horizontal">Well shift · left / right</string>
     <string name="cluster_well_shift_vertical">Well shift · up / down</string>
+    <string name="cluster_well_shift_probe">Test well shift (20s)</string>
+    <string name="cluster_well_shift_probe_description">Forces the well shift on the full cluster panel for 20 seconds — no Desay cutover and no CarPlay reconnect. The map should slide right so the car marker sits where the well is. Use this to check whether shift works at all.</string>
     <string name="cluster_small_window_horizontal">Well frame · left/right</string>
     <string name="cluster_small_window_vertical">Well frame · up/down</string>
     <string name="cluster_well_scale">Well map · scale</string>
