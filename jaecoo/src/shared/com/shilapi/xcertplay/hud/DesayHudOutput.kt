@@ -31,7 +31,7 @@ internal class DesayHudOutput(
     fun available(context: Context? = null): Boolean = client.available(context)
 
     fun update(context: Context?, icon: Int, distanceMeters: Int, road: String) =
-        update(context, Guidance(icon, distanceMeters, road, road, AutonaviMode.BOTH))
+        update(context, Guidance(icon, distanceMeters, road, road))
 
     fun update(context: Context?, guidance: Guidance) {
         val distance = guidance.distanceMeters.coerceAtLeast(0)
@@ -50,21 +50,8 @@ internal class DesayHudOutput(
         lastNextRoadName = guidance.nextRoadName
         setStatus(VDNaviDigitalInfo.STATUS_GUIDING)
         publishDistance(distance)
-        if (guidance.autonavi != AutonaviMode.BROADCAST_ONLY) {
-            publishRoad(guidance.icon, distance, guidance.roadName, guidance.nextRoadName)
-        }
-        if (guidance.autonavi != AutonaviMode.VDB_ONLY) {
-            broadcastAutonavi(context, guidance)
-        }
-    }
-
-    /** Force-publish even if values match the last frame (settings probe). */
-    fun forceUpdate(context: Context?, guidance: Guidance) {
-        lastIcon = null
-        lastDistance = null
-        lastRoadName = null
-        lastNextRoadName = null
-        update(context, guidance)
+        publishRoad(guidance.icon, distance, guidance.roadName, guidance.nextRoadName)
+        broadcastAutonavi(context, guidance)
     }
 
     fun updateLanes(guidance: BydLaneGuidance?) {
@@ -76,43 +63,12 @@ internal class DesayHudOutput(
         publishLanes(guidance)
     }
 
-    /** Settings probe: push prebuilt CarLan rows (bypasses Apple→icon mapping). */
-    fun publishRawLanes(rows: List<LaneRow>) {
-        lastLaneKey = "raw:" + rows.joinToString(";") { "${it.laneId}:${it.laneInfo}:${it.laneIconId}" }
-        val info = VDNaviLaneInfo()
-        val lanes = ArrayList<VDNaviLaneInfo.LaneInfo>(rows.size.coerceAtLeast(1))
-        if (rows.isEmpty()) {
-            val clear = VDNaviLaneInfo.LaneInfo()
-            clear.setLaneInfo(0)
-            clear.setLaneId(0)
-            clear.setLaneIconId(0)
-            lanes.add(clear)
-        } else {
-            for (row in rows) {
-                val item = VDNaviLaneInfo.LaneInfo()
-                item.setLaneInfo(row.laneInfo)
-                item.setLaneId(row.laneId)
-                item.setLaneIconId(row.laneIconId)
-                lanes.add(item)
-            }
-        }
-        info.setRoadInfo(lanes)
-        publish(VDNaviLaneInfo.createEvent(info))
-    }
-
-    data class LaneRow(val laneInfo: Int, val laneId: Int, val laneIconId: Int)
-
     data class Guidance(
         val icon: Int,
         val distanceMeters: Int,
         val roadName: String,
         val nextRoadName: String,
-        val autonavi: AutonaviMode = AutonaviMode.BOTH,
-        /** Extra Autonavi keys beyond ICON / SEG / NEXT / ROUTE_REMAIN. */
-        val curRoadName: String? = null,
     )
-
-    enum class AutonaviMode { BOTH, VDB_ONLY, BROADCAST_ONLY }
 
     fun stop(context: Context?) {
         if (!active && lastStatus == VDNaviDigitalInfo.STATUS_IDLE && lastLaneKey == "") return
@@ -127,7 +83,7 @@ internal class DesayHudOutput(
         publishRoad(0, 0, "", "")
         publishLanes(null)
         lastLaneKey = ""
-        broadcastAutonavi(context, Guidance(0, 0, "", "", AutonaviMode.BROADCAST_ONLY))
+        broadcastAutonavi(context, Guidance(0, 0, "", ""))
     }
 
     private fun setStatus(status: Int) {
@@ -205,7 +161,6 @@ internal class DesayHudOutput(
                 .putExtra("SEG_REMAIN_DIS", guidance.distanceMeters)
                 .putExtra("NEXT_ROAD_NAME", guidance.nextRoadName)
                 .putExtra("ROUTE_REMAIN_DIS", guidance.distanceMeters)
-            guidance.curRoadName?.let { intent.putExtra("CUR_ROAD_NAME", it) }
             if (guidance.roadName.isNotEmpty()) intent.putExtra("ROAD_NAME", guidance.roadName)
             ctx.sendBroadcast(intent)
         } catch (e: Exception) {

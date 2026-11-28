@@ -1,0 +1,13 @@
+package com.desaysv.ivi.vdb.event.id.sms;
+
+/** Desay SMS key actions. Must match the head-unit SDK. */
+public final class VDValueAction {
+    public static final int ACTION_PRESS = 0;
+    public static final int ACTION_LONG_PRESS = 1;
+    public static final int ACTION_SUPER_LONG_PRESS = 2;
+    public static final int ACTION_RELEASE = 3;
+    public static final int ACTION_LONG_RELEASE = 4;
+
+    private VDValueAction() {
+    }
+}

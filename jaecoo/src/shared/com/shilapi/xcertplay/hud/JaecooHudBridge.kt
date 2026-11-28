@@ -1,7 +1,6 @@
 package com.shilapi.xcertplay.hud
 
 import android.content.Context
-import android.os.SystemClock
 import android.util.Log
 import com.desaysv.ivi.vdb.event.VDEvent
 import com.shilapi.xcertplay.iap2.wire.Iap2Frame
@@ -24,10 +23,6 @@ internal object JaecooHudBridge {
     private var logged = false
     private var loggedLanes = false
     private var loggedRoad = false
-    private var probeUntilElapsed = 0L
-    private var probeRows: List<DesayHudOutput.LaneRow>? = null
-    private var probeGuidance: BydLaneGuidance? = null
-    private var probeRoad: DesayHudOutput.Guidance? = null
 
     fun available(): Boolean = synchronized(lock) {
         output.available(context)
@@ -73,41 +68,7 @@ internal object JaecooHudBridge {
         route.clear()
         lanes.clear()
         navigation.clear()
-        clearProbeLocked()
         output.stop(context)
-    }
-
-    /** Settings probe: hold raw CarLan lane rows + road/street encoding for [holdMs]. */
-    fun applyLaneProbe(
-        rows: List<DesayHudOutput.LaneRow>,
-        road: DesayHudOutput.Guidance,
-        holdMs: Long,
-    ) = synchronized(lock) {
-        probeRows = rows
-        probeGuidance = null
-        probeRoad = road
-        probeUntilElapsed = SystemClock.elapsedRealtime() + holdMs
-        Log.i(TAG, "Lane probe raw rows=$rows road=$road holdMs=$holdMs")
-        refreshLocked()
-    }
-
-    /** Settings probe: encode [guidance] through the live [DesayHudOutput.updateLanes] path. */
-    fun applyLaneProbeGuidance(
-        guidance: BydLaneGuidance,
-        road: DesayHudOutput.Guidance,
-        holdMs: Long,
-    ) = synchronized(lock) {
-        probeGuidance = guidance
-        probeRows = null
-        probeRoad = road
-        probeUntilElapsed = SystemClock.elapsedRealtime() + holdMs
-        Log.i(TAG, "Lane probe guidance lanes=${guidance.lanes.size} road=$road holdMs=$holdMs")
-        refreshLocked()
-    }
-
-    fun clearLaneProbe() = synchronized(lock) {
-        clearProbeLocked()
-        refreshLocked()
     }
 
     /**
@@ -116,41 +77,12 @@ internal object JaecooHudBridge {
      */
     fun ownsFce(): Boolean = false
 
-    private fun clearProbeLocked() {
-        probeRows = null
-        probeGuidance = null
-        probeRoad = null
-        probeUntilElapsed = 0L
-    }
-
-    private fun activeProbe(): Boolean {
-        if (SystemClock.elapsedRealtime() >= probeUntilElapsed) {
-            if (probeRows != null || probeGuidance != null || probeRoad != null) clearProbeLocked()
-            return false
-        }
-        return probeRows != null || probeGuidance != null || probeRoad != null
-    }
-
     private fun tick() = synchronized(lock) { if (context != null) refreshLocked() }
 
     private fun refreshLocked() {
         val app = context ?: return
         if (!JaecooSettings.hud(app) || !output.available(app)) {
             if (output.active) output.stop(app)
-            return
-        }
-        if (activeProbe()) {
-            val road = probeRoad ?: DesayHudOutput.Guidance(
-                DesayManeuverCodes.LEFT, 120, "lane probe", "lane probe",
-            )
-            // Force so switching A→B→C road schemes always re-publishes.
-            output.forceUpdate(app, road)
-            val raw = probeRows
-            if (raw != null) {
-                output.publishRawLanes(raw)
-            } else {
-                output.updateLanes(probeGuidance)
-            }
             return
         }
         val apple = route.currentApple()
@@ -205,7 +137,6 @@ internal object JaecooHudBridge {
         route.clear()
         lanes.clear()
         navigation.clear()
-        clearProbeLocked()
         output = DesayHudOutput(DesayVdbClient(publisher))
         context = appContext
         if (appContext != null) output.initialize(appContext)

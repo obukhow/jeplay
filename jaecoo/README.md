@@ -11,7 +11,7 @@ User-facing docs: [README.md](../README.md) · [README.ru.md](../README.ru.md)
 |------|--------|
 | App name / APK | `JePlay` → artifact `JePlay-<versionName>.apk` |
 | `applicationId` | `ru.jeplay.app` (not upstream `com.shihab.diplay`) |
-| `versionName` | `0.2.21.43` — first three digits track DiPlay upstream; **fourth** is the JePlay-only patch |
+| `versionName` | `0.2.21.44` — first three digits track DiPlay upstream; **fourth** is the JePlay-only patch |
 | `versionCode` | `upstreamCode * 100 + jeplayPatch` (e.g. DiPlay `40` → `4013`) |
 
 When merging a new DiPlay release (e.g. `0.2.22` / code `41`), bump the first three
@@ -31,8 +31,8 @@ Full release steps (bump → assemble → FTP → git tag/push): [deploy.md](dep
 Server layout example:
 
 ```text
-jeplay.ru/version.txt          →  0.2.21.43
-jeplay.ru/download/JePlay-0.2.21.43.apk
+jeplay.ru/version.txt          →  0.2.21.44
+jeplay.ru/download/JePlay-0.2.21.44.apk
 jeplay.ru/download/SHA256SUMS.txt   (optional)
 ```
 
@@ -99,7 +99,7 @@ Gaode (`BydManeuverCodes`): `left`→2, `right`→3, `straight`→9, `finish`→
 
 `DesayVdbClient` is shared by **HUD (CarLan)** and **home-widget now-playing (Media)**.
 Those two Desay services need **different** `IVDBus.set` shapes. Mixing them silently
-kills HUD arrows while settings toggles and lane/road probes still look fine.
+kills HUD arrows while the settings HUD toggle still looks fine.
 
 | Service | Package / action | Correct publish | Why |
 |---------|------------------|-----------------|-----|
@@ -123,10 +123,9 @@ so HUD showed a single rightmost lane (often with one angle). Fixed in **0.2.21.
 1. Never default CarLan to inject. HUD must send the real event id.
 2. Never put CarLan Parcelable beans on the Media inject path (and do not “unify” both
    services onto one wrap mode).
-3. After a `DesayVdbClient` change, verify in the car: Settings → HUD lane/road probe
-   **and** live CarPlay navigation both show on the HUD/cluster.
+3. After a `DesayVdbClient` change, verify in the car with live CarPlay navigation
+   (arrows, distance, lane strip) on the HUD/cluster.
 4. Logs: `DiPlay-DesayVdb` (bind / publish failures), `DiPlay-Jaecoo` (guidance sent).
-   Probe alone is not enough if CarPlay frame wiring also changed.
 
 Code: `jaecoo/src/shared/.../hud/DesayVdbClient.kt`, `DesayHudOutput.kt`,
 `media/DesayMediaOutput.kt`.
@@ -169,8 +168,8 @@ otherwise iOS never sends lane frames.
 
 ## In-car audio routing check (nav → headrest)
 
-1. Settings → Audio → play the navigation preview (Automatic / channel 0) — should come from the **driver headrest**.
-2. Connect CarPlay, play music, start turn-by-turn: guidance in headrest, music in cabin; music should duck on each prompt.
+1. Connect CarPlay, play music, start turn-by-turn: guidance in the **driver headrest**, music in the cabin; music should duck on each prompt.
+   (Settings channel-number pickers are hidden on Jaecoo — they do not change routing.)
 3. Export a diagnostic report and confirm lines like:
    - `Audio: ready … audioType=default … route=usage usage=12 … routedDeviceType=… routedDeviceAddress=…`
    - `Audio: ready … audioType=media … route=usage … routedDeviceAddress=…` (address should differ from nav when policy splits buses)

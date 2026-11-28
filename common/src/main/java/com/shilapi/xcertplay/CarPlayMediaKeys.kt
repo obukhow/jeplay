@@ -83,6 +83,11 @@ internal object CarPlayMediaKeys {
         desayMedia.initialize(context.applicationContext)
         controller = next
         GeelyWheelKeys.start(context)
+        // JAECOO: VR wheel key arrives on Desay SMS VDB, not as Android KeyEvent.
+        com.shilapi.xcertplay.hud.DesaySmsKeys.start(context) {
+            val sent = onExternalSiriKey()
+            Log.i(TAG, "Desay SMS VR → Siri sent=$sent")
+        }
         com.shilapi.xcertplay.media.AmbientMusicController.claimPlaybackOwner(next)
         next.playbackListener = { playing ->
             com.shilapi.xcertplay.media.AmbientMusicController.phonePlaybackChanged(next, playing)
@@ -105,6 +110,7 @@ internal object CarPlayMediaKeys {
         expected.artworkListener = null
         controller = null
         GeelyWheelKeys.stop()
+        com.shilapi.xcertplay.hud.DesaySmsKeys.stop()
         releaseLocked()
     }
 

@@ -1,7 +1,6 @@
 package com.shilapi.xcertplay.settings
 
 import android.content.Context
-import android.os.Build
 import com.shilapi.xcertplay.host.R
 import com.shilapi.xcertplay.orchestration.MfiTarget
 import com.shilapi.xcertplay.orchestration.WirelessHotspotMode
@@ -47,20 +46,21 @@ object ConnectionSettingsSection {
         theme: SettingsTheme = SettingsTheme.OVERLAY,
         onSelected: (WirelessHotspotMode) -> Unit,
     ): SettingsWidgets.ChoiceRowResult<WirelessHotspotMode> {
-        // The car hotspot keeps the radio on one channel; Wi-Fi Direct shares it with the car's network search.
-        val modes = buildList {
-            add(WirelessHotspotMode.JAECOO_BUILTIN to context.getString(R.string.settings_built_in_jaecoo)) // JAECOO
-            add(WirelessHotspotMode.MANUAL to context.getString(R.string.settings_built_in_car_hotspot_recommended))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                add(WirelessHotspotMode.WIFI_P2P to context.getString(R.string.wi_fi_p2p_5_ghz))
-            }
-            add(WirelessHotspotMode.EXISTING_WIFI to context.getString(R.string.existing_wifi_title))
+        // JAECOO: Built-in Jaecoo SoftAP + same-LAN only (no BYD car hotspot / Wi‑Fi Direct).
+        val modes = com.shilapi.xcertplay.JaecooConnectionModesUi.offered(context).map { mode ->
+            mode to context.getString(when (mode) {
+                WirelessHotspotMode.JAECOO_BUILTIN -> R.string.settings_built_in_jaecoo
+                WirelessHotspotMode.MANUAL -> R.string.settings_built_in_car_hotspot_recommended
+                WirelessHotspotMode.WIFI_P2P -> R.string.wi_fi_p2p_5_ghz
+                WirelessHotspotMode.EXISTING_WIFI -> R.string.existing_wifi_title
+                else -> R.string.existing_wifi_title
+            })
         }
         return SettingsWidgets.createChoiceRow(
             context = context,
             label = context.getString(R.string.wi_fi_session),
             options = modes,
-            selected = selected,
+            selected = com.shilapi.xcertplay.JaecooConnectionModesUi.coerce(context, selected),
             theme = theme,
             onSelected = onSelected,
         )

@@ -2,6 +2,29 @@
 
 Instructions for coding agents that work on DiPlay.
 
+## Prefer `jaecoo/` — do not edit upstream by default
+
+This tree tracks upstream DiPlay. Local Jaecoo / Chery / Desay customizations live under
+`jaecoo/` and are merged into Gradle source sets (`jaecoo/src/common` → `:common`,
+`jaecoo/src/shared` → `:shared`, plus matching `*Test` dirs and `jaecoo/assets`).
+
+**Default:** put new behavior, gates, UI policy, and vehicle-specific code in `jaecoo/`.
+Do **not** rewrite upstream modules (`common/`, `shared/`, `home/`, `mobile/`, …) unless
+there is no other way.
+
+When a call site in upstream is unavoidable:
+
+1. Keep the upstream diff minimal (one `if` / one helper call).
+2. Put the real logic in `jaecoo/` (same package as the caller when possible).
+3. Mark the call site with a short `// JAECOO:` comment so merges are obvious.
+4. Prefer restoring upstream method bodies after a merge and re-applying only the thin hook.
+
+Upstream merges should not silently lose Jaecoo behavior; thick logic in `jaecoo/` survives
+rebases better than large edits inside `DiPlayActivity` and similar files.
+
+Examples already following this pattern: `DesaySmsKeys`, `JaecooWheelKeysUi`,
+`JaecooClusterMeter`, and other types under `jaecoo/src/`.
+
 ## Checks
 
 Run the CI command from `.github/workflows/android.yml` before you report a change as done:

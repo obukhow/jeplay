@@ -143,30 +143,25 @@ class SettingsWidgetsTest {
         val row = ConnectionSettingsSection.createHotspotModeChoice(context, WirelessHotspotMode.MANUAL,
             onSelected = {})
         val options = views(row.container).filterIsInstance<RadioButton>().toList()
-        // JAECOO: Built-in Jaecoo precedes the generic car-hotspot choice.
+        // JAECOO: only SoftAP Jaecoo + same-LAN; MANUAL coerces to JAECOO_BUILTIN.
         assertEquals(
-            listOf(WirelessHotspotMode.JAECOO_BUILTIN, WirelessHotspotMode.MANUAL, WirelessHotspotMode.EXISTING_WIFI),
+            listOf(WirelessHotspotMode.JAECOO_BUILTIN, WirelessHotspotMode.EXISTING_WIFI),
             options.map { it.tag },
         )
-        assertEquals(WirelessHotspotMode.MANUAL, options.first { it.isChecked }.tag)
+        assertEquals(WirelessHotspotMode.JAECOO_BUILTIN, options.first { it.isChecked }.tag)
     }
 
     @Test fun carHotspotIsTheFirstAndRecommendedHotspotChoice() {
         val row = ConnectionSettingsSection.createHotspotModeChoice(context, WirelessHotspotMode.WIFI_P2P,
             onSelected = {})
         val options = views(row.container).filterIsInstance<RadioButton>().toList()
-        // JAECOO: Built-in Jaecoo is first; generic built-in car hotspot stays recommended in its label.
+        // JAECOO: Wi‑Fi Direct hidden; stored WIFI_P2P coerces to Built-in Jaecoo.
         assertEquals(
-            listOf(
-                WirelessHotspotMode.JAECOO_BUILTIN,
-                WirelessHotspotMode.MANUAL,
-                WirelessHotspotMode.WIFI_P2P,
-                WirelessHotspotMode.EXISTING_WIFI,
-            ),
+            listOf(WirelessHotspotMode.JAECOO_BUILTIN, WirelessHotspotMode.EXISTING_WIFI),
             options.map { it.tag },
         )
         assertEquals("Built-in Jaecoo", options.first().text.toString())
-        assertEquals(WirelessHotspotMode.WIFI_P2P, options.first { it.isChecked }.tag)
+        assertEquals(WirelessHotspotMode.JAECOO_BUILTIN, options.first { it.isChecked }.tag)
     }
 
     private fun views(view: View): Sequence<View> = sequence {

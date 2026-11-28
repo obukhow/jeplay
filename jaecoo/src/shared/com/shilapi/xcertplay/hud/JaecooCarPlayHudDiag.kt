@@ -4,7 +4,7 @@ import android.util.Log
 
 /**
  * One-line summaries of CarPlay route/lane frames so a live Yandex/2GIS session can be
- * compared against the HUD probe without guessing what the phone sent.
+ * compared against what the HUD publishes without guessing what the phone sent.
  *
  * Filter: `adb logcat -s DiPlay-JaecooCarPlay`
  */

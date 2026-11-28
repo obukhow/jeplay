@@ -186,7 +186,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         com.shilapi.xcertplay.hud.BydCarMusicRhythm::checkSupport
     private var settingsCategory = SettingsCategory.OVERVIEW
     private var connectionSettingsReturnCategory: SettingsCategory? = null
-    private var setupStep = SetupGuide.STEP_CAR
+    // JAECOO: default past the DiLink car step; openSetupGuide / onCreate set firstStep explicitly.
+    private var setupStep = SetupGuide.STEP_CONNECTION
     private var setupFromSettings = false
     private var settingsSectionFilter: Set<SettingsSection>? = null
     private var clusterSafeAreaDialog: Dialog? = null
@@ -412,11 +413,15 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             ?: SettingsCategory.OVERVIEW
         connectionSettingsReturnCategory = savedInstanceState?.getString("connection_settings_return_category")
             ?.let { runCatching { SettingsCategory.valueOf(it) }.getOrNull() }
-        setupStep = savedInstanceState?.getInt("setup_step") ?: SetupGuide.STEP_CAR
+        setupStep = savedInstanceState?.getInt("setup_step") ?: JaecooSetupGuideUi.firstStep(this)
         setupFromSettings = savedInstanceState?.getBoolean("setup_from_settings") ?: false
         page = savedInstanceState?.getString("page") ?: intent.getStringExtra("page")
             ?: if (setupError == null && SetupGuide.shouldOpenOnLaunch(SetupGuide.seen(this),
                     DiPlayPreferences.phoneAddress(this) != null)) "setup" else "home"
+        // JAECOO: restored STEP_CAR from an older build still skips the DiLink step.
+        if (page == "setup" && JaecooSetupGuideUi.skipCarStep(this) && setupStep == SetupGuide.STEP_CAR) {
+            setupStep = SetupGuide.STEP_CONNECTION
+        }
         render()
         scheduleAutomaticVehicleValidation()
         handleWirelessRecovery()
@@ -827,7 +832,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                 page = "settings"
                 settingsCategory = backupOpenedFrom
             }
-            page == "setup" && setupStep > SetupGuide.STEP_CAR -> setupStep--
+            // JAECOO: first visible step may be connection (DiLink car step skipped).
+            page == "setup" && setupStep > JaecooSetupGuideUi.firstStep(this) -> setupStep--
             page == "setup" -> {
                 closeSetupGuide()
                 return
@@ -1740,8 +1746,11 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             })
             toggle(card, getString(R.string.right_hand_drive), getString(R.string.place_carplay_s_controls_closer_to_the_driver), AirPlayPersistence.loadRightHandDrive(this)) { AirPlayPersistence.saveRightHandDrive(this, it); markReconnectNeeded() }
         }
-        filteredSection(content, SettingsSection.WHEEL_KEYS,
-            getString(R.string.settings_wheel_keys), R.drawable.ic_dp_controls, ::wheelKeysSettings)
+        // JAECOO: Desay SMS owns VR/media keys — hide assignable KeyEvent wheel-key UI.
+        if (!JaecooWheelKeysUi.hideSection(this)) {
+            filteredSection(content, SettingsSection.WHEEL_KEYS,
+                getString(R.string.settings_wheel_keys), R.drawable.ic_dp_controls, ::wheelKeysSettings)
+        }
         filteredSection(content, SettingsSection.CONNECTION_SETUP,
             getString(R.string.connection_setup), R.drawable.ic_dp_connection) { card ->
             card.addView(label(getString(R.string.choose_how_to_connect_follow_the_setup_steps_and_save_your), 16, MUTED))
@@ -2084,8 +2093,11 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             getString(R.string.car_button_in_carplay), R.drawable.ic_dp_car) { card -> carButtonCard = card; carButtonControls(card) }
         filteredSection(content, SettingsSection.AUDIO_ROUTING,
             getString(R.string.audio_routing), R.drawable.ic_dp_audio) { card ->
-            mediaChannelControl(card)
-            navigationChannelControl(card)
+            // JAECOO: Desay usage/DSP own speakers; stream-type channel numbers are ignored.
+            if (!JaecooAudioChannelUi.hideChannelPickers(this)) {
+                mediaChannelControl(card)
+                navigationChannelControl(card)
+            }
             val gainSlider = overlaySliderRow(
                 getString(R.string.settings_navigation_attenuation),
                 (com.shilapi.xcertplay.media.NavigationAudioGain.MIN_DB..
@@ -2166,42 +2178,6 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                     com.shilapi.xcertplay.hud.JaecooSettings.hud(this)) {
                     com.shilapi.xcertplay.hud.JaecooSettings.setHud(this, it)
                 }
-                card.addView(label(getString(R.string.settings_jaecoo_lane_probe), 16, TEXT, true).apply {
-                    setPadding(0, dp(14), 0, 0)
-                })
-                card.addView(label(getString(R.string.settings_jaecoo_lane_probe_description), 14, MUTED).apply {
-                    setPadding(0, dp(6), 0, 0)
-                })
-                for (scheme in com.shilapi.xcertplay.hud.JaecooLaneProbe.laneSchemes) {
-                    card.addView(
-                        button(scheme.title, false) {
-                            toast(com.shilapi.xcertplay.hud.JaecooLaneProbe.run(this, scheme))
-                        },
-                        matchButton(8, 52),
-                    )
-                    card.addView(label(scheme.detail, 12, MUTED).apply { setPadding(0, dp(2), 0, 0) })
-                }
-                card.addView(label(getString(R.string.settings_jaecoo_road_probe), 16, TEXT, true).apply {
-                    setPadding(0, dp(14), 0, 0)
-                })
-                card.addView(label(getString(R.string.settings_jaecoo_road_probe_description), 14, MUTED).apply {
-                    setPadding(0, dp(6), 0, 0)
-                })
-                for (scheme in com.shilapi.xcertplay.hud.JaecooLaneProbe.roadSchemes) {
-                    card.addView(
-                        button(scheme.title, false) {
-                            toast(com.shilapi.xcertplay.hud.JaecooLaneProbe.run(this, scheme))
-                        },
-                        matchButton(8, 52),
-                    )
-                    card.addView(label(scheme.detail, 12, MUTED).apply { setPadding(0, dp(2), 0, 0) })
-                }
-                card.addView(
-                    button(getString(R.string.settings_jaecoo_lane_probe_clear), false) {
-                        toast(com.shilapi.xcertplay.hud.JaecooLaneProbe.clear(this))
-                    },
-                    matchButton(10, 52),
-                )
             }
             // DiLink 3 makes its own dashboard display; either DiLink 4 route stops that, so offer them only to
             // turn off, as the setup guide does (#722).
@@ -3679,7 +3655,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
 
     private fun openSetupGuide(fromSettings: Boolean) {
         setupFromSettings = fromSettings
-        setupStep = SetupGuide.STEP_CAR
+        // JAECOO: skip DiLink generation step — start at connection.
+        setupStep = JaecooSetupGuideUi.firstStep(this)
         page = "setup"
         render()
     }
@@ -3688,7 +3665,7 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         SetupGuide.markSeen(this)
         page = if (setupFromSettings) "settings" else "home"
         setupFromSettings = false
-        setupStep = SetupGuide.STEP_CAR
+        setupStep = JaecooSetupGuideUi.firstStep(this)
         render()
         if (connectNow) connect(AirPlayPersistence.loadWirelessEnabled(this))
     }
@@ -3701,14 +3678,20 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
     })
 
     private fun setupGuide(content: LinearLayout) {
+        // JAECOO: never land on the DiLink car step.
+        if (JaecooSetupGuideUi.skipCarStep(this) && setupStep == SetupGuide.STEP_CAR) {
+            setupStep = SetupGuide.STEP_CONNECTION
+        }
         val step = setupStep.coerceIn(SetupGuide.STEP_CAR, SetupGuide.STEP_DONE)
-        content.addView(label(getString(R.string.setup_step_of, step + 1, SetupGuide.STEP_COUNT), 13, ACCENT, true)
+        val visibleCount = JaecooSetupGuideUi.visibleStepCount(this)
+        val visibleIndex = JaecooSetupGuideUi.visibleStepIndex(this, step)
+        content.addView(label(getString(R.string.setup_step_of, visibleIndex + 1, visibleCount), 13, ACCENT, true)
             .apply { letterSpacing = .12f })
         val progress = row().apply { setPadding(0, dp(10), 0, dp(20)) }
-        repeat(SetupGuide.STEP_COUNT) { index ->
+        repeat(visibleCount) { index ->
             progress.addView(View(this).apply {
                 background = GradientDrawable().apply {
-                    setColor(if (index <= step) ACCENT else BUTTON); cornerRadius = dp(3).toFloat()
+                    setColor(if (index <= visibleIndex) ACCENT else BUTTON); cornerRadius = dp(3).toFloat()
                 }
             }, LinearLayout.LayoutParams(0, dp(6), 1f).apply { if (index > 0) marginStart = dp(8) })
         }
@@ -3879,7 +3862,7 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         card.addView(button(getString(R.string.settings), false) {
             SetupGuide.markSeen(this)
             setupFromSettings = false
-            setupStep = SetupGuide.STEP_CAR
+            setupStep = JaecooSetupGuideUi.firstStep(this)
             page = "settings"
             render()
         }, matchButton(12, 60))
@@ -3910,31 +3893,34 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
 
     private fun wirelessLinkControls(parent: LinearLayout) {
         val storedMode = AirPlayPersistence.loadWirelessHotspotMode(this)
-        val mode = if (pendingCarHotspotSetup) {
-            if (storedMode == WirelessHotspotMode.JAECOO_BUILTIN) WirelessHotspotMode.JAECOO_BUILTIN
-            else WirelessHotspotMode.MANUAL
+        val pendingMode = if (pendingCarHotspotSetup) {
+            if (storedMode == WirelessHotspotMode.JAECOO_BUILTIN ||
+                !JaecooConnectionModesUi.isOffered(this, WirelessHotspotMode.MANUAL)
+            ) {
+                WirelessHotspotMode.JAECOO_BUILTIN
+            } else {
+                WirelessHotspotMode.MANUAL
+            }
         } else {
             storedMode
         }
-        // JAECOO: Built-in Jaecoo first — SoftAP via Desay SystemUI, no hotspot settings UI required.
-        val modes = listOf(
-            WirelessHotspotMode.JAECOO_BUILTIN,
-            WirelessHotspotMode.MANUAL,
-            WirelessHotspotMode.WIFI_P2P,
-            WirelessHotspotMode.EXISTING_WIFI,
-        )
-        val titles = listOf(
-            getString(R.string.settings_built_in_jaecoo),
-            getString(R.string.settings_built_in_car_hotspot_recommended),
-            getString(R.string.wifi_direct),
-            getString(R.string.existing_wifi_title),
-        )
-        val descriptions = listOf(
-            getString(R.string.hotspot_mode_jaecoo_desc),
-            getString(R.string.hotspot_mode_manual_desc),
-            getString(R.string.hotspot_mode_p2p_desc),
-            getString(R.string.existing_wifi_description),
-        )
+        // JAECOO: hide BYD car-hotspot + Wi‑Fi Direct; SoftAP Jaecoo + same-LAN remain.
+        val mode = JaecooConnectionModesUi.coerce(this, pendingMode)
+        val modes = JaecooConnectionModesUi.offered(this)
+        fun title(candidate: WirelessHotspotMode) = getString(when (candidate) {
+            WirelessHotspotMode.JAECOO_BUILTIN -> R.string.settings_built_in_jaecoo
+            WirelessHotspotMode.MANUAL -> R.string.settings_built_in_car_hotspot_recommended
+            WirelessHotspotMode.WIFI_P2P -> R.string.wifi_direct
+            WirelessHotspotMode.EXISTING_WIFI -> R.string.existing_wifi_title
+            else -> R.string.existing_wifi_title
+        })
+        fun description(candidate: WirelessHotspotMode) = getString(when (candidate) {
+            WirelessHotspotMode.JAECOO_BUILTIN -> R.string.hotspot_mode_jaecoo_desc
+            WirelessHotspotMode.MANUAL -> R.string.hotspot_mode_manual_desc
+            WirelessHotspotMode.WIFI_P2P -> R.string.hotspot_mode_p2p_desc
+            WirelessHotspotMode.EXISTING_WIFI -> R.string.existing_wifi_description
+            else -> R.string.existing_wifi_description
+        })
         val wide = resources.configuration.screenWidthDp >= 850
         val choices = if (wide) row().apply { gravity = Gravity.TOP } else column()
         parent.addView(choices)
@@ -3943,7 +3929,7 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             choices.addView(option, if (wide) LinearLayout.LayoutParams(0, -2, 1f).apply {
                 if (index > 0) marginStart = dp(16)
             } else LinearLayout.LayoutParams(-1, -2))
-            option.addView(button("${if (mode == candidate) "✓  " else ""}${titles[index]}", mode == candidate) {
+            option.addView(button("${if (mode == candidate) "✓  " else ""}${title(candidate)}", mode == candidate) {
                 if (candidate == WirelessHotspotMode.MANUAL) {
                     pendingCarHotspotSetup = true
                     AirPlayPersistence.saveWirelessHotspotMode(this, candidate)
@@ -3966,7 +3952,7 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                     applyWirelessLink(candidate)
                 }
             }, matchButton(12, 60))
-            option.addView(label(descriptions[index], 15, MUTED).apply { setPadding(0, dp(6), 0, dp(12)) })
+            option.addView(label(description(candidate), 15, MUTED).apply { setPadding(0, dp(6), 0, dp(12)) })
         }
         if (mode == WirelessHotspotMode.JAECOO_BUILTIN) {
             parent.addView(label(getString(R.string.hotspot_setup), 22, TEXT, true))

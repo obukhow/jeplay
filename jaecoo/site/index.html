@@ -53,7 +53,7 @@
           <a class="btn btn-primary" href="install.html">Установить через браузер</a>
         </div>
       </div>
-      <figure class="hero-visual">
+      <figure class="hero-visual hero-visual--video">
         <img
           src="assets/hero-cabin.jpg"
           width="1920"
@@ -62,7 +62,23 @@
           decoding="async"
           fetchpriority="high"
         />
+        <button
+          type="button"
+          class="hero-play"
+          aria-haspopup="dialog"
+          aria-controls="video-lightbox"
+          aria-label="Посмотреть видео-обзор приложения"
+        >
+          <span class="hero-play-icon" aria-hidden="true"></span>
+          <span class="hero-play-label">посмотреть видео-обзор приложения</span>
+        </button>
       </figure>
+      <dialog class="video-lightbox" id="video-lightbox" aria-label="Видео-обзор приложения">
+        <form method="dialog">
+          <button type="submit" class="photo-lightbox-close" aria-label="Закрыть">×</button>
+        </form>
+        <div class="video-lightbox-frame"></div>
+      </dialog>
     </div>
   </header>
 
@@ -284,6 +300,31 @@
       });
       dialog.addEventListener("close", function () {
         img.removeAttribute("src");
+      });
+    })();
+
+    (function () {
+      var play = document.querySelector(".hero-play");
+      var dialog = document.getElementById("video-lightbox");
+      if (!play || !dialog || !dialog.showModal) return;
+      var frame = dialog.querySelector(".video-lightbox-frame");
+      var videoSrc =
+        "https://vkvideo.ru/video_ext.php?oid=-243796290&id=456239017&hash=a4dbc48752e05f0b&hd=3&autoplay=1";
+
+      function openVideo() {
+        frame.innerHTML =
+          '<iframe src="' +
+          videoSrc +
+          '" width="1280" height="720" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>';
+        dialog.showModal();
+      }
+
+      play.addEventListener("click", openVideo);
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) dialog.close();
+      });
+      dialog.addEventListener("close", function () {
+        frame.innerHTML = "";
       });
     })();
   </script>

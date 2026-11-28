@@ -26,6 +26,7 @@
         <package android:name="com.byd.carsettings" />
         <package android:name="com.desaysv.ivi.vds.carlan" />
         <package android:name="com.desaysv.ivi.vds.media" />
+        <package android:name="com.desaysv.ivi.vds.sms" />
         <package android:name="com.android.settings" />
         <package android:name="com.android.car.settings" />
         <package android:name="com.android.settings.intelligence" />
@@ -34,6 +35,9 @@
         </intent>
         <intent>
             <action android:name="action.desaysv.ivi.vds.media.SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="action.desaysv.ivi.vds.sms.SERVICE" />
         </intent>
         <intent>
             <action android:name="com.android.settings.WIFI_TETHER_SETTINGS" />
