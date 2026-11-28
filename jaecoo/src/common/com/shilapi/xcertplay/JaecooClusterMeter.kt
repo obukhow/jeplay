@@ -219,8 +219,8 @@ internal object JaecooClusterMeter {
         fit: Int = JaecooSettings.CLUSTER_WELL_FIT_RESIZE,
         markerXPercent: Int = 50,
         markerYPercent: Int = 45,
-        shiftXPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
-        shiftYPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
+        shiftXPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_X_DEFAULT,
+        shiftYPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_Y_DEFAULT,
     ): Frame {
         if (layout != Layout.WELL || panelWidth <= 0 || panelHeight <= 0) {
             return Frame(0, 0, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
@@ -268,8 +268,8 @@ internal object JaecooClusterMeter {
         panelHeight: Int,
         markerXPercent: Int,
         markerYPercent: Int,
-        shiftXPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
-        shiftYPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_DEFAULT,
+        shiftXPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_X_DEFAULT,
+        shiftYPercent: Int = JaecooSettings.CLUSTER_WELL_SHIFT_Y_DEFAULT,
     ): Frame {
         val wellCenterX = (WELL_X + WELL_WIDTH / 2) * panelWidth / REFERENCE_WIDTH
         val wellCenterY = (WELL_Y + WELL_HEIGHT / 2) * panelHeight / REFERENCE_HEIGHT

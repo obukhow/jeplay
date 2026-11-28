@@ -39,13 +39,13 @@ class JaecooSettingsTest {
         assertEquals(JaecooSettings.CLUSTER_WELL_FIT_SHIFT, JaecooSettings.clusterWellFit(app))
     }
 
-    @Test fun clusterWellShiftDefaultsToSevenPercentLeftAndCentreVertical() {
-        assertEquals(43, JaecooSettings.clusterWellShiftXPercent(app))
-        assertEquals(50, JaecooSettings.clusterWellShiftYPercent(app))
+    @Test fun clusterWellShiftDefaultsToFifteenRightAndSevenDown() {
+        assertEquals(65, JaecooSettings.clusterWellShiftXPercent(app))
+        assertEquals(57, JaecooSettings.clusterWellShiftYPercent(app))
     }
 
-    @Test fun clusterWellShiftScaleDefaultsToNinety() {
-        assertEquals(90, JaecooSettings.clusterWellShiftScale(app))
+    @Test fun clusterWellShiftScaleDefaultsToSeventy() {
+        assertEquals(70, JaecooSettings.clusterWellShiftScale(app))
     }
 
     @Test fun clusterWellShiftScalePersists() {

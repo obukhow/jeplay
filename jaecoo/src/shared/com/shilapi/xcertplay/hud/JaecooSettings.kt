@@ -33,14 +33,16 @@ object JaecooSettings {
 
     /** Fine-tune around the computed shift; 50 = exact marker→well alignment. */
     const val CLUSTER_WELL_SHIFT_DEFAULT = 50
-    /** Default horizontal fine-tune: 7% of the panel toward the left (50 − 7). */
-    const val CLUSTER_WELL_SHIFT_X_DEFAULT = 43
+    /** Default horizontal fine-tune: 15% of the panel toward the right (50 + 15). */
+    const val CLUSTER_WELL_SHIFT_X_DEFAULT = 65
+    /** Default vertical fine-tune: 7% of the panel downward (50 + 7). */
+    const val CLUSTER_WELL_SHIFT_Y_DEFAULT = 57
 
     /**
      * Shrink the shifted full-panel map around the car marker. 100 → only slide;
      * lower values zoom out so the well hole shows more map (no reconnect).
      */
-    const val CLUSTER_WELL_SHIFT_SCALE_DEFAULT = 90
+    const val CLUSTER_WELL_SHIFT_SCALE_DEFAULT = 70
     const val CLUSTER_WELL_SHIFT_SCALE_MIN = 60
     const val CLUSTER_WELL_SHIFT_SCALE_MAX = 100
 
@@ -96,7 +98,7 @@ object JaecooSettings {
     }
 
     fun clusterWellShiftYPercent(context: Context): Int =
-        prefs(context).getInt(KEY_CLUSTER_WELL_SHIFT_Y, CLUSTER_WELL_SHIFT_DEFAULT).coerceIn(5, 95)
+        prefs(context).getInt(KEY_CLUSTER_WELL_SHIFT_Y, CLUSTER_WELL_SHIFT_Y_DEFAULT).coerceIn(5, 95)
 
     fun setClusterWellShiftYPercent(context: Context, percent: Int) {
         prefs(context).edit()

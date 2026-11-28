@@ -80,10 +80,18 @@ class JaecooClusterMeterTest {
             JaecooClusterMeter.Layout.WELL, 1920, 720,
             fit = com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_FIT_SHIFT,
             markerXPercent = 50, markerYPercent = 45,
+            shiftXPercent = 50, shiftYPercent = 50,
         )
         assertEquals(1920, frame.width)
         assertEquals(720, frame.height)
         assertEquals(590, frame.x)
+    }
+
+    @Test fun defaultShiftIsFifteenRightAndSevenDown() {
+        val aligned = JaecooClusterMeter.shiftFrame(1920, 720, 50, 45, 50, 50)
+        val defaults = JaecooClusterMeter.shiftFrame(1920, 720, 50, 45)
+        assertEquals(aligned.x + 1920 * 15 / 100, defaults.x)
+        assertEquals(aligned.y + 720 * 7 / 100, defaults.y)
     }
 
     @Test fun wellFrameKeepsTheSameFractionOnAnotherPanel() {
