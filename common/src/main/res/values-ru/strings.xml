@@ -883,7 +883,7 @@
     <string name="settings_jaecoo_compatible_video_decode">Совместимое видео Jaecoo</string>
     <string name="settings_jaecoo_compatible_video_decode_description">Декодирует CarPlay как штатное приложение Desay: SurfaceView, отдельные потоки декодирования, показ кадра сразу после готовности, без сброса и пересоздания декодера при росте очереди. Уменьшает «квадраты» и подвисания на Jaecoo. Настройки картинки не применяются. Включено по умолчанию. Переподключает CarPlay.</string>
     <string name="settings_jaecoo_hud">Стрелки HUD на Jaecoo J8</string>
-    <string name="settings_jaecoo_hud_description">Отправляет стрелки и расстояние CarPlay на HUD/приборку через Desay CarLan VDB (как YaSwitcher). Отключите, если панель ведёт себя необычно.</string>
+    <string name="settings_jaecoo_hud_description">Отправляет стрелки и расстояние CarPlay на HUD/приборку через Desay CarLan VDB. Отключите, если панель ведёт себя необычно.</string>
     <string name="settings_jaecoo_enhanced_siri">Слушать «Привет, Siri» (экспериментально)</string>
     <string name="settings_jaecoo_enhanced_siri_description">Пока CarPlay подключён, слушает микрофон через штатный движок Desay Enhanced Siri и открывает Siri по «Hey Siri» / «Привет, Siri». Нужны разрешение на микрофон и OEM-модели wake-word на магнитоле. Может конфликтовать с Алисой, если оба держат микрофон. По умолчанию выключено. Применяется при следующем подключении CarPlay или сразу, если сессия уже активна.</string>
     <string name="settings_fce_cluster_guidance">Подсказки на приборной панели FCE (экспериментально)</string>

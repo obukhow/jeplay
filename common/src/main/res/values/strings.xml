@@ -986,7 +986,7 @@
     <string name="settings_jaecoo_compatible_video_decode">Jaecoo compatible video decode</string>
     <string name="settings_jaecoo_compatible_video_decode_description">Decodes CarPlay like the built-in Desay app: SurfaceView, separate decode threads, show each frame as soon as it is ready, and do not drop or rebuild mid-stream when the queue grows. Reduces blocky artifacts and freezes on Jaecoo. Picture adjustments do not apply. On by default. Reconnects CarPlay.</string>
     <string name="settings_jaecoo_hud">HUD arrows on Jaecoo J8</string>
-    <string name="settings_jaecoo_hud_description">Sends CarPlay turn arrows and distance to the car HUD/cluster through Desay CarLan VDB (same path as YaSwitcher). Turn it off if the cluster behaves unexpectedly.</string>
+    <string name="settings_jaecoo_hud_description">Sends CarPlay turn arrows and distance to the car HUD/cluster through Desay CarLan VDB. Turn it off if the cluster behaves unexpectedly.</string>
     <string name="settings_jaecoo_enhanced_siri">Hey Siri listen (experimental)</string>
     <string name="settings_jaecoo_enhanced_siri_description">While CarPlay is connected, listens with the car\'s Desay Enhanced Siri engine for \"Hey Siri\" / «Привет, Siri» and opens Siri. Needs microphone permission and OEM wake-word models on the head unit. May conflict with Alice if both hold the mic. Off by default. Applies on the next CarPlay attach, or immediately if already connected.</string>
     <string name="settings_fce_cluster_guidance">Guidance in the FCE cluster (experimental)</string>

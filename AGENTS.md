@@ -2,6 +2,13 @@
 
 Instructions for coding agents that work on DiPlay.
 
+## Local-only notes (`agent_docs/`)
+
+`agent_docs/` is gitignored and stays on this machine. Read it for reverse-engineering
+provenance and where sibling reference trees live (what we copied HUD/Desay behavior
+from). Do **not** put those third-party app names into committed README, UI strings,
+tests, or code comments — keep them in `agent_docs/` only.
+
 ## Prefer `jaecoo/` — do not edit upstream by default
 
 This tree tracks upstream DiPlay. Local Jaecoo / Chery / Desay customizations live under

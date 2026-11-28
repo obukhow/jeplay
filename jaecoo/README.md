@@ -73,8 +73,8 @@ python3 -m http.server 8765
 
 ## What actually drives the HUD
 
-YaSwitcher (`ru.jaecoo.yanswitcher`) does **not** use Yandex ContentProviders or FCE
-vehicle properties for turn arrows. It publishes Desay **CarLan VDB** events:
+HUD guidance does **not** use Yandex ContentProviders or FCE vehicle properties for
+turn arrows. JePlay publishes Desay **CarLan VDB** events:
 
 | Event | Bean | Role |
 |------:|------|------|
@@ -88,10 +88,10 @@ Client path: bind `com.desaysv.ivi.vds.carlan` /
 transact `2` (publish). Bundle payload key is `"data"`. Service index is
 `eventId >> 16` (11 = carlan).
 
-YaSwitcher also fans out `AUTONAVI_STANDARD_BROADCAST_SEND` (`ICON`,
-`SEG_REMAIN_DIS`, …); DiPlay does the same as a fallback.
+As a fallback, JePlay also fans out `AUTONAVI_STANDARD_BROADCAST_SEND` (`ICON`,
+`SEG_REMAIN_DIS`, …).
 
-RoadIcon / AUTONAVI `ICON` values follow the **YaSwitcher Desay table**, not BYD
+RoadIcon / AUTONAVI `ICON` values follow the **Desay maneuver table**, not BYD
 Gaode (`BydManeuverCodes`): `left`→2, `right`→3, `straight`→9, `finish`→15
 (see `DesayManeuverCodes`). Using BYD codes swaps left/right on Jaecoo HUD.
 
@@ -103,7 +103,7 @@ kills HUD arrows while the settings HUD toggle still looks fine.
 
 | Service | Package / action | Correct publish | Why |
 |---------|------------------|-----------------|-----|
-| **CarLan (HUD)** | `com.desaysv.ivi.vds.carlan` | `DesayVdbClient()` — **real event id** (721701 / 721708 / 721698 / 721697), Parcelable bean in `"data"` | Same as YaSwitcher (`R0.a` → `set(event)`). OEM `VDBinder.set` takes the real id → `onSet`. |
+| **CarLan (HUD)** | `com.desaysv.ivi.vds.carlan` | `DesayVdbClient()` — **real event id** (721701 / 721708 / 721698 / 721697), Parcelable bean in `"data"` | OEM `VDBinder.set` takes the real id → `onSet`. |
 | **Media (widget)** | `com.desaysv.ivi.vds.media` | `DesayVdbClient.media()` — wrap as `id = MEDIA_MIN` (393216) + `InjectEventID = realId` | Plain `set(realId)` is rejected ("can not be setting"); inject **publishes** to subscribers. |
 
 **Regression (2026-10-30 / JePlay ~0.2.21.25–31):** while wiring Media, CarLan’s default
@@ -147,7 +147,7 @@ Code: `jaecoo/src/shared/.../hud/DesayVdbClient.kt`, `DesayHudOutput.kt`,
    display (unchanged).
 
 Lane glyphs: CarPlay `0x5204` → event 721697 (`VDNaviLaneInfo`), angles mapped through
-the YaSwitcher Gaode-style icon table (`DesayLaneIcons`). Requires Identify to advertise
+the Desay Gaode-style icon table (`DesayLaneIcons`). Requires Identify to advertise
 `MaxLaneGuidanceStorageCapacity` (param 8) and list `0x5204` in MessagesReceivedFromDevice —
 otherwise iOS never sends lane frames.
 

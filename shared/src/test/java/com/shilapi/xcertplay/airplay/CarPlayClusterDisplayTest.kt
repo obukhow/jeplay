@@ -76,7 +76,7 @@ class CarPlayClusterDisplayTest {
 
     @Test
     fun jaecooWellStreamKeepsPortraitAspect() {
-        // YaSwitcher well 500×620 (and 588×729 at 85% window scale) must not become ultrawide.
+        // Portrait well 500×620 (and 588×729 at 85% window scale) must not become ultrawide.
         val well = CarPlayClusterDisplay.config(
             500, 620, scalePercent = 100,
             markerXPercent = 50, markerYPercent = 50,
