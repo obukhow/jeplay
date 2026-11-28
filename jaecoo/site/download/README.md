@@ -3,8 +3,8 @@
 Publish release APKs here using the name from `../version.txt`:
 
 ```text
-../version.txt          →  0.2.21.40
-JePlay-0.2.21.40.apk     →  this folder
+../version.txt          →  0.2.21.41
+JePlay-0.2.21.41.apk     →  this folder
 ```
 
 The install page fetches `version.txt`, then downloads `JePlay-<version>.apk` from this directory.

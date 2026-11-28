@@ -11,6 +11,7 @@ object JaecooSettings {
     private const val KEY_CLUSTER_WELL_FIT = "cluster_well_fit"
     private const val KEY_CLUSTER_WELL_SHIFT_X = "cluster_well_shift_x"
     private const val KEY_CLUSTER_WELL_SHIFT_Y = "cluster_well_shift_y"
+    private const val KEY_CLUSTER_WELL_SHIFT_SCALE = "cluster_well_shift_scale"
     /**
      * Map scale inside the well. 100 → window equals the 500×620 well; 85 → window =
      * well / 0.85, so the fixed 500×620 hole shows more map without revealing the frame edges.
@@ -31,6 +32,16 @@ object JaecooSettings {
 
     /** Fine-tune around the computed shift; 50 = exact marker→well alignment. */
     const val CLUSTER_WELL_SHIFT_DEFAULT = 50
+    /** Default horizontal fine-tune: 7% of the panel toward the left (50 − 7). */
+    const val CLUSTER_WELL_SHIFT_X_DEFAULT = 43
+
+    /**
+     * Shrink the shifted full-panel map around the car marker. 100 → only slide;
+     * lower values zoom out so the well hole shows more map (no reconnect).
+     */
+    const val CLUSTER_WELL_SHIFT_SCALE_DEFAULT = 90
+    const val CLUSTER_WELL_SHIFT_SCALE_MIN = 60
+    const val CLUSTER_WELL_SHIFT_SCALE_MAX = 100
 
     /** Whether Desay CarLan VDB (`com.desaysv.ivi.vds.carlan`) is installed. */
     fun hudAvailable(context: Context): Boolean = DesayVdbClient().available(context)
@@ -75,7 +86,7 @@ object JaecooSettings {
     }
 
     fun clusterWellShiftXPercent(context: Context): Int =
-        prefs(context).getInt(KEY_CLUSTER_WELL_SHIFT_X, CLUSTER_WELL_SHIFT_DEFAULT).coerceIn(5, 95)
+        prefs(context).getInt(KEY_CLUSTER_WELL_SHIFT_X, CLUSTER_WELL_SHIFT_X_DEFAULT).coerceIn(5, 95)
 
     fun setClusterWellShiftXPercent(context: Context, percent: Int) {
         prefs(context).edit()
@@ -89,6 +100,19 @@ object JaecooSettings {
     fun setClusterWellShiftYPercent(context: Context, percent: Int) {
         prefs(context).edit()
             .putInt(KEY_CLUSTER_WELL_SHIFT_Y, percent.coerceIn(5, 95))
+            .commit()
+    }
+
+    fun clusterWellShiftScale(context: Context): Int =
+        prefs(context).getInt(KEY_CLUSTER_WELL_SHIFT_SCALE, CLUSTER_WELL_SHIFT_SCALE_DEFAULT)
+            .coerceIn(CLUSTER_WELL_SHIFT_SCALE_MIN, CLUSTER_WELL_SHIFT_SCALE_MAX)
+
+    fun setClusterWellShiftScale(context: Context, percent: Int) {
+        prefs(context).edit()
+            .putInt(
+                KEY_CLUSTER_WELL_SHIFT_SCALE,
+                percent.coerceIn(CLUSTER_WELL_SHIFT_SCALE_MIN, CLUSTER_WELL_SHIFT_SCALE_MAX),
+            )
             .commit()
     }
 

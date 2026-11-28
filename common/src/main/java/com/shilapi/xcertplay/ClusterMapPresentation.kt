@@ -163,14 +163,21 @@ internal class ClusterMapPresentation(
     }
 
     /**
-     * Slides the map pixels inside a fullscreen Presentation. WindowManager will not place a
-     * full-size window at x>0 on the cluster display, so Jaecoo well-shift uses this instead.
-     * SurfaceView often ignores parent translation, so the video also gets explicit margins.
+     * Slides (and optionally shrinks) the map inside a fullscreen Presentation.
+     * WindowManager will not place a full-size window at x>0, so Jaecoo well-shift uses this.
+     * [pivotX]/[pivotY] are the car-marker point in local panel coords — scale keeps it fixed
+     * on the well centre after the slide. SurfaceView often ignores parent transforms, so that
+     * path also sets margins / scale on the video view itself.
      */
-    fun setContentOffset(x: Int, y: Int) {
+    fun setContentOffset(
+        x: Int,
+        y: Int,
+        scalePercent: Int = 100,
+        pivotX: Float = sizeOf(display).x / 2f,
+        pivotY: Float = sizeOf(display).y / 2f,
+    ) {
         val layer = mapLayer ?: return
-        layer.translationX = x.toFloat()
-        layer.translationY = y.toFloat()
+        val scale = (scalePercent.coerceIn(60, 100) / 100f)
         val size = sizeOf(display)
         fun place(view: View?, width: Int = size.x, height: Int = size.y) {
             if (view == null) return
@@ -181,11 +188,32 @@ internal class ClusterMapPresentation(
                 topMargin = y
             }
         }
+        fun scaleView(view: View?) {
+            if (view == null) return
+            view.pivotX = pivotX
+            view.pivotY = pivotY
+            view.scaleX = scale
+            view.scaleY = scale
+        }
         if (videoView is SurfaceView) {
+            // Keep the wrapper identity; SurfaceView follows its own layout + transform.
+            layer.translationX = 0f
+            layer.translationY = 0f
+            layer.scaleX = 1f
+            layer.scaleY = 1f
             place(videoView)
             place(waitingLabel)
+            scaleView(videoView)
+            scaleView(waitingLabel)
+        } else {
+            layer.pivotX = pivotX
+            layer.pivotY = pivotY
+            layer.translationX = x.toFloat()
+            layer.translationY = y.toFloat()
+            layer.scaleX = scale
+            layer.scaleY = scale
         }
-        Log.i(TAG, "map content offset=${x},${y}")
+        Log.i(TAG, "map content offset=${x},${y} scale=$scalePercent pivot=${pivotX.toInt()},${pivotY.toInt()}")
     }
 
     /**

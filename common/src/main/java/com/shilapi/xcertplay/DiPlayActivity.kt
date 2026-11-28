@@ -2485,6 +2485,16 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
                                             com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellShiftYPercent(this, v)
                                             JaecooClusterMeter.relayout(this)
                                         } })
+                                    card.addView(overlaySliderRow(
+                                        getString(R.string.cluster_well_shift_scale),
+                                        (com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SHIFT_SCALE_MIN..
+                                            com.shilapi.xcertplay.hud.JaecooSettings.CLUSTER_WELL_SHIFT_SCALE_MAX step 5).toList(),
+                                        com.shilapi.xcertplay.hud.JaecooSettings.clusterWellShiftScale(this),
+                                    ) { it -> getString(R.string.cluster_well_scale_option, it) }
+                                        .also { it.onSave = { v ->
+                                            com.shilapi.xcertplay.hud.JaecooSettings.setClusterWellShiftScale(this, v)
+                                            JaecooClusterMeter.relayout(this)
+                                        } })
                                 }
                                 card.addView(label(getString(R.string.cluster_well_shift_probe_description), 14, MUTED).apply {
                                     setPadding(0, dp(10), 0, dp(4))

@@ -462,6 +462,7 @@
     <string name="cluster_well_fit_description">«Размер» сжимает окно и сообщает iPhone размер колодца (колодец ↔ полный экран переподключает CarPlay). «Сдвиг» оставляет поток 1920×720 и сдвигает вывод так, чтобы курсор оказался в центре колодца; ползунки сдвига — подстройка. Полный экран сдвигает обратно.</string>
     <string name="cluster_well_shift_horizontal">Сдвиг · влево / вправо</string>
     <string name="cluster_well_shift_vertical">Сдвиг · вверх / вниз</string>
+    <string name="cluster_well_shift_scale">Сдвиг · масштаб</string>
     <string name="cluster_well_shift_probe">Тест сдвига колодца (20 с)</string>
     <string name="cluster_well_shift_probe_description">На 20 с принудительно включает сдвиг колодца на полном экране приборки — без переключения Desay и без переподключения CarPlay. Карта должна уехать вправо, чтобы курсор оказался там, где колодец. Так видно, работает ли сдвиг вообще.</string>
     <string name="cluster_small_window_horizontal">Экран в колодце · влево / вправо</string>

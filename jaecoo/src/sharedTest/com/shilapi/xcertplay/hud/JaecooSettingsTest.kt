@@ -39,9 +39,18 @@ class JaecooSettingsTest {
         assertEquals(JaecooSettings.CLUSTER_WELL_FIT_SHIFT, JaecooSettings.clusterWellFit(app))
     }
 
-    @Test fun clusterWellShiftDefaultsToCentre() {
-        assertEquals(50, JaecooSettings.clusterWellShiftXPercent(app))
+    @Test fun clusterWellShiftDefaultsToSevenPercentLeftAndCentreVertical() {
+        assertEquals(43, JaecooSettings.clusterWellShiftXPercent(app))
         assertEquals(50, JaecooSettings.clusterWellShiftYPercent(app))
+    }
+
+    @Test fun clusterWellShiftScaleDefaultsToNinety() {
+        assertEquals(90, JaecooSettings.clusterWellShiftScale(app))
+    }
+
+    @Test fun clusterWellShiftScalePersists() {
+        JaecooSettings.setClusterWellShiftScale(app, 80)
+        assertEquals(80, JaecooSettings.clusterWellShiftScale(app))
     }
 
     @Test fun compatibleVideoDecodePersists() {

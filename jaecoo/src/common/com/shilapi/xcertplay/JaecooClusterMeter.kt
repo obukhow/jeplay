@@ -289,7 +289,7 @@ internal object JaecooClusterMeter {
             JaecooSettings.clusterWellShiftYPercent(context),
         )
         if (current == Layout.WELL && fit == JaecooSettings.CLUSTER_WELL_FIT_SHIFT) {
-            // Keep the Presentation fullscreen; slide map pixels. WM clamps a full-size window to x=0.
+            // Keep the Presentation fullscreen; slide/scale map pixels. WM clamps a full-size window to x=0.
             apply(
                 presentation.window,
                 Frame(
@@ -301,13 +301,17 @@ internal object JaecooClusterMeter {
                     true,
                 ),
             )
-            presentation.setContentOffset(target.x, target.y)
+            val markerX = size.x * AirPlayPersistence.loadClusterMarkerXPercent(context).coerceIn(5, 95) / 100f
+            val markerY = size.y * AirPlayPersistence.loadClusterMarkerYPercent(context).coerceIn(5, 95) / 100f
+            val shiftScale = JaecooSettings.clusterWellShiftScale(context)
+            presentation.setContentOffset(target.x, target.y, shiftScale, markerX, markerY)
             Log.i(
                 ClusterMapPresentation.TAG,
-                "well shift content offset=${target.x},${target.y} panel=${size.x}x${size.y} probe=${probingWell()}",
+                "well shift content offset=${target.x},${target.y} scale=$shiftScale " +
+                    "panel=${size.x}x${size.y} probe=${probingWell()}",
             )
         } else {
-            presentation.setContentOffset(0, 0)
+            presentation.setContentOffset(0, 0, 100)
             apply(presentation.window, target)
         }
         presentation.setMapVisible(current != Layout.HIDDEN)
