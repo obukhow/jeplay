@@ -27,7 +27,7 @@ class JaecooClusterMeterTest {
         assertEquals(JaecooClusterMeter.Layout.HIDDEN, JaecooClusterMeter.layoutOf(0, 0, true))
     }
 
-    @Test fun scale100MatchesTheYaSwitcherWell() {
+    @Test fun scale100MatchesTheWell() {
         val frame = JaecooClusterMeter.frame(JaecooClusterMeter.Layout.WELL, 1920, 720, 81, 43, 100)
         assertEquals(500, frame.width)
         assertEquals(620, frame.height)

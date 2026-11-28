@@ -1747,9 +1747,20 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             toggle(card, getString(R.string.right_hand_drive), getString(R.string.place_carplay_s_controls_closer_to_the_driver), AirPlayPersistence.loadRightHandDrive(this)) { AirPlayPersistence.saveRightHandDrive(this, it); markReconnectNeeded() }
         }
         // JAECOO: Desay SMS owns VR/media keys — hide assignable KeyEvent wheel-key UI.
+        // Still show Enhanced Siri under the same Vehicle section when the rest is hidden.
         if (!JaecooWheelKeysUi.hideSection(this)) {
             filteredSection(content, SettingsSection.WHEEL_KEYS,
                 getString(R.string.settings_wheel_keys), R.drawable.ic_dp_controls, ::wheelKeysSettings)
+        } else {
+            filteredSection(content, SettingsSection.WHEEL_KEYS,
+                getString(R.string.settings_wheel_keys), R.drawable.ic_dp_controls) { card ->
+                toggle(
+                    card,
+                    JaecooEnhancedSiriUi.title(this),
+                    JaecooEnhancedSiriUi.description(this),
+                    JaecooEnhancedSiriUi.enabled(this),
+                ) { JaecooEnhancedSiriUi.setEnabled(this, it) }
+            }
         }
         filteredSection(content, SettingsSection.CONNECTION_SETUP,
             getString(R.string.connection_setup), R.drawable.ic_dp_connection) { card ->
@@ -4662,6 +4673,13 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             wheelKeyServiceControls(card)
         }
         siriKeyControls(card)
+        // JAECOO: continuous OEM "Hey Siri" (also offered when this whole section is hidden).
+        toggle(
+            card,
+            JaecooEnhancedSiriUi.title(this),
+            JaecooEnhancedSiriUi.description(this),
+            JaecooEnhancedSiriUi.enabled(this),
+        ) { JaecooEnhancedSiriUi.setEnabled(this, it) }
         toggle(card, getString(R.string.wheel_media_play_pause),
             getString(R.string.wheel_media_play_pause_description),
             WheelZoomSettings.mediaPlayPause(this)) {

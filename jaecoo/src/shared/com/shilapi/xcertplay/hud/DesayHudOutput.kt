@@ -10,8 +10,8 @@ import com.desaysv.ivi.vdb.event.id.carlan.bean.VDNaviLaneInfo
 import com.desaysv.ivi.vdb.event.id.carlan.bean.VDNaviRoadInfo
 
 /**
- * Publishes CarPlay turn guidance to Jaecoo/Desay HUD the same way YaSwitcher does:
- * CarLan VDB events 721701 / 721708 / 721698, plus AutoNavi standard broadcast as a fallback
+ * Publishes CarPlay turn guidance to Jaecoo/Desay HUD over CarLan VDB
+ * (events 721701 / 721708 / 721698), plus AutoNavi standard broadcast as a fallback
  * many Desay clusters also listen to.
  */
 internal class DesayHudOutput(
@@ -104,7 +104,7 @@ internal class DesayHudOutput(
         val info = VDNaviRoadInfo()
         info.setSegRemainDis(meters)
         info.setRoadIcon(icon)
-        info.setRoadType(-1) // YaSwitcher always sends -1
+        info.setRoadType(-1) // OEM path always sends -1
         info.setRoadName(roadName)
         info.setNextRoadName(nextRoadName)
         publish(VDNaviRoadInfo.createEvent(info))
@@ -120,7 +120,7 @@ internal class DesayHudOutput(
             clear.setLaneIconId(0)
             lanes.add(clear)
         } else {
-            // Exact YaSwitcher encoding (z2.e): every visible slot gets LaneInfo=1;
+            // Desay lane-strip encoding: every visible slot gets LaneInfo=1;
             // white vs gray is baked into LaneIconId via highlight||dirs (table a3.y).
             guidance.lanes.forEachIndexed { i, lane ->
                 val available = lane.anglesDegrees.map(DesayLaneIcons::direction)
@@ -149,7 +149,7 @@ internal class DesayHudOutput(
     }
 
     /**
-     * AutoNavi / Gaode cluster broadcast (also emitted by YaSwitcher for "Lion" models).
+     * AutoNavi / Gaode cluster broadcast (also used on some Desay "Lion" builds).
      * Harmless if nothing listens; helps when CarLan bind is delayed.
      */
     private fun broadcastAutonavi(context: Context?, guidance: Guidance) {

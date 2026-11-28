@@ -631,6 +631,23 @@ class CarPlayController(
         }
     }
 
+    /**
+     * Opens Siri from a continuous wake-word hit (Enhanced Siri / `siriAction = 4`).
+     * Falls back to the button-style request when the voice-activation command fails.
+     */
+    fun requestSiriVoiceActivation(sampleIndex: Long): Boolean {
+        if (closed) return false
+        val session = activeSession ?: return false
+        return try {
+            touchExecutor.execute {
+                session.invokeSiriVoiceActivation(sampleIndex)
+            }
+            true
+        } catch (_: Exception) {
+            requestSiri()
+        }
+    }
+
     /** Answers the ringing call on the iPhone (telephony Hook Switch), as the wheel's call button does. */
     fun answerCall(): Boolean = sendTelephony(TELEPHONY_HOOK_SWITCH)
 

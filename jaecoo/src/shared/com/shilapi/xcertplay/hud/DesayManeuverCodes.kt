@@ -4,7 +4,7 @@ package com.shilapi.xcertplay.hud
  * Apple iAP2 RouteGuidanceManeuverType → Desay / AutoNavi ICON integers used by Jaecoo
  * CarLan VDB ([VDNaviRoadInfo.RoadIcon]) and `AUTONAVI_STANDARD_BROADCAST_SEND`.
  *
- * These are **not** BYD Gaode codes ([BydManeuverCodes]). YaSwitcher maps Yandex manoeuvre
+ * These are **not** BYD Gaode codes ([BydManeuverCodes]). Desay maps manoeuvre
  * names to this vocabulary (`left`→2, `right`→3, `straight`→9, `finish`→15).
  */
 internal object DesayManeuverCodes {
@@ -26,7 +26,7 @@ internal object DesayManeuverCodes {
     fun icon(appleType: Int, drivingSide: Int): Int {
         val leftHand = drivingSide == 1
         if (appleType in 28..46) {
-            // YaSwitcher has no numbered exits — any leave_roundabout uses 12.
+            // No numbered exits in this table — any leave_roundabout uses 12.
             return ROUNDABOUT_EXIT
         }
         return when (appleType) {

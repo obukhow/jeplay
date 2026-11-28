@@ -16,7 +16,7 @@ import com.desaysv.ivi.vdb.event.VDEvent
  *
  * Binds [packageName] / [serviceAction] and calls AIDL transact 2 (`IVDBus.set`).
  *
- * CarLan (default): send the real event id, same as YaSwitcher — HUD beans are
+ * CarLan (default): send the real event id — HUD beans are
  * Parcelables that OEM [VDBinder.set] accepts via `onSet`. Do **not** inject here:
  * inject reads `InjectEventID` before setClassLoader, CNFEs on those Parcelables,
  * and silently drops the turn.

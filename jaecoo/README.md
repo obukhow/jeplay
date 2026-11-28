@@ -11,7 +11,7 @@ User-facing docs: [README.md](../README.md) · [README.ru.md](../README.ru.md)
 |------|--------|
 | App name / APK | `JePlay` → artifact `JePlay-<versionName>.apk` |
 | `applicationId` | `ru.jeplay.app` (not upstream `com.shihab.diplay`) |
-| `versionName` | `0.2.21.44` — first three digits track DiPlay upstream; **fourth** is the JePlay-only patch |
+| `versionName` | `0.2.21.45` — first three digits track DiPlay upstream; **fourth** is the JePlay-only patch |
 | `versionCode` | `upstreamCode * 100 + jeplayPatch` (e.g. DiPlay `40` → `4013`) |
 
 When merging a new DiPlay release (e.g. `0.2.22` / code `41`), bump the first three
@@ -31,8 +31,8 @@ Full release steps (bump → assemble → FTP → git tag/push): [deploy.md](dep
 Server layout example:
 
 ```text
-jeplay.ru/version.txt          →  0.2.21.44
-jeplay.ru/download/JePlay-0.2.21.44.apk
+jeplay.ru/version.txt          →  0.2.21.45
+jeplay.ru/download/JePlay-0.2.21.45.apk
 jeplay.ru/download/SHA256SUMS.txt   (optional)
 ```
 
@@ -134,6 +134,8 @@ Code: `jaecoo/src/shared/.../hud/DesayVdbClient.kt`, `DesayHudOutput.kt`,
 
 1. **HUD** — CarPlay `CPManeuver` / iAP2 `0x5201`+`0x5202` → Desay CarLan VDB
    (`DesayVdbClient` / `DesayHudOutput`). Toggle: settings → Advanced → cluster map card.
+   Cluster «карта есть»: `JaecooClusterNaviPresence` answers CarLan `721705` with
+   `721699`/`721702` so the meter does not stay on «карт нет».
 2. **Built-in Jaecoo SoftAP** — Connection setup mode that starts the head-unit SoftAP
    like DriveLabs wifihelper / OEM Desay CarPlay: broadcast
    `com.desay.systemui.set_ap_status` + reflective `setWifiApEnabled` (no hotspot UI,
@@ -165,6 +167,7 @@ otherwise iOS never sends lane frames.
 12. Fresh-install defaults from `jaecoo/assets/diplay-settings-defaults.json` (cluster map/music, FPS 55, `JAECOO_BUILTIN`, …)
 13. `WirelessHotspotMode.JAECOO_BUILTIN` + `CarPlayController` SoftAP start via `JaecooSoftApStarter`
 14. Desay audio tags: nav = usage guidance + legacy stream **62** (OEM does **not** set `key_source_id`; policy derives it — injecting 38 sent guidance to cabin). Media = `USAGE_MEDIA` + stream **60**. Nav tracks prefer `BUS02_NAV_GUIDANCE` (headrest). Settings channel numbers are ignored. Fresh defaults: audio focus **on**, media-key focus **off**. MediaSession publishes title/artist/**artwork**. iPhone `duckAudio`/`unduckAudio` attenuates media
+15. Enhanced Siri (experimental): Settings → Vehicle → Wheel keys → **Hey Siri listen**. Uses OEM `libenhancesiri_jni` + onboard `/product/etc/Res/MVWRes/FirstRes` (see `jaecoo/jni/enhanced-siri/`). Off by default.
 
 ## In-car audio routing check (nav → headrest)
 

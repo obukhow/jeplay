@@ -40,6 +40,7 @@ object BydNavigationOutputs {
     fun setClusterMapShown(shown: Boolean) {
         BydClusterMapPause.clusterMapShown = shown
         BydClusterBridge.setMapShown(shown)
+        JaecooClusterNaviPresence.setClusterMapShown(shown) // JAECOO: Desay «карта есть»
     }
 
     /** The running CarPlay session: told every second whether the cluster currently shows the map. */

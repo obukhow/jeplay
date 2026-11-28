@@ -82,7 +82,7 @@ class JaecooHudBridgeTest {
     }
 
     @Test
-    fun `desay maneuver table matches YaSwitcher vocabulary`() {
+    fun `desay maneuver table matches Desay vocabulary`() {
         assertEquals(2, DesayManeuverCodes.icon(1, 0)) // left
         assertEquals(3, DesayManeuverCodes.icon(2, 0)) // right
         assertEquals(9, DesayManeuverCodes.icon(3, 0)) // straight
@@ -133,7 +133,7 @@ class JaecooHudBridgeTest {
         @Suppress("DEPRECATION")
         val info = laneEvents.last().payload!!.getParcelable<VDNaviLaneInfo>(VDNaviLaneInfo.PAYLOAD_KEY)!!
         assertEquals(2, info.roadInfo.size)
-        // YaSwitcher: LaneInfo always 1 when showing; white/gray is in LaneIconId.
+        // LaneInfo always 1 when showing; white/gray is in LaneIconId.
         assertEquals(1, info.roadInfo[0].laneInfo)
         assertEquals(64, info.roadInfo[0].laneIconId) // Apple left → LEFT90||LEFT90 (white)
         assertEquals(0, info.roadInfo[0].laneId)
@@ -153,7 +153,7 @@ class JaecooHudBridgeTest {
     }
 
     @Test
-    fun `lane icon map matches YaSwitcher patterns`() {
+    fun `lane icon map matches Desay patterns`() {
         assertEquals(64, DesayLaneIcons.iconId(DesayLaneIcons.LEFT90, listOf(DesayLaneIcons.LEFT90)))
         assertEquals(2, DesayLaneIcons.iconId(null, listOf(DesayLaneIcons.LEFT90, DesayLaneIcons.STRAIGHT)))
         assertEquals(0, DesayLaneIcons.iconId(null, listOf(DesayLaneIcons.STRAIGHT)))

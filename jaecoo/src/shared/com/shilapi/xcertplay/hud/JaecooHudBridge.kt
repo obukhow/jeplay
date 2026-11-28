@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * CarPlay [CPManeuver] / iAP2 route guidance → Jaecoo J8 HUD/cluster via Desay CarLan VDB
- * (events 721701 / 721698 / 721708 / 721697), the same channel YaSwitcher uses — not FCE.
+ * (events 721701 / 721698 / 721708 / 721697) — not FCE.
  */
 internal object JaecooHudBridge {
     private const val TAG = "DiPlay-Jaecoo"
@@ -35,6 +35,7 @@ internal object JaecooHudBridge {
         }
         context = app
         output.initialize(app)
+        JaecooClusterNaviPresence.start(app)
         if (!tickStarted) {
             tickStarted = true
             Executors.newSingleThreadScheduledExecutor { runnable ->
@@ -69,6 +70,7 @@ internal object JaecooHudBridge {
         lanes.clear()
         navigation.clear()
         output.stop(context)
+        JaecooClusterNaviPresence.stop()
     }
 
     /**
@@ -140,6 +142,7 @@ internal object JaecooHudBridge {
         output = DesayHudOutput(DesayVdbClient(publisher))
         context = appContext
         if (appContext != null) output.initialize(appContext)
+        JaecooClusterNaviPresence.resetForTest(publisher, appContext)
         logged = false
         loggedLanes = false
         loggedRoad = false

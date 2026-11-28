@@ -65,4 +65,13 @@ class JaecooSettingsTest {
         JaecooSettings.setCompatibleVideoDecode(app, true)
         assertTrue(JaecooSettings.compatibleVideoDecode(app))
     }
+
+    @Test fun enhancedSiriDefaultsOff() {
+        assertFalse(JaecooSettings.enhancedSiri(app))
+    }
+
+    @Test fun enhancedSiriPersists() {
+        JaecooSettings.setEnhancedSiri(app, true)
+        assertTrue(JaecooSettings.enhancedSiri(app))
+    }
 }

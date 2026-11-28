@@ -376,6 +376,22 @@ class AirPlaySession(
         sendCommand(linkedMapOf("type" to "requestSiri", "params" to linkedMapOf("siriAction" to 3)))
     }
 
+    /**
+     * Enhanced Siri voice activation (CarPlay `siriAction = 4`) with the OEM wake-word
+     * sample index so the iPhone can align pre-roll audio.
+     */
+    fun invokeSiriVoiceActivation(sampleIndex: Long) {
+        sendCommand(
+            linkedMapOf(
+                "type" to "requestSiri",
+                "params" to linkedMapOf(
+                    "siriAction" to 4,
+                    "sampleIndex" to sampleIndex,
+                ),
+            ),
+        )
+    }
+
     fun sendIapMessage(data: ByteArray, timeoutMillis: Long = 0L): Boolean {
         require(timeoutMillis >= 0) { "timeoutMillis must not be negative" }
         val command = linkedMapOf<String, Any?>(

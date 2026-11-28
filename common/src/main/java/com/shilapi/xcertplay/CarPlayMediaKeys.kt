@@ -88,6 +88,12 @@ internal object CarPlayMediaKeys {
             val sent = onExternalSiriKey()
             Log.i(TAG, "Desay SMS VR → Siri sent=$sent")
         }
+        // JAECOO: OEM Enhanced Siri wake-word ("Hey Siri") while CarPlay is attached.
+        com.shilapi.xcertplay.siri.DesayEnhancedSiri.start(context) { sampleIndex ->
+            val active = synchronized(this) { controller }
+            val sent = active?.requestSiriVoiceActivation(sampleIndex) == true
+            if (!sent) active?.requestSiri() == true else true
+        }
         com.shilapi.xcertplay.media.AmbientMusicController.claimPlaybackOwner(next)
         next.playbackListener = { playing ->
             com.shilapi.xcertplay.media.AmbientMusicController.phonePlaybackChanged(next, playing)
@@ -111,6 +117,7 @@ internal object CarPlayMediaKeys {
         controller = null
         GeelyWheelKeys.stop()
         com.shilapi.xcertplay.hud.DesaySmsKeys.stop()
+        com.shilapi.xcertplay.siri.DesayEnhancedSiri.stop() // JAECOO
         releaseLocked()
     }
 

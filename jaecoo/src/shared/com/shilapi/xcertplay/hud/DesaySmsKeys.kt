@@ -21,11 +21,11 @@ import com.desaysv.ivi.vdb.event.id.sms.VDValueKey
  * Jaecoo/Desay steering-wheel keys over VDB SMS.
  *
  * The voice button is not an Android [android.view.KeyEvent]: `com.desaysv.ivi.vds.sms` publishes
- * [VDEventSms.ID_SMS_KEY_EVENT] with `type` / `action`. YaSwitcher and the OEM CarPlay stack
+ * [VDEventSms.ID_SMS_KEY_EVENT] with `type` / `action`. The OEM CarPlay stack and other Desay clients
  * subscribe the same way. This listener mirrors that subscribe and forwards the VR short-click
  * to CarPlay Siri while a session is active.
  *
- * VDB is fan-out — other subscribers (YaSwitcher, iFlytek) still receive the same event.
+ * VDB is fan-out — other subscribers (OEM CarPlay, iFlytek) still receive the same event.
  */
 object DesaySmsKeys {
     private const val TAG = "DiPlay-DesaySms"

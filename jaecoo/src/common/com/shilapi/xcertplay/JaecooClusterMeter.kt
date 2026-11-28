@@ -15,8 +15,8 @@ import android.view.WindowManager
 import com.shilapi.xcertplay.hud.JaecooSettings
 
 /**
- * Desay tells the cluster which map slot is showing. The instrument does not know about CarPlay.
- * YaSwitcher answers that for Yandex by moving the navi window into the well rect.
+ * Desay tells the cluster which map slot is showing. The instrument does not know about CarPlay,
+ * so move the CarPlay frame into the well (or full panel) when those meter broadcasts arrive.
  *
  * Two fits:
  * - **Resize** — shrink the Presentation to the well (optionally grown by scale) and advertise that
@@ -25,7 +25,7 @@ import com.shilapi.xcertplay.hud.JaecooSettings
  *   the well centre. The Presentation window stays fullscreen: WindowManager will not place a
  *   full-size window at x>0 on the cluster display. No reconnect; full screen clears the offset.
  *
- * On a 1920×720 Jaecoo cluster the well is the rect YaSwitcher sends as
+ * On a 1920×720 Jaecoo cluster the well is the rect measured as
  * `show_cluster?x=1300&y=0&width=500&height=620`. Other panel sizes keep that same fraction.
  */
 internal object JaecooClusterMeter {
@@ -87,6 +87,11 @@ internal object JaecooClusterMeter {
             // Always re-apply: CarPlay reconnect / surface churn can drop the content offset
             // while Desay still considers the slot unchanged (no new broadcast).
             presentations.toList().forEach { apply(it) }
+            // Keep the instrument «карта есть» handshake in sync with the Desay slot.
+            com.shilapi.xcertplay.hud.JaecooClusterNaviPresence.onMeterSlot(
+                available = next != Layout.HIDDEN,
+                full = next == Layout.FULL,
+            )
             if (changed) onChange?.invoke()
         }
     }
@@ -97,7 +102,7 @@ internal object JaecooClusterMeter {
         appContext = app
         // Desay only broadcasts when the slot changes. After reconnect / process death the
         // instrument may already be in the well with no new event — restore the last one.
-        // YaSwitcher keeps the same flag in a sticky service; we persist it in prefs instead.
+        // Desay only rebroadcasts on change; persist the last slot in prefs.
         val hadLayout = layout != null
         if (layout == null) restore(app)
         if (!registered) {
@@ -173,10 +178,19 @@ internal object JaecooClusterMeter {
     fun attach(presentation: ClusterMapPresentation) {
         if (presentation !in presentations) presentations.add(presentation)
         apply(presentation)
+        val slot = layout ?: Layout.WELL
+        com.shilapi.xcertplay.hud.JaecooClusterNaviPresence.onMeterSlot(
+            available = slot != Layout.HIDDEN,
+            full = slot == Layout.FULL,
+        )
+        com.shilapi.xcertplay.hud.JaecooClusterNaviPresence.setClusterMapShown(true)
     }
 
     fun detach(presentation: ClusterMapPresentation) {
         presentations.remove(presentation)
+        if (presentations.isEmpty()) {
+            com.shilapi.xcertplay.hud.JaecooClusterNaviPresence.setClusterMapShown(false)
+        }
     }
 
     /** Full cluster map is `map_status == 1` and `map_area == 1`. Anything else still showing is the well. */

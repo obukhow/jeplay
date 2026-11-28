@@ -3,7 +3,7 @@ package com.shilapi.xcertplay.hud
 /**
  * Apple lane angles → Desay CarLan [VDNaviLaneInfo.LaneInfo.LaneIconId].
  *
- * YaSwitcher builds a key `highlight||dir1|dir2|…` (DriveLabs direction names) and looks it up in
+ * Desay builds a key `highlight||dir1|dir2|…` (DriveLabs direction names) and looks it up in
  * the same table Desay ships; 45°/shift variants are collapsed first so they hit that table.
  */
 internal object DesayLaneIcons {
@@ -17,7 +17,7 @@ internal object DesayLaneIcons {
     const val LEFT135 = "LEFT135"
     const val RIGHT135 = "RIGHT135"
 
-    /** Pattern → LaneIconId, mirrored from YaSwitcher `a3.y`. */
+    /** Pattern → LaneIconId, Desay LaneIconId lookup table. */
     private val ICONS = mapOf(
         "||STRAIGHT_AHEAD" to 0,
         "||LEFT90" to 1,
@@ -94,7 +94,7 @@ internal object DesayLaneIcons {
         }
     }
 
-    /** Same collapses YaSwitcher applies before the icon lookup. */
+    /** Same collapses applied before the icon lookup. */
     fun simplify(direction: String): String = when (direction) {
         LEFT45, "LEFT_SHIFT", "LEFT_FROM_RIGHT" -> STRAIGHT
         RIGHT45, "RIGHT_SHIFT", "RIGHT_FROM_LEFT" -> STRAIGHT
@@ -104,7 +104,7 @@ internal object DesayLaneIcons {
     }
 
     /**
-     * YaSwitcher combined glyph id (highlight||dirs → 0..83).
+     * Combined glyph id (highlight||dirs → 0..83).
      * White recommended = highlight prefix present; gray = `||dirs` only (0..12 / fallbacks).
      */
     fun iconId(highlighted: String?, available: Collection<String>): Int {
@@ -122,7 +122,7 @@ internal object DesayLaneIcons {
         return backgroundIconId(available)
     }
 
-    /** Gaode/YaSwitcher background type 0..12 (`||dirs` keys) for Jaecoo LaneIconId. */
+    /** Gaode-style background type 0..12 (`||dirs` keys) for Jaecoo LaneIconId. */
     fun backgroundIconId(available: Collection<String>): Int {
         val sorted = sortedDirs(null, available)
         val key = "||${sorted.joinToString("|")}"
@@ -143,7 +143,7 @@ internal object DesayLaneIcons {
     }
 
     private fun overlap(pattern: String, dirs: List<String>): Int {
-        // YaSwitcher counts how many of *our* dirs appear in the pattern.
+        // Count how many of *our* dirs appear in the pattern.
         val parts = pattern.split('|').filter { it.isNotEmpty() }.toSet()
         return dirs.count { it in parts }
     }

@@ -41,6 +41,8 @@ android {
         main {
             java.srcDirs += '../jaecoo/src/shared'
             kotlin.srcDirs += '../jaecoo/src/shared'
+            // Optional OEM Enhanced Siri .so files (see jaecoo/jni/enhanced-siri/README.md).
+            jniLibs.srcDirs += '../jaecoo/jni/enhanced-siri'
         }
         test {
             java.srcDirs += '../jaecoo/src/sharedTest'

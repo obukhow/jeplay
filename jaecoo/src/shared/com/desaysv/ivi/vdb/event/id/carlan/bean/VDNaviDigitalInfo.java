@@ -7,7 +7,7 @@ import com.desaysv.ivi.vdb.event.VDEvent;
 
 /**
  * Navigation status for cluster/HUD (event 721701).
- * YaSwitcher uses 3 while guiding and 0/4 when idle.
+ * Guiding uses 3; idle / available use 0 / 4.
  */
 public class VDNaviDigitalInfo implements Parcelable {
     public static final String PAYLOAD_KEY = "data";

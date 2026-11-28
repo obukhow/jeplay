@@ -41,7 +41,7 @@ public class VDNaviLaneInfo implements Parcelable {
         private int LaneIconId;
         private int LaneId;
         /**
-         * YaSwitcher: 0 = clear/hide strip slot, 1 = show. White vs gray is in LaneIconId.
+         * 0 = clear/hide strip slot, 1 = show. White vs gray is in LaneIconId.
          */
         private int LaneInfo;
 

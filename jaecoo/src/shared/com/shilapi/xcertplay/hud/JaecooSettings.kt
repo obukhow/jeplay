@@ -13,6 +13,7 @@ object JaecooSettings {
     private const val KEY_CLUSTER_WELL_SHIFT_Y = "cluster_well_shift_y"
     private const val KEY_CLUSTER_WELL_SHIFT_SCALE = "cluster_well_shift_scale"
     private const val KEY_CLUSTER_METER_LAYOUT = "cluster_meter_layout"
+    private const val KEY_ENHANCED_SIRI = "enhanced_siri"
     /**
      * Map scale inside the well. 100 → window equals the 500×620 well; 85 → window =
      * well / 0.85, so the fixed 500×620 hole shows more map without revealing the frame edges.
@@ -128,6 +129,18 @@ object JaecooSettings {
 
     fun setClusterMeterLayout(context: Context, layout: String) {
         prefs(context).edit().putString(KEY_CLUSTER_METER_LAYOUT, layout).commit()
+    }
+
+    /**
+     * Continuous OEM wake-word listening ("Hey Siri" / «Привет, Siri») while CarPlay
+     * is connected, using Desay Enhanced Siri natives + onboard MVW models.
+     * Off by default — experimental; needs RECORD_AUDIO and firmware model files.
+     */
+    fun enhancedSiri(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_ENHANCED_SIRI, false)
+
+    fun setEnhancedSiri(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_ENHANCED_SIRI, enabled).commit()
     }
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
