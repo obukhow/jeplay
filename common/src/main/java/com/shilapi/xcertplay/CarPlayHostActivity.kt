@@ -1321,6 +1321,8 @@ class CarPlayHostActivity : ComponentActivity() {
         }
         if (clusterPresentation != null) {
             syncClusterMusicWindow()
+            // Re-apply well shift after CarPlay reconnect — Desay will not restate the slot.
+            JaecooClusterMeter.relayout(this) // JAECOO
             return
         }
         val display = ClusterMapPresentation.findDisplay(this, theme) ?: run {
@@ -1492,6 +1494,8 @@ class CarPlayHostActivity : ComponentActivity() {
                 ClusterActivityOutput.setStreamActive(false)
                 reconnectAfterLoss("DiLink 4 cluster confirmed; requesting its native stream")
             } else sink?.setSurface(SCREEN_TYPE_ALT, surface)
+            // SurfaceView margins are easy to lose across decoder/surface handoffs.
+            JaecooClusterMeter.relayout(this) // JAECOO
         }
         updateClusterMapShown()
     }
@@ -6607,6 +6611,8 @@ class CarPlayHostActivity : ComponentActivity() {
                         appendLog("Cluster map: CarPlay map is back; taking the cluster again")
                         ensureClusterPresentation()
                     }
+                    // Stream 111 came back; Desay does not re-broadcast well/full — re-apply shift.
+                    JaecooClusterMeter.relayout(this@CarPlayHostActivity) // JAECOO
                 } else {
                     mainHandler.postDelayed(hideIdleCenterMap, CENTER_MAP_IDLE_MILLIS)
                     // A reconnect is quicker. When the iPhone has gone, the car may stop DiPlay soon after,

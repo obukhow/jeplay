@@ -82,10 +82,12 @@ internal object JaecooClusterMeter {
             val closeAll = intent.getBooleanExtra(EXTRA_CLOSE_ALL, false)
             val next = layoutOf(area, status, closeAll)
             Log.i(ClusterMapPresentation.TAG, "meter map_area=$area map_status=$status close_all=$closeAll -> $next")
-            if (next == layout) return
-            layout = next
+            val changed = next != layout
+            if (changed) remember(context.applicationContext, next)
+            // Always re-apply: CarPlay reconnect / surface churn can drop the content offset
+            // while Desay still considers the slot unchanged (no new broadcast).
             presentations.toList().forEach { apply(it) }
-            onChange?.invoke()
+            if (changed) onChange?.invoke()
         }
     }
 
@@ -93,15 +95,37 @@ internal object JaecooClusterMeter {
         this.onChange = onChange
         val app = context.applicationContext
         appContext = app
-        if (registered) return
-        val filter = IntentFilter(ACTION)
-        if (Build.VERSION.SDK_INT >= 33) {
-            app.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
-        } else {
-            @Suppress("UnspecifiedRegisterReceiverFlag")
-            app.registerReceiver(receiver, filter)
+        // Desay only broadcasts when the slot changes. After reconnect / process death the
+        // instrument may already be in the well with no new event — restore the last one.
+        // YaSwitcher keeps the same flag in a sticky service; we persist it in prefs instead.
+        val hadLayout = layout != null
+        if (layout == null) restore(app)
+        if (!registered) {
+            val filter = IntentFilter(ACTION)
+            if (Build.VERSION.SDK_INT >= 33) {
+                app.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+            } else {
+                @Suppress("UnspecifiedRegisterReceiverFlag")
+                app.registerReceiver(receiver, filter)
+            }
+            registered = true
         }
-        registered = true
+        // Re-apply after restore / host re-bind so a surviving Presentation picks up the slot.
+        if (!hadLayout || presentations.isNotEmpty()) {
+            presentations.toList().forEach { apply(it) }
+        }
+    }
+
+    private fun remember(context: Context, next: Layout) {
+        layout = next
+        JaecooSettings.setClusterMeterLayout(context, next.name)
+    }
+
+    private fun restore(context: Context) {
+        val saved = JaecooSettings.clusterMeterLayout(context) ?: return
+        val restored = runCatching { Layout.valueOf(saved) }.getOrNull() ?: return
+        layout = restored
+        Log.i(ClusterMapPresentation.TAG, "restored meter layout=$restored")
     }
 
     fun stop() {
@@ -163,12 +187,13 @@ internal object JaecooClusterMeter {
     }
 
     /**
-     * Off keeps the frame full-screen. On holds it in the well. Auto follows the last cluster event,
-     * and stays full-screen until the first one arrives.
+     * Off keeps the frame full-screen. On holds it in the well. Auto follows the last cluster
+     * event (including one restored after reconnect). Until any event is known, assume the well —
+     * Desay does not re-broadcast the current slot on connect, and Jaecoo nav usually starts there.
      */
     fun shown(mode: Int, reported: Layout?): Layout = when (mode) {
         1 -> if (reported == Layout.HIDDEN) Layout.HIDDEN else Layout.WELL
-        2 -> reported ?: Layout.FULL
+        2 -> reported ?: Layout.WELL
         else -> Layout.FULL
     }
 

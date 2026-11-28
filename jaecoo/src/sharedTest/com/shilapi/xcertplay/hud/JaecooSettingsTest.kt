@@ -53,6 +53,12 @@ class JaecooSettingsTest {
         assertEquals(80, JaecooSettings.clusterWellShiftScale(app))
     }
 
+    @Test fun clusterMeterLayoutPersists() {
+        assertEquals(null, JaecooSettings.clusterMeterLayout(app))
+        JaecooSettings.setClusterMeterLayout(app, "WELL")
+        assertEquals("WELL", JaecooSettings.clusterMeterLayout(app))
+    }
+
     @Test fun compatibleVideoDecodePersists() {
         JaecooSettings.setCompatibleVideoDecode(app, false)
         assertFalse(JaecooSettings.compatibleVideoDecode(app))

@@ -106,11 +106,18 @@ class JaecooClusterMeterTest {
         assertEquals(JaecooClusterMeter.Layout.WELL, JaecooClusterMeter.shown(1, JaecooClusterMeter.Layout.FULL))
         assertEquals(JaecooClusterMeter.Layout.HIDDEN, JaecooClusterMeter.shown(1, JaecooClusterMeter.Layout.HIDDEN))
         assertEquals(JaecooClusterMeter.Layout.WELL, JaecooClusterMeter.shown(2, JaecooClusterMeter.Layout.WELL))
-        assertEquals(JaecooClusterMeter.Layout.FULL, JaecooClusterMeter.shown(2, null))
+        // Unknown slot: prefer well — Desay will not restate the current mode on connect.
+        assertEquals(JaecooClusterMeter.Layout.WELL, JaecooClusterMeter.shown(2, null))
     }
 
     @Test fun shiftProbeIsOffByDefault() {
         assertEquals(false, JaecooClusterMeter.probingWell())
+    }
+
+    @Test fun autoUsesRestoredWellInsteadOfAssumingFullscreen() {
+        // After reconnect Auto must honour the last Desay slot, not default to FULL.
+        assertEquals(JaecooClusterMeter.Layout.WELL, JaecooClusterMeter.shown(2, JaecooClusterMeter.Layout.WELL))
+        assertEquals(JaecooClusterMeter.Layout.FULL, JaecooClusterMeter.shown(2, JaecooClusterMeter.Layout.FULL))
     }
 
     @Test fun fullscreenFillsThePanel() {
